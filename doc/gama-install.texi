@@ -1,0 +1,79 @@
+GNU Gama is developed and tested under Debian GNU/Linux
+(@uref{http://www.debian.org/}).  A static library @code{libgama.lib}
+and executables are build in folders @code{lib} and @code{bin}.
+You can compile Gama easily yourself if you download the
+sources.  If @code{expat} XML parser is installed on your system,
+change to the directory of Gama project and issue the following
+commands at the shell prompt
+
+@example
+$ ./configure
+$ make
+@end example
+
+To run tests from the Gama test suite try
+
+@example
+$ make check
+@end example
+
+@noindent If the script @code{configure} is not available (which is the
+case when you download source codes from a git server), you have to
+generate it using auxiliary script @code{autogen.sh}.  To compile and
+build all binaries. Run
+
+@example
+$ ./configure [--bindir=DIR --infodir=DIR]
+$ make install
+@end example
+
+@noindent if you want also to install the binaries. You can use configure 
+parameters if you need to change directories where user executables
+and info documentation should be installed.
+
+Typically, if you want to download (@pxref{Download}) and compile sources,
+you will run following commands:
+@example
+$ git clone git://git.sv.gnu.org/gama.git gama
+$ cd gama
+$ ./autogen.sh
+$ ./configure
+$ make
+@end example
+You should have @code{expat} XML parser and SQLite library already installed
+on your system.
+For example to be able to compile Gama on Ubuntu 10.04 you have to install
+following packages:
+@example
+make doxygen git automake autoconf libexpat1-dev libsqlite3-dev
+@end example
+
+To compile user documentation in various formats (PDF, HTML, @dots{}) run
+the following commands (before you have to run at least @code{./configure}).
+@example
+$ cd doc/
+$ make download-gendocs.sh
+$ make run-gendocs.sh
+@end example
+The documentation should be in @code{doc/manual} directory.
+To compile API documentation run
+@example
+$ doxygen
+@end example
+in your @code{gama} directory.
+Doxygen output will be in the @code{doxygen} directory.
+
+
+@menu
+* Precompiled binaries for Windows::
+@end menu
+
+@node       Precompiled binaries for Windows
+@subsection Precompiled binaries for Windows
+@cindex     Windows, precompiled binaries 
+
+
+GNU Gama builds for Windows are available from
+
+@center @uref{https://sourceforge.net/projects/gnu-gama-builds/}
+

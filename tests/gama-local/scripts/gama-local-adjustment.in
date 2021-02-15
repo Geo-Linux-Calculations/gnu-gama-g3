@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ ! -d results ]; then
+    mkdir results
+fi;
+
+for g in @INPUT_FILES@
+do
+for a in svd gso cholesky envelope
+do
+    echo  @PACKAGE_VERSION@ $g $a
+    @top_builddir@/bin/gama-local @GAMA_INPUT@/$g.gkf \
+	--algorithm $a \
+	--text results/@PACKAGE_VERSION@-$g-$a.txt \
+	--html results/@PACKAGE_VERSION@-$g-$a.html \
+	--xml  results/@PACKAGE_VERSION@-$g-$a.xml \
+	--svg  results/@PACKAGE_VERSION@-$g-$a.svg
+done
+done

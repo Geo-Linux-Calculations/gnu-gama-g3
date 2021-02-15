@@ -1,0 +1,274 @@
+2014-01-02  Ales Cepek  <cepek@biggy>
+
+	* fixed a bug reported by Gabriel Gyori <gabriel.gyori@fsv.cvut.cz>
+	  in the class LocalNetwork2sql
+
+2013-11-06  Ales Cepek  <cepek@gnu.org>
+
+	* fixed a bug reported by Dirk Falk in azimuth computations
+	  ApproximateCoordinates fialed to solve azimuth-distance
+	  combinatios in some cases
+
+2013-06-06  Ales Cepek  <cepek@gnu.org>
+
+	* Tae Wong <seotaewong40@gmail.com> contributed with thorough
+	revision of accentuation of names in the GNU Gama
+
+2013-05-30  Tomas Kubin <tomas.kubin@fsv.cvut.cz>
+
+	* a posteriori standard deviation Chi-Square test is newly always
+	performed in gama-local. The patch sent by Tomas Kubin.
+
+2012-12-25  Ales Cepek  <cepek@gnu.org>
+
+	* added Chinese translation in GBK encoding (switch "zh")
+	by 项维 (Vim Xiang) <vimxiang@gmail.com>
+
+2012-11-24  Ales Cepek  <cepek@gnu.org>
+
+	* class Gkf2sql (used in gama-local-gkf2sl) updated to be a general
+	export class and renamed to LocalNetword2sql
+
+2012-09-10  Ales Cepek  <cepek@gnu.org>
+
+	* added basic test suite for gama-local (make check)
+
+2012-09-07  Ales Cepek  <cepek@gnu.org>
+
+	* new release 1.13
+
+2012-09-07  Ales Cepek  <cepekgnu.org>
+
+	* removed matvec constructors with variable number of parameters
+	(direct initializaion of Mat / Vec elements).
+
+2012-09-06  Ales Cepek  <cepek@gnu.org>
+
+	* Fixed templates lookup name syntax errors reported by Brandon
+	Invergo <brandon@invergo.net> (detected by compiler g++-4.7).
+	Many thanks for your patch, Brandon.
+
+2012-08-11  Ales Cepek  <cepek@gnu.org>
+
+	* In gama-local suppressed output of running results during
+	linearization iterations
+
+	* added doxygen documentation into statan.h, removed forgotten
+	Czech comments from statan.cpp
+
+2012-08-10  Ales Cepek  <cepek@gnu.org>
+
+	* Fixed a bug reported by Jacques Beilin <jacques.beilin@ensg.eu>
+
+	Function NormalDistribution ended in an endless loop for high
+	values of input argument x.
+
+diff --git a/lib/gnu_gama/statan.cpp b/lib/gnu_gama/statan.cpp
+index 4da4a3b..bc2255c 100644
+--- a/lib/gnu_gama/statan.cpp
++++ b/lib/gnu_gama/statan.cpp
+@@ -21,7 +21,7 @@
+
+ #include <gnu_gama/statan.h>
+ #include <gnu_gama/radian.h>
+-
++#include <cfloat>
+
+ using namespace std;
+
+@@ -211,7 +211,10 @@ void NormalDistribution(double x, double& D, double& f)
+       D = p2/q2;
+       if (!typv)
+          D = 1 - D;
+-      } while ( (r-D) != 0 || (s-D) != 0);
++   } while (std::abs(r - D) > DBL_EPSILON);
++
++   if (s - D) return;
++   if (typv) D = 0; else D = 1;
+ }
+
+ // Kolmogorov-Smirnov probability function
+
+
+2012-07-26  Ales Cepek  <cepek@gnu.org>
+
+	* Fixed a bug reported by Anton Horpynich <anton@vingeo.com>
+
+	The computation of approximate coordinates failed if an angle
+	needed for computing of an intersection was smaller than 0.15
+	radians / 10 gons (implicit testing criterion). Although this is a
+	reasonable limit for standard surveying networks, in a batch
+	computation of approximate coordinates a much smaller value can be
+	sometimes acceptable. It is more or less a matter of personal
+	opinion if this is to be supposed a bug or not.
+
+	Gama newly solves approximate coordinates in two main loops.
+	During the first loop the default value 0.15 in class Acord is
+	used.  If afterwards there are still some coordinates remain
+	missing Gama starts a second loop with series of iterations in
+	which firstly tries to find a solution with the default value
+	then secondly with a very tiny limit of 0.0015 radians.
+
+	In most cases all coordinates are solved in the first loop with
+	the default small angle limit 10 gons.
+
+	............................................
+
+
+2012-07-24  Ales Cepek  <cepek@gnu.org>
+
+	* new release 1.12
+
+2012-05-08  Vaclav Petras  <wenzeslaus@gmail.com>
+
+	* class BaseVisitor and related classes moved to separete file visitor.h
+
+	* local Observation has protected init method and non-parametric constructor
+	Code in local Observation was reorganized and some atributes are not const.
+
+	* local observations are visitable (base is Accept<>)
+			-  class Direction : public Observation
+			+  class Direction : public Accept<Direction, Observation>
+
+	* local observations' write methods moved to WriteVisitor
+
+	* LocalRevision and LocalLinearization are now visitors
+
+	* base classes Revision and Linearization removed from local
+
+	* method observations_summary in LocalNetworkXML uses visitor for counting
+
+	* method observations in LocalNetworkXML uses visitor for writing
+
+	* function OutlyingAbsoluteTerms uses visitor for writing
+
+	* method test_abs_term in LocalNetwork uses visitor for test
+
+	* local Observation set_passive and set_active methods are now non-const
+
+	* function AdjustedObservations uses visitor for writing part of table row
+
+	* function TestLinearization uses visitor for computing and writing
+
+	* function ResidualsObservations uses visitor writing observation name
+
+2012-03-16  Ales Cepek  <cepek@biggy>
+
+	* fixed a bug in the definition of angular observations reported
+	by Anna Kratochvilova <anna.kratochvilova@fsv.cvut.cz> and Vaclav
+	Petras <vaclav.petras@fsv.cvut.cz>
+
+2012-03-05  Ales Cepek  <cepek@gnu.org>
+
+	* updated version of review.hu.lang by Siki Zoltan, some
+	  corrections in the Hungarian translation of GNU Gama
+
+2011-08-22  Ales Cepek  <cepek@gnu.org>
+
+	* two syntax errors reported by Siki Zoltan
+		lib/gnu_gama/g3/g3_write_observation_xml.h
+			@@ -46,7 +46,7 @@ namespace GNU_gama { namespace g3 {
+			   {
+			   private:
+
+			-    mutable std::ostream& out;
+			+    std::ostream& out;
+		lib/gnu_gama/local/local_linearization.h
+			@@ -67,7 +67,7 @@ namespace GNU_gama { namespace local {
+
+			private:
+
+			-      mutable PointData&   PD;
+			+      PointData&           PD;
+
+	The C++ Standard (7.1.1 Declarations, paragraph 8): The mutable
+	specifier can be applied only to names of class data members and
+	cannot be applied to names declared const or static, and cannot be
+	applied to reference members.
+
+
+............................................
+
+
+1.11 2011-08-14  Ales Cepek  <cepek@gnu.org>
+
+	* new release 1.11
+
+2011-08-13  Ales Cepek  <cepek@gnu.org>
+
+	* class ObservationVisitor renamed to BaseVisitor (possible use of
+	abstract base visitor class in acyclic visitor pattern is not
+	limited to observations)
+
+2011-08-11  Ales Cepek  <cepek@gnu.org>
+
+	* added a new intermediate helper template class Accept (in
+	model.h) to unify definiton of accept() method in observational
+	classes in gama-g3. Function accept(ObservationVisitor*) is a pure
+	virtual method defined in the base Observation class.
+
+2011-04-17  Ales Cepek  <cepek@gnu.org>
+
+	* SVD class (matvec/svd.h) selected internal data members and
+	variables declared volatile to suppress g++ optimization
+
+2011-04-12  Ales Cepek  <cepek@gnu.org>
+
+	* added Spanish translation of *.lang files supplied by Jokin
+	Zurutuza <zurutuza@ujaen.es>
+
+	* fixed a minor bug in formatting of adjustment general
+	parameters (general_parameters.h)
+
+2011-03-30  Ales Cepek  <cepek@gnu.org>
+
+	* first draft of string functions Utf8::length() and Utf8::leftPad()
+
+2011-03-18  Vaclav Petras <vaclav.petras@fsv.cvut.cz>
+
+	* added a new class SqliteReader for access to sqlite3 databases for
+          gama-local adjustment program
+
+2011-03-17  Ales Cepek  <cepek@gnu.org>
+
+	* description added as a public atribute to the LocalNetwork class
+
+2011-02-25  Ales Cepek  <cepek@gnu.org>
+
+	* redefined the tree structure of GNU Gama exception classes to
+	have a common base class GNU_gama::Exception::base (derived from
+	std::exceptions). Removed classes GNU_gama::local::Exception,
+	GNU_gama::local::ParserException and
+	GNU_gama::local::MatVecException are only typedefs to
+	GNU_gama::Exception::string, GNU_gama::Exception::parser and
+	GNU_gama::Exception::matvec respectively.
+
+	* added virtual functions clone() and raise() to all exceptions
+
+2010-09-27  Jiri Novak  <jiri.novak@petriny.net>
+
+	* a patch by Jiri Novak for xml/gama-local-schema.sql and Gkf2sql
+          class to be compatible with Oracle XE 10g, PostgreSQL 8.4,
+	  MySQL 5.1.7 (also suggested by Vaclav Petras) and Sqlite3.
+
+2010-09-10  Ales Cepek  <cepek@gnu.org>
+
+	* added a new class Gkf2sql and a new program gama-local-xml2sql
+	* added SQL DB schema xml/gama-local-schema.sql
+
+	Tested with sqlite3 3.7.2 and postgresql 8.4.4-2
+
+2010-08-13  Ales Cepek  <cepek@gnu.org>
+
+	* all calls to typeid() replaced by dynamic_cast<>()
+	* all CVS $Id: comments deleted
+	* directory structure simplified to a single tree
+	* namespace GaMaLib renamed to GNU_gama::local
+	* source codes scattered around directories local/revision/ and
+	  local/linearization/ were joined together into a single file
+	  local/observation_local.cpp
+
+
+#######################################
+#  See ChangeLog.2 for older changes  #
+#######################################

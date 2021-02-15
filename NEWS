@@ -1,0 +1,30 @@
+GNU Gama NEWS - History of user-visible changes.
+
+Version 1.15 February 2014
+
+* DTD replaced with XSD for gama-local.xsd and
+  gama-local-adjustment.xsd. Attribute version describing XML version
+  of input and adjustment outpup XML documents became useles with
+  introduction of XSD a was removed from tags <gama-local> and
+  <gama-local-adjustment>. Some more elements attributes were
+  introduced in revised XML formats which are incompatible with older
+  versions.
+
+Version 1.14 June 2013
+
+* A posteriori standard deviation Chi-Square test is newly always
+  performed (even when gama-local uses a priori reference standard
+  deviation).
+
+* Added Chinese translation in GBK encoding (switch "zh")
+
+* New output format XHTML Strict 1.0 in gama-local
+
+* Added a basic test suite for gama-local (make check).
+
+
+Changes from 1.9.00 to 1.9.01
+-----------------------------
+
+1. new complete build system compatible with GNU policies
+
