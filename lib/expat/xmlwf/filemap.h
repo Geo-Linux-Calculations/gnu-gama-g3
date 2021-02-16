@@ -33,10 +33,10 @@ your version of this file under either the MPL or the GPL.
 
 #ifdef XML_UNICODE
 int filemap(const wchar_t *name,
-	    void (*processor)(const void *, size_t, const wchar_t *, void *arg),
-	    void *arg);
+            void (*processor)(const void *, size_t, const wchar_t *, void *arg),
+            void *arg);
 #else
 int filemap(const char *name,
-	    void (*processor)(const void *, size_t, const char *, void *arg),
-	    void *arg);
+            void (*processor)(const void *, size_t, const char *, void *arg),
+            void *arg);
 #endif

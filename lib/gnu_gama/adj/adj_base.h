@@ -23,14 +23,16 @@
 #define GNU_Gama_gnu_gama_gnugama_GaMa_AdjBase_h
 
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  /** \brief Base adjustment class. */
+/** \brief Base adjustment class. */
 
-  template <typename Float, typename Index, typename Vector>
-  class AdjBase {
+template <typename Float, typename Index, typename Vector>
+class AdjBase
+{
 
-  public:
+public:
 
     virtual ~AdjBase() {}
 
@@ -47,13 +49,19 @@ namespace GNU_gama {
     virtual void min_x()               = 0;   // all x used in regularization
     virtual void min_x(Index, Index[]) = 0;   // subset of x for regularization
 
-    virtual Float cond() { return Float(); }  // 0 if not available
+    virtual Float cond()
+    {
+        return Float();    // 0 if not available
+    }
 
     // weight coefficients for the particular solution (if defined)
 
-    virtual Float q0_xx(Index i, Index j)  { return q_xx(i,j); }
+    virtual Float q0_xx(Index i, Index j)
+    {
+        return q_xx(i,j);
+    }
 
-  };
+};
 
 }
 

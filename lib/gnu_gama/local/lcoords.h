@@ -23,38 +23,43 @@
 #define gama_local____Local_Coordinate_System___h____
 
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-  class LocalCoordinateSystem {
-  public:
+class LocalCoordinateSystem
+{
+public:
 
     enum CS
     {
-                                            // orientation of axes x and y :
-      EN= 1, NW= 2, SE= 4, WS=  8,          //   plane right-handed  systems
-      NE=16, SW=32, ES=64, WN=128,          //   plane left-handed systems
+        // orientation of axes x and y :
+        EN= 1, NW= 2, SE= 4, WS=  8,          //   plane right-handed  systems
+        NE=16, SW=32, ES=64, WN=128,          //   plane left-handed systems
 
-      right_handed = (EN | NW | SE | WS),
-      left_handed  = (NE | SW | ES | WN)
+        right_handed = (EN | NW | SE | WS),
+        left_handed  = (NE | SW | ES | WN)
 
     } local_coordinate_system;
 
     LocalCoordinateSystem(CS cs=NE)
-      : local_coordinate_system(cs)
-      {
-      }
+        : local_coordinate_system(cs)
+    {
+    }
     bool right_handed_coordinates() const
-      {
+    {
         return local_coordinate_system & right_handed;
-      }
+    }
     bool left_handed_coordinates () const
-      {
+    {
         return local_coordinate_system & left_handed;
-      }
+    }
 
-  };
+};
 
-}}   // namespace GNU_gama::local
+}
+}   // namespace GNU_gama::local
 
 
 

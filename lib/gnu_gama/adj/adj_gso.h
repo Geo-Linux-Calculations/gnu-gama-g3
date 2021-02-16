@@ -26,41 +26,55 @@
 #include <gnu_gama/adj/adj_basefull.h>
 #include <cmath>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
 template <typename Float, typename Exc>
-class AdjGSO : public AdjBaseFull<Float, Exc> {
+class AdjGSO : public AdjBaseFull<Float, Exc>
+{
 
 public:
 
-  AdjGSO() {}
-  AdjGSO(const Mat<Float, Exc>& A, const Vec<Float, Exc>& b)
-    : AdjBaseFull<Float, Exc>(A, b) {}
+    AdjGSO() {}
+    AdjGSO(const Mat<Float, Exc>& A, const Vec<Float, Exc>& b)
+        : AdjBaseFull<Float, Exc>(A, b) {}
 
-  void reset(const Mat<Float, Exc>& A,
-             const Vec<Float, Exc>& b)
+    void reset(const Mat<Float, Exc>& A,
+               const Vec<Float, Exc>& b)
     {
-      AdjBaseFull<Float, Exc>::reset(A, b);
+        AdjBaseFull<Float, Exc>::reset(A, b);
     }
 
-  Index defect() { return gso.defect(); }
-  bool  lindep(Index i) { return gso.lindep(i); }
+    Index defect()
+    {
+        return gso.defect();
+    }
+    bool  lindep(Index i)
+    {
+        return gso.lindep(i);
+    }
 
-  Float q_xx(Index i, Index j);
-  Float q_bb(Index i, Index j);
-  Float q_bx(Index i, Index j);
+    Float q_xx(Index i, Index j);
+    Float q_bb(Index i, Index j);
+    Float q_bx(Index i, Index j);
 
-  void min_x() { gso.min_x(); }
-  void min_x(Index n, Index x[]) { gso.min_x(n, x); }
+    void min_x()
+    {
+        gso.min_x();
+    }
+    void min_x(Index n, Index x[])
+    {
+        gso.min_x(n, x);
+    }
 
-  void solve();
+    void solve();
 
 private:
 
-   Mat<Float, Exc> A_;
-   GSO<Float, Exc> gso;
+    Mat<Float, Exc> A_;
+    GSO<Float, Exc> gso;
 
-   void init_gso_();
+    void init_gso_();
 };
 
 // ...................................................................
@@ -69,45 +83,45 @@ private:
 template <typename Float, typename Exc>
 void AdjGSO<Float, Exc>::solve()
 {
-  if (this->is_solved) return;
+    if (this->is_solved) return;
 
-  const Index M = this->pA->rows();
-  const Index N = this->pA->cols();
+    const Index M = this->pA->rows();
+    const Index N = this->pA->cols();
 
-  A_.reset(M+N, N+1);
+    A_.reset(M+N, N+1);
 
-  const Mat<Float, Exc>& A1 = *this->pA;
-  const Vec<Float, Exc>& b1 = *this->pb;
+    const Mat<Float, Exc>& A1 = *this->pA;
+    const Vec<Float, Exc>& b1 = *this->pb;
 
-  for (Index i=1; i<=M; i++)
+    for (Index i=1; i<=M; i++)
     {
-      A_(i, N+1) = -b1(i);
-      for (Index j=1; j<=N; j++) A_(i, j) = A1(i, j);
+        A_(i, N+1) = -b1(i);
+        for (Index j=1; j<=N; j++) A_(i, j) = A1(i, j);
     }
 
-  for (Index i=1; i<=N; i++)
-    for (Index j=1; j<=N+1; j++)
-      A_(M+i, j) = (i==j) ? 1 : 0;
+    for (Index i=1; i<=N; i++)
+        for (Index j=1; j<=N+1; j++)
+            A_(M+i, j) = (i==j) ? 1 : 0;
 
-  gso.reset(A_, M, N);
-  gso.gso1();
-  gso.gso2();
+    gso.reset(A_, M, N);
+    gso.gso1();
+    gso.gso2();
 
-  this->x.reset(N);
-  for (Index i=1; i<=N; i++)
-    this->x(i) = A_(M+i, N+1);
+    this->x.reset(N);
+    for (Index i=1; i<=N; i++)
+        this->x(i) = A_(M+i, N+1);
 
-  this->r.reset(M);
-  for (Index j=1; j<=M; j++)
-    this->r(j) = A_(j, N+1);
+    this->r.reset(M);
+    for (Index j=1; j<=M; j++)
+        this->r(j) = A_(j, N+1);
 
-  this->is_solved = true;
+    this->is_solved = true;
 }
 
 
 template <typename Float, typename Exc>
 Float AdjGSO<Float, Exc>::q_xx(Index i, Index j)
-  {
+{
     if(!this->is_solved) solve();
     const Index M = this->pA->rows();
     const Index N = this->pA->cols();
@@ -115,27 +129,27 @@ Float AdjGSO<Float, Exc>::q_xx(Index i, Index j)
     j += M;
     Float s = 0;
     for (Index k=1; k<=N; k++)
-      s += A_(i,k)*A_(j,k);              // cov x_i x_j
+        s += A_(i,k)*A_(j,k);              // cov x_i x_j
     return s;
-  }
+}
 
 
 template <typename Float, typename Exc>
 Float AdjGSO<Float, Exc>::q_bb(Index i, Index j)
-  {
+{
     if(!this->is_solved) solve();
 
     const Index N = this->pA->cols();
     Float s = 0;
     for (Index k=1; k<=N; k++)
-      s += A_(i,k)*A_(j,k);              // cov b_i b_j
+        s += A_(i,k)*A_(j,k);              // cov b_i b_j
     return s;
-  }
+}
 
 
 template <typename Float, typename Exc>
 Float AdjGSO<Float, Exc>::q_bx(Index i, Index j)
-  {
+{
     if(!this->is_solved) solve();
 
     const Index M = this->pA->rows();
@@ -143,9 +157,9 @@ Float AdjGSO<Float, Exc>::q_bx(Index i, Index j)
     j += M;
     Float s = 0;
     for (Index k=1; k<=N; k++)
-      s += A_(i,k)*A_(j,k);              // cov b_i x_j
+        s += A_(i,k)*A_(j,k);              // cov b_i x_j
     return s;
-  }
+}
 
 
 }   // GNU_gama

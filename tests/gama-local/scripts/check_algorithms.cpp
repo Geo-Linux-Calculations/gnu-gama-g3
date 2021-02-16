@@ -38,53 +38,57 @@ double condnum;
 
 int main(int argc, char* argv[])
 {
-  if (argc != 4) return 1;
+    if (argc != 4) return 1;
 
-  version   = std::string(argv[1]);
-  netconfig = std::string(argv[2]);
-  netfile   = argv[3];
+    version   = std::string(argv[1]);
+    netconfig = std::string(argv[2]);
+    netfile   = argv[3];
 
-  std::ifstream inp(argv[3]);
-  if (!inp)
+    std::ifstream inp(argv[3]);
+    if (!inp)
     {
-      std::cout << "   ####  ERROR ON OPENING FILE " << argv[3] << "\n";
-      return 1;
+        std::cout << "   ####  ERROR ON OPENING FILE " << argv[3] << "\n";
+        return 1;
     }
 
-  double maxdiff;
-  bool failed = false;
-  algname.push_back(" svd ");   algorithm.push_back(getNet(alg_svd,  argv[3]));
-  algname.push_back(" gso ");   algorithm.push_back(getNet(alg_gso,  argv[3]));
-  algname.push_back(" chol");   algorithm.push_back(getNet(alg_chol, argv[3]));
-  algname.push_back(" env ");   algorithm.push_back(getNet(alg_env,  argv[3]));
+    double maxdiff;
+    bool failed = false;
+    algname.push_back(" svd ");
+    algorithm.push_back(getNet(alg_svd,  argv[3]));
+    algname.push_back(" gso ");
+    algorithm.push_back(getNet(alg_gso,  argv[3]));
+    algname.push_back(" chol");
+    algorithm.push_back(getNet(alg_chol, argv[3]));
+    algname.push_back(" env ");
+    algorithm.push_back(getNet(alg_env,  argv[3]));
 
-  condnum = algorithm[0]->cond();
+    condnum = algorithm[0]->cond();
 
-  for (int i=0; i<algname.size(); i++)
-    for (int j=i+1; j<algname.size(); j++)
-      {
-        std::cout << "cond.n "
-                  << std::scientific << std::setprecision(2)
-                  << condnum;
+    for (int i=0; i<algname.size(); i++)
+        for (int j=i+1; j<algname.size(); j++)
+        {
+            std::cout << "cond.n "
+                      << std::scientific << std::setprecision(2)
+                      << condnum;
 
-        maxdiff = xyzMaxDiff(algorithm[i],algorithm[j]);
-        bool ok = std::abs(maxdiff) < 1e-5;
+            maxdiff = xyzMaxDiff(algorithm[i],algorithm[j]);
+            bool ok = std::abs(maxdiff) < 1e-5;
 
-        std::cout << "  max.diff"
-                  << std::scientific << std::setprecision(3) << std::setw(11)
-                  << maxdiff << " [m] "
-                  << algname[i] << algname[j] << "  " << netconfig;
+            std::cout << "  max.diff"
+                      << std::scientific << std::setprecision(3) << std::setw(11)
+                      << maxdiff << " [m] "
+                      << algname[i] << algname[j] << "  " << netconfig;
 
-        if (ok)
-          {
-            std::cout << "\n";
-          }
-        else
-          {
-            failed = true;
-            std::cout << "  !!!\n";
-          }
-      }
+            if (ok)
+            {
+                std::cout << "\n";
+            }
+            else
+            {
+                failed = true;
+                std::cout << "  !!!\n";
+            }
+        }
 
-  if (failed) return 1;
+    if (failed) return 1;
 }

@@ -27,101 +27,107 @@
 #include <gnu_gama/local/pobs/format.h>
 #include <gnu_gama/utf8.h>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 template <typename OutStream>
 void FixedPoints(GNU_gama::local::LocalNetwork* IS, OutStream& out)
 {
-  using namespace std;
-  using namespace GNU_gama::local;
+    using namespace std;
+    using namespace GNU_gama::local;
 
-  const int y_sign = GaMaConsistent(IS->PD) ? +1 : -1;
+    const int y_sign = GaMaConsistent(IS->PD) ? +1 : -1;
 
-  int pocpevb=0, pocpevv=0;
-  {   // for ...
-    for (PointData::iterator i=IS->PD.begin(); i!=IS->PD.end(); ++i)
-      {
-        if ((*i).second.fixed_xy())  pocpevb++;
-        if ((*i).second.fixed_z()) pocpevv++;
-      }
-  }   // for ...
-  if (pocpevb == 0 && pocpevv == 0) return;
-
-  out << T_GaMa_Review_of_fixed_points << "\n"
-      << underline(T_GaMa_Review_of_fixed_points, '*') << "\n\n";
-
-
-  out.width(IS->maxw_id());
-  out << T_GaMa_point;
-  int table=0;
-  if (pocpevb)
+    int pocpevb=0, pocpevv=0;
     {
-      out.width(13);
-      out << "x   ";
-      out.width(13+2);
-      out << "y   ";
-      table += 2*13 + 2;
-    }
-  if (pocpevv)
-    {
-      if (pocpevb)
+        // for ...
+        for (PointData::iterator i=IS->PD.begin(); i!=IS->PD.end(); ++i)
         {
-          out << "  ";
-          table += 2;
+            if ((*i).second.fixed_xy())  pocpevb++;
+            if ((*i).second.fixed_z()) pocpevv++;
         }
-      out.width(13);
-      out << "z   ";
-      table += 13;
+    }   // for ...
+    if (pocpevb == 0 && pocpevv == 0) return;
+
+    out << T_GaMa_Review_of_fixed_points << "\n"
+        << underline(T_GaMa_Review_of_fixed_points, '*') << "\n\n";
+
+
+    out.width(IS->maxw_id());
+    out << T_GaMa_point;
+    int table=0;
+    if (pocpevb)
+    {
+        out.width(13);
+        out << "x   ";
+        out.width(13+2);
+        out << "y   ";
+        table += 2*13 + 2;
     }
-  out << '\n';
-  {
-    for (int i=0; i<IS->maxw_id()+table; i++) out << '=';
-  }
-  out << "\n\n";
-
-  {   // for ...
-    for (PointData::iterator i=IS->PD.begin(); i!=IS->PD.end(); ++i)
-      {
-        if ((*i).second.fixed_xy() || (*i).second.fixed_z())
-          {
-            // out.width(IS->maxw_id());
-            // out << ((*i).first).c_str();
-	    out << Utf8::leftPad(i->first.str(), IS->maxw_id());
-          }
-        if ((*i).second.fixed_xy())
-          {
-            out.precision(3);
-            out.width(13);
-            out << (*i).second.x();
+    if (pocpevv)
+    {
+        if (pocpevb)
+        {
             out << "  ";
-            out.width(13);
-            out << (*i).second.y()*y_sign;
-          }
-        if ((*i).second.fixed_z())
-          {
-            if (pocpevb && !(*i).second.fixed_xy())
-              {
-                out.width(2*13+2);
-                out << " ";
-              }
-            out.precision(3);
-            if (pocpevb)  out << "  ";
-            out.width(13);
-            out << (*i).second.z();
-          }
-        if ((*i).second.fixed_xy() || (*i).second.fixed_z())
-          {
-            out << "\n";
-            out.flush();
-          }
-      }
-  }   // for ...
+            table += 2;
+        }
+        out.width(13);
+        out << "z   ";
+        table += 13;
+    }
+    out << '\n';
+    {
+        for (int i=0; i<IS->maxw_id()+table; i++) out << '=';
+    }
+    out << "\n\n";
 
-  out << "\n\n";
-  out.flush();
+    {
+        // for ...
+        for (PointData::iterator i=IS->PD.begin(); i!=IS->PD.end(); ++i)
+        {
+            if ((*i).second.fixed_xy() || (*i).second.fixed_z())
+            {
+                // out.width(IS->maxw_id());
+                // out << ((*i).first).c_str();
+                out << Utf8::leftPad(i->first.str(), IS->maxw_id());
+            }
+            if ((*i).second.fixed_xy())
+            {
+                out.precision(3);
+                out.width(13);
+                out << (*i).second.x();
+                out << "  ";
+                out.width(13);
+                out << (*i).second.y()*y_sign;
+            }
+            if ((*i).second.fixed_z())
+            {
+                if (pocpevb && !(*i).second.fixed_xy())
+                {
+                    out.width(2*13+2);
+                    out << " ";
+                }
+                out.precision(3);
+                if (pocpevb)  out << "  ";
+                out.width(13);
+                out << (*i).second.z();
+            }
+            if ((*i).second.fixed_xy() || (*i).second.fixed_z())
+            {
+                out << "\n";
+                out.flush();
+            }
+        }
+    }   // for ...
+
+    out << "\n\n";
+    out.flush();
 }
 
-}}
+}
+}
 
 #endif
 

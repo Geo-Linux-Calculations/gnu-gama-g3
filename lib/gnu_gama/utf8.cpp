@@ -33,50 +33,50 @@
 
 std::size_t GNU_gama::Utf8::length(std::string s)
 {
-  const unsigned char bits7  = 0X80;
-  const unsigned char bits11 = 0X20;
-  const unsigned char bits16 = 0X10;
-  const unsigned char bits21 = 0X08;
+    const unsigned char bits7  = 0X80;
+    const unsigned char bits11 = 0X20;
+    const unsigned char bits16 = 0X10;
+    const unsigned char bits21 = 0X08;
 
-  int N = 0;
-  for (std::size_t i=0; i<s.length(); )
+    int N = 0;
+    for (std::size_t i=0; i<s.length(); )
     {
-      const unsigned char c = static_cast<unsigned char>(s[i]);
+        const unsigned char c = static_cast<unsigned char>(s[i]);
 
-      int bytes = 1;
-      if      ((c &  bits7) == 0 ) bytes = 1;
-      else if ((c & bits11) == 0 ) bytes = 2;
-      else if ((c & bits16) == 0 ) bytes = 3;
-      else if ((c & bits21) == 0 ) bytes = 4;
+        int bytes = 1;
+        if      ((c &  bits7) == 0 ) bytes = 1;
+        else if ((c & bits11) == 0 ) bytes = 2;
+        else if ((c & bits16) == 0 ) bytes = 3;
+        else if ((c & bits21) == 0 ) bytes = 4;
 
-      i += bytes;
-      N++;
-   }
+        i += bytes;
+        N++;
+    }
 
-  return N;
+    return N;
 }
 
 
 std::string GNU_gama::Utf8::leftPad(std::string s, std::size_t N, char p)
 {
-  std::string t;
-  std::size_t n = length(s);
-  while (n++ < N)
+    std::string t;
+    std::size_t n = length(s);
+    while (n++ < N)
     {
-      t += p;
+        t += p;
     }
-  t += s;
-  return t;
+    t += s;
+    return t;
 }
 
 
 std::string GNU_gama::Utf8::rightPad(std::string s, std::size_t N, char p)
 {
-  std::string t = s;
-  std::size_t n = length(s);
-  while (n++ < N)
+    std::string t = s;
+    std::size_t n = length(s);
+    while (n++ < N)
     {
-      t += p;
+        t += p;
     }
-  return t;
+    return t;
 }

@@ -30,14 +30,14 @@
 
 namespace GNU_gama
 {
-  class LocalNetworkXML
-  {
-  public:
+class LocalNetworkXML
+{
+public:
 
     LocalNetworkXML(GNU_gama::local::LocalNetwork* ln) : netinfo(ln) {}
     void write(std::ostream&) const;
 
-  private:
+private:
 
     GNU_gama::local::LocalNetwork* netinfo;
 
@@ -51,7 +51,7 @@ namespace GNU_gama
     void std_dev_summary(std::ostream&) const;
     template <typename T> void tagnl(std::ostream&, const char*, T) const;
     template <typename T> void tagsp(std::ostream&, const char*, T) const;
-  };
+};
 }
 
 #endif

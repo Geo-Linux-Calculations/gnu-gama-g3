@@ -22,14 +22,25 @@
 #ifndef GNU_gama__gnu_gama_local____ellipsoid_H___________ELLIPSOID_H________
 #define GNU_gama__gnu_gama_local____ellipsoid_H___________ELLIPSOID_H________
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  class Ellipsoid {
-  public:
+class Ellipsoid
+{
+public:
 
-    double a() const { return A;  }
-    double b() const { return B;  }
-    double f() const { return ff; }
+    double a() const
+    {
+        return A;
+    }
+    double b() const
+    {
+        return B;
+    }
+    double f() const
+    {
+        return ff;
+    }
 
     double M(double b) const;
     double N(double b) const;
@@ -40,19 +51,28 @@ namespace GNU_gama {
     void blh2xyz(double, double, double, double&, double&, double&) const;
     void xyz2blh(double, double, double, double&, double&, double&) const;
 
-    void set_ab (double pa, double pb) { set_abff1( pa, pb,  0,  0); }
-    void set_af (double pa, double pf) { set_abff1( pa,  0, pf,  0); }
-    void set_af1(double pa, double pf) { set_abff1( pa,  0,  0, pf); }
+    void set_ab (double pa, double pb)
+    {
+        set_abff1( pa, pb,  0,  0);
+    }
+    void set_af (double pa, double pf)
+    {
+        set_abff1( pa,  0, pf,  0);
+    }
+    void set_af1(double pa, double pf)
+    {
+        set_abff1( pa,  0,  0, pf);
+    }
 
     int id;
 
-  private:
+private:
 
     double A, B, ff, n, e2, e22;
     double Ime2, Ipe22, AIme2, AB;
 
     void set_abff1(double, double, double, double);
-  };
+};
 
 }   // namespace GNU_gama
 

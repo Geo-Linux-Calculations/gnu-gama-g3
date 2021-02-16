@@ -27,46 +27,50 @@
 #include <gnu_gama/local/gamadata.h>
 #include <gnu_gama/local/language.h>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 inline Double bearing(Double ya, Double xa, Double yb, Double xb)
 {
-   using namespace std;
-   const Double dy = yb - ya;
-   const Double dx = xb - xa;
-   if (dy == 0 && dx == 0)
-      throw
+    using namespace std;
+    const Double dy = yb - ya;
+    const Double dx = xb - xa;
+    if (dy == 0 && dx == 0)
+        throw
         GNU_gama::local::Exception(T_POBS_computation_of_bearing_for_identical_points);
-   const Double s  = atan2( dy , dx );
-   return s >= 0 ? s : s + 2*M_PI;
+    const Double s  = atan2( dy , dx );
+    return s >= 0 ? s : s + 2*M_PI;
 }
 
 
 inline Double bearing(const LocalPoint& a, const LocalPoint& b)
 {
-   return bearing(a.y(), a.x(), b.y(), b.x());
+    return bearing(a.y(), a.x(), b.y(), b.x());
 }
 
 inline void bearing_distance(Double ya, Double xa, Double yb, Double xb,
                              Double& br, Double& d)
 {
-   using namespace std;
-   const Double dy = yb - ya;
-   const Double dx = xb - xa;
-   if (dy == 0 && dx == 0)
-      throw
+    using namespace std;
+    const Double dy = yb - ya;
+    const Double dx = xb - xa;
+    if (dy == 0 && dx == 0)
+        throw
         GNU_gama::local::Exception(T_POBS_computation_of_bearing_for_identical_points);
-   const Double s  = atan2( dy , dx );
-   br = s >= 0 ? s : s + 2*M_PI;
-   d  = sqrt(dy*dy + dx*dx);
+    const Double s  = atan2( dy , dx );
+    br = s >= 0 ? s : s + 2*M_PI;
+    d  = sqrt(dy*dy + dx*dx);
 }
 
 inline void bearing_distance(const LocalPoint& a, const LocalPoint& b,
                              Double& br, Double& d)
 {
-   bearing_distance(a.y(), a.x(), b.y(), b.x(), br, d);
+    bearing_distance(a.y(), a.x(), b.y(), b.x(), br, d);
 }
 
-}}   // namespace GNU_gama::local
+}
+}   // namespace GNU_gama::local
 
 #endif

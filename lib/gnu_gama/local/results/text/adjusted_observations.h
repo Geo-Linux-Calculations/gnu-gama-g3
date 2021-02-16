@@ -36,7 +36,10 @@
 #include <gnu_gama/local/results/text/underline.h>
 #include <gnu_gama/utf8.h>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 
 /** \brief Writes part of row in table 'Adjusted observations'.
@@ -77,7 +80,10 @@ public:
     {}
 
     /** \brief Sets index of observation which will be used in the next visit. */
-    void setObservationIndex(GNU_gama::Index index) { i = index; }
+    void setObservationIndex(GNU_gama::Index index)
+    {
+        i = index;
+    }
 
     void visit(Distance* obs)
     {
@@ -270,111 +276,115 @@ public:
 template <typename OutStream>
 void AdjustedObservations(GNU_gama::local::LocalNetwork* IS, OutStream& out)
 {
-   using namespace std;
-   using namespace GNU_gama::local;
-   // using GNU_gama::local::Double;
+    using namespace std;
+    using namespace GNU_gama::local;
+    // using GNU_gama::local::Double;
 
-   const int    y_sign = GaMaConsistent(IS->PD) ? +1 : -1;
-   const Vec&   v      = IS->residuals();
-   const int    pocmer = IS->sum_observations();
-   const double scale  = IS->gons() ? 1.0 : 0.324;
+    const int    y_sign = GaMaConsistent(IS->PD) ? +1 : -1;
+    const Vec&   v      = IS->residuals();
+    const int    pocmer = IS->sum_observations();
+    const double scale  = IS->gons() ? 1.0 : 0.324;
 
-   out << T_GaMa_adjobs_Adjusted_observations << "\n"
-       << underline(T_GaMa_adjobs_Adjusted_observations, '*') << "\n\n";
+    out << T_GaMa_adjobs_Adjusted_observations << "\n"
+        << underline(T_GaMa_adjobs_Adjusted_observations, '*') << "\n\n";
 
-   int minval = 12;
-   int maxval = minval;   // maximal value field width (coordinates!)
-   {
-     for (int i=1; i<=pocmer; i++)
-       {
-         const Observation* pm = IS->ptr_obs(i);
-         int z = 0;
-         double d = pm->value();
-         if (d < 0)
-           {
-             z = 1;
-             d = -d;
-           }
-         if (d < 1e5) continue;
-         z += 6;   // ... decimal point plus 5 digits
-         do {
-           z++;
-           d /= 10;
-         } while (d >= 1);
-         if (z > maxval) maxval = z;
-       }
-   }
+    int minval = 12;
+    int maxval = minval;   // maximal value field width (coordinates!)
+    {
+        for (int i=1; i<=pocmer; i++)
+        {
+            const Observation* pm = IS->ptr_obs(i);
+            int z = 0;
+            double d = pm->value();
+            if (d < 0)
+            {
+                z = 1;
+                d = -d;
+            }
+            if (d < 1e5) continue;
+            z += 6;   // ... decimal point plus 5 digits
+            do
+            {
+                z++;
+                d /= 10;
+            }
+            while (d >= 1);
+            if (z > maxval) maxval = z;
+        }
+    }
 
-   Double kki = IS->conf_int_coef();
-   out.width(IS->maxw_obs());
-   out << "i" << " ";
-   out.width(IS->maxw_id());
-   out << T_GaMa_standpoint << " ";
-   out.width(IS->maxw_id());
-   out << T_GaMa_target << "       ";
-   out.width(maxval);
-   out << T_GaMa_adjobs_observed << " ";
-   out.width(maxval);
-   out << T_GaMa_adjobs_adjusted << T_GaMa_adjobs_header1;
-   {   // for ...
-     int kk = 13 + maxval-minval;
-     for (int i=0; i < (IS->maxw_obs()+2*(IS->maxw_id())+kk); i++) out << "=";
-   }   // for ...
-   out << T_GaMa_adjobs_value;
-   {
-     for (int i=minval; i<maxval; i++) out << "=";
-   }
-   if (IS->gons())
-     out << "==== [m|g] ====== [mm|cc] ==\n\n";
-   else
-     out << "==== [m|d] ====== [mm|ss] ==\n\n";
-   out.flush();
+    Double kki = IS->conf_int_coef();
+    out.width(IS->maxw_obs());
+    out << "i" << " ";
+    out.width(IS->maxw_id());
+    out << T_GaMa_standpoint << " ";
+    out.width(IS->maxw_id());
+    out << T_GaMa_target << "       ";
+    out.width(maxval);
+    out << T_GaMa_adjobs_observed << " ";
+    out.width(maxval);
+    out << T_GaMa_adjobs_adjusted << T_GaMa_adjobs_header1;
+    {
+        // for ...
+        int kk = 13 + maxval-minval;
+        for (int i=0; i < (IS->maxw_obs()+2*(IS->maxw_id())+kk); i++) out << "=";
+    }   // for ...
+    out << T_GaMa_adjobs_value;
+    {
+        for (int i=minval; i<maxval; i++) out << "=";
+    }
+    if (IS->gons())
+        out << "==== [m|g] ====== [mm|cc] ==\n\n";
+    else
+        out << "==== [m|d] ====== [mm|ss] ==\n\n";
+    out.flush();
 
-   AdjustedObservationsTextVisitor<OutStream> textVisitor(IS, out, v, y_sign, maxval);
+    AdjustedObservationsTextVisitor<OutStream> textVisitor(IS, out, v, y_sign, maxval);
 
-   PointID predcs = "";   // provious standpoint ID
-   for (int i=1; i<=pocmer; i++)
-   {
-      Observation* pm = IS->ptr_obs(i);
-      out.width(IS->maxw_obs());
-      out << i << " ";
-      PointID cs = pm->from();
-      out.width(IS->maxw_id());
-      if (cs != predcs)
-         out << Utf8::leftPad(cs.str(), IS->maxw_id());
-      else
-         out << " ";
-      out << " ";
-      PointID cc = pm->to();
-      out << Utf8::leftPad(cc.str(), IS->maxw_id());
-      out.setf(ios_base::fixed, ios_base::floatfield);
+    PointID predcs = "";   // provious standpoint ID
+    for (int i=1; i<=pocmer; i++)
+    {
+        Observation* pm = IS->ptr_obs(i);
+        out.width(IS->maxw_obs());
+        out << i << " ";
+        PointID cs = pm->from();
+        out.width(IS->maxw_id());
+        if (cs != predcs)
+            out << Utf8::leftPad(cs.str(), IS->maxw_id());
+        else
+            out << " ";
+        out << " ";
+        PointID cc = pm->to();
+        out << Utf8::leftPad(cc.str(), IS->maxw_id());
+        out.setf(ios_base::fixed, ios_base::floatfield);
 
-      textVisitor.setObservationIndex(i);
-      pm->accept(&textVisitor);
+        textVisitor.setObservationIndex(i);
+        pm->accept(&textVisitor);
 
-      out.precision(1);
-      out.width(7);
-      Double ml = IS->stdev_obs(i);
-      if (dynamic_cast<Direction*>(pm))
-        ml *= scale;
-      else if (dynamic_cast<Angle*>(pm))
-        ml *= scale;
-      else if (dynamic_cast<Z_Angle*>(pm))
-        ml *= scale;
+        out.precision(1);
+        out.width(7);
+        Double ml = IS->stdev_obs(i);
+        if (dynamic_cast<Direction*>(pm))
+            ml *= scale;
+        else if (dynamic_cast<Angle*>(pm))
+            ml *= scale;
+        else if (dynamic_cast<Z_Angle*>(pm))
+            ml *= scale;
 
-      out << ml << " ";
-      out.width(7);
-      out << ml*kki;
+        out << ml << " ";
+        out.width(7);
+        out << ml*kki;
 
-      out << '\n';
-      out.flush();
+        out << '\n';
+        out.flush();
 
-      predcs = cs;  // previous standpoint ID
-   }
-   out << "\n\n";
-   out.flush();
+        predcs = cs;  // previous standpoint ID
+    }
+    out << "\n\n";
+    out.flush();
 }
 
-}}
+}
+}
 
 #endif

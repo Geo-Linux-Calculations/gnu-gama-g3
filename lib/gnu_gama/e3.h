@@ -24,9 +24,11 @@
 
 #include <iostream>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  struct E_3 {
+struct E_3
+{
 
     double e1, e2, e3;
 
@@ -44,13 +46,14 @@ namespace GNU_gama {
     void   cross(const E_3&, const E_3&);
     double dot  (const E_3&) const;
 
-  };
+};
 
-  double angle(const E_3&, const E_3&);
+double angle(const E_3&, const E_3&);
 
 
 
-  struct R_3 {    // rotation matrix 3x3
+struct R_3      // rotation matrix 3x3
+{
 
     double  r11, r12, r13;
     double  r21, r22, r23;
@@ -61,7 +64,7 @@ namespace GNU_gama {
     void rotation(const E_3&, E_3&) const;     // dif_NEU --> dif_XYZ
     void inverse (const E_3&, E_3&) const;     // dif_XYZ --> dif_NEU
 
-  };
+};
 
 }
 

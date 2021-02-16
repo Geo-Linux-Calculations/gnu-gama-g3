@@ -23,33 +23,37 @@
 #include <gnu_gama/local/results/text/underline.h>
 #include <gnu_gama/xml/encoding.h>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 std::string underline(std::string text, char c)
 {
-  int i;
-  std::string s;
-  unsigned char* p = (unsigned char*)text.c_str();
-  while (*p)
+    int i;
+    std::string s;
+    unsigned char* p = (unsigned char*)text.c_str();
+    while (*p)
     {
-      p += GNU_gama::Utf8Decode(i, p);
-      s += c;
+        p += GNU_gama::Utf8Decode(i, p);
+        s += c;
     }
-  return s;
+    return s;
 }
 
 std::string set_width(std::string s, int n)
 {
-  int N=0, i;
-  unsigned char* p = (unsigned char*)s.c_str();
-  while (*p)
+    int N=0, i;
+    unsigned char* p = (unsigned char*)s.c_str();
+    while (*p)
     {
-      p += GNU_gama::Utf8Decode(i, p);
-      N++;
+        p += GNU_gama::Utf8Decode(i, p);
+        N++;
     }
-  std::string t(s);
-  while (n-- > N) t += ' ';
-  return t;
+    std::string t(s);
+    while (n-- > N) t += ' ';
+    return t;
 }
 
-}}
+}
+}

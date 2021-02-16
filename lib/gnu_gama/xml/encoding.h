@@ -26,7 +26,8 @@
 
 
 #ifdef __cplusplus
-namespace GNU_gama {
+namespace GNU_gama
+{
 #endif
 
 int   cp1250_unicode(int* tab);
@@ -39,7 +40,7 @@ char* utf8_iso_8859_2(char *buf);
 char* utf8_ascii(char *buf);
 int   Utf8Decode(int& u, unsigned char *buf);
 int   UnknownEncodingHandler(void *userData, const char *name,
-                           XML_Encoding *info);
+                             XML_Encoding *info);
 
 #ifdef __cplusplus
 }  // namespace GNU_gama

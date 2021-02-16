@@ -28,7 +28,8 @@
  * \author Ales Cepek
  */
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
 /** \brief For the given probability and number of degrees of fredom
  * computes critical value of Student's distribution
@@ -76,27 +77,27 @@ template <typename Float, typename FloatF, typename FloatD, typename FloatP>
 void KStest(Float Data[], int n, FloatF (*Func)(FloatF),
             FloatD& ks, FloatP& prob)
 {
-   using namespace std;
+    using namespace std;
 
-   sort(Data, Data+n);
+    sort(Data, Data+n);
 
-   const float  float_n = n;
-   float Fa = 0, Fb, Fi, dl, du, dt;
-   float d = 0;
-   for (int i=0; i<n;)
-   {
-      Fi = Func(Data[i]);
-      Fb = ++i/float_n;
-      dl = fabs(Fa - Fi);
-      du = fabs(Fb - Fi);
-      dt = dl > du ? dl : du;
-      Fa = Fb;
-      if (dt > d) d = dt;
-   }
+    const float  float_n = n;
+    float Fa = 0, Fb, Fi, dl, du, dt;
+    float d = 0;
+    for (int i=0; i<n;)
+    {
+        Fi = Func(Data[i]);
+        Fb = ++i/float_n;
+        dl = fabs(Fa - Fi);
+        du = fabs(Fb - Fi);
+        dt = dl > du ? dl : du;
+        Fa = Fb;
+        if (dt > d) d = dt;
+    }
 
-   const float sn = sqrt(float_n);
-   prob = KSprob((sn + 0.12 + 0.11/sn)*d);
-   ks = d;
+    const float sn = sqrt(float_n);
+    prob = KSprob((sn + 0.12 + 0.11/sn)*d);
+    ks = d;
 }
 
 /** \brief For the given probability and degrees of freedom computes

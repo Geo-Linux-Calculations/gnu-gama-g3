@@ -26,15 +26,16 @@
 #include <matvec/vecbase.h>
 
 
-namespace GNU_gama {   /** \brief Sort vector elements */
+namespace GNU_gama     /** \brief Sort vector elements */
+{
 
 template <typename Float, typename Exc>
 inline void sort(Vec<Float, Exc>& v)
-  {
+{
     typename Vec<Float, Exc>::iterator b = v.begin();
     typename Vec<Float, Exc>::iterator e = v.end();
     std::sort(b, e);
-  }
+}
 
 
 }   // namespace GNU_gama

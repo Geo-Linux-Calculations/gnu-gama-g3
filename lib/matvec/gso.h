@@ -62,61 +62,88 @@
  *
  *  */
 
-namespace GNU_gama {   /** \brief Gram-Schmidt Ortogonalization */
+namespace GNU_gama     /** \brief Gram-Schmidt Ortogonalization */
+{
 
 template <typename Float=double, typename Exc=Exception::matvec>
-class GSO {
+class GSO
+{
 
 public:
 
-  GSO(): pA(0), M(0), N(0), sc(true), tol_(0),
-    minx_n(0), minx(0), clist(0), rlist(0) {}
-  ~GSO() { delete[] minx; delete[] clist; delete[] rlist; }
-  GSO(Mat<Float, Exc>& a, Index m, Index n)
-    : pA(0), M(0), N(0), sc(true), tol_(0),
-    minx_n(0), minx(0), clist(0), rlist(0)
-  {
-    reset(a, m, n);     // where m, n are dimensions of A1(m, n)
-  }
-  void reset(Mat<Float, Exc>& a, Index m, Index n);
+    GSO(): pA(0), M(0), N(0), sc(true), tol_(0),
+        minx_n(0), minx(0), clist(0), rlist(0) {}
+    ~GSO()
+    {
+        delete[] minx;
+        delete[] clist;
+        delete[] rlist;
+    }
+    GSO(Mat<Float, Exc>& a, Index m, Index n)
+        : pA(0), M(0), N(0), sc(true), tol_(0),
+          minx_n(0), minx(0), clist(0), rlist(0)
+    {
+        reset(a, m, n);     // where m, n are dimensions of A1(m, n)
+    }
+    void reset(Mat<Float, Exc>& a, Index m, Index n);
 
-  void gso1();
-  void gso2();
+    void gso1();
+    void gso2();
 
-  Index defect()        { gso1(); return defect_; }
-  bool  lindep(Index i) { gso1(); return norm(i)==0; } // dependent column
-  bool  scaling() const { return sc; }
-  void  scaling(bool s) { sc = s; }
-  Float tol() const     { return tol_; }
-  void  tol(Float t)    { tol_ = t; }
+    Index defect()
+    {
+        gso1();
+        return defect_;
+    }
+    bool  lindep(Index i)
+    {
+        gso1();    // dependent column
+        return norm(i)==0;
+    }
+    bool  scaling() const
+    {
+        return sc;
+    }
+    void  scaling(bool s)
+    {
+        sc = s;
+    }
+    Float tol() const
+    {
+        return tol_;
+    }
+    void  tol(Float t)
+    {
+        tol_ = t;
+    }
 
-  void  min_x();               // minx = all
-  void  min_x(Index, Index[]); // minx = subset
+    void  min_x();               // minx = all
+    void  min_x(Index, Index[]); // minx = subset
 
 private:
 
-  GSO(const GSO&);
-  void operator=(const GSO&);
+    GSO(const GSO&);
+    void operator=(const GSO&);
 
-  void modified_gso(Index r_first, Index r_last,
-                    Index c_last, Index r_dim, bool first);
+    void modified_gso(Index r_first, Index r_last,
+                      Index c_last, Index r_dim, bool first);
 
-  Mat<Float, Exc> *pA;
-  Index M, N;
-  Index defect_;
-  bool  solved;
-  bool  sc;
-  Vec<Float, Exc> norm;
-  Float tol_;
+    Mat<Float, Exc> *pA;
+    Index M, N;
+    Index defect_;
+    bool  solved;
+    bool  sc;
+    Vec<Float, Exc> norm;
+    Float tol_;
 
-  Index  minx_n;
-  Index *minx;
-  Index *clist;
-  Index *rlist;
+    Index  minx_n;
+    Index *minx;
+    Index *clist;
+    Index *rlist;
 
-  template <typename T> inline const T ABS(const T& x)
+    template <typename T> inline const T ABS(const T& x)
     {
-      return (x >= T(0)) ? x : -x ;
+        return (x >= T(0)) ? x : -x ;
     }
 };
 
@@ -124,183 +151,184 @@ private:
 template <typename Float, typename Exc>
 void GSO<Float, Exc>::reset(Mat<Float, Exc>& a, Index m, Index n)
 {
-  pA = &a;
-  M = m;
-  N = n;
-  defect_ = 0;
-  delete[] clist;
-  clist = new Index[pA->cols()+1];
-  delete[] rlist;
-  rlist = new Index[M+1];
-  solved = false;
-  sc = true;
+    pA = &a;
+    M = m;
+    N = n;
+    defect_ = 0;
+    delete[] clist;
+    clist = new Index[pA->cols()+1];
+    delete[] rlist;
+    rlist = new Index[M+1];
+    solved = false;
+    sc = true;
 }
 
 template <typename Float, typename Exc>
 void GSO<Float, Exc>::min_x()
 {
-  minx_n = N;
-  delete[] minx;
-  minx = new Index[N];
-  for (Index i=0; i<N; i++) minx[i] = i+1;
+    minx_n = N;
+    delete[] minx;
+    minx = new Index[N];
+    for (Index i=0; i<N; i++) minx[i] = i+1;
 }
 
 
 template <typename Float, typename Exc>
 void GSO<Float, Exc>::min_x(Index N, Index nx[])
 {
-  minx_n = N;
-  delete[] minx;
-  minx = new Index[N];
-  for (Index i=0; i<N; i++) minx[i] = nx[i];
+    minx_n = N;
+    delete[] minx;
+    minx = new Index[N];
+    for (Index i=0; i<N; i++) minx[i] = nx[i];
 }
 
 
 template <typename Float, typename Exc>
 void GSO<Float, Exc>::gso1()
 {
-  if (pA==0)  return;
-  if (solved) return;
+    if (pA==0)  return;
+    if (solved) return;
 
-  for (Index i=1; i<=pA->cols(); i++) clist[i] = i;
-  for (Index j=1; j<=M;          j++) rlist[j] = j;
-  norm.reset(N);
-  defect_ = 0;
-  modified_gso(1, pA->rows(), N, M, true);
-  for (Index t, l=1, u=N; l<=defect_; l++, u--)
+    for (Index i=1; i<=pA->cols(); i++) clist[i] = i;
+    for (Index j=1; j<=M;          j++) rlist[j] = j;
+    norm.reset(N);
+    defect_ = 0;
+    modified_gso(1, pA->rows(), N, M, true);
+    for (Index t, l=1, u=N; l<=defect_; l++, u--)
     {
-      t = clist[l];
-      clist[l] = clist[u];
-      clist[u] = t;
+        t = clist[l];
+        clist[l] = clist[u];
+        clist[u] = t;
     }
-  solved = true;
+    solved = true;
 }
 
 
 template <typename Float, typename Exc>
 void GSO<Float, Exc>::gso2()
 {
-  if (pA==0)  return;
-  if (!solved) gso1();
-  if (defect() == 0) return;
+    if (pA==0)  return;
+    if (!solved) gso1();
+    if (defect() == 0) return;
 
-  for (Index j=1; j<=minx_n; j++) rlist[j] = M+minx[j-1];
-  modified_gso(M+1, pA->rows(), defect(), minx_n, false);
+    for (Index j=1; j<=minx_n; j++) rlist[j] = M+minx[j-1];
+    modified_gso(M+1, pA->rows(), defect(), minx_n, false);
 
-  Mat<Float, Exc> &A = *pA;
-  for (Index c, column=1; column<=defect(); column++)
+    Mat<Float, Exc> &A = *pA;
+    for (Index c, column=1; column<=defect(); column++)
     {
-      c = clist[column];
-      for (Index r=1; r<=A.rows(); r++)
-        A(r,c) = 0;
+        c = clist[column];
+        for (Index r=1; r<=A.rows(); r++)
+            A(r,c) = 0;
     }
 }
 
 template <typename Float, typename Exc>
 void GSO<Float, Exc>::modified_gso(Index r_first, Index r_last,
-                               Index c_last,  Index r_dim, bool first)
+                                   Index c_last,  Index r_dim, bool first)
 {
-  if (tol_ <= 0)
+    if (tol_ <= 0)
     {
-      Float  eps, eps_1, eps_min, eps_max, sum;
-      const Float one = 1;
+        Float  eps, eps_1, eps_min, eps_max, sum;
+        const Float one = 1;
 
-      eps_min = 0;
-      eps_max = eps = 1e-5;
-      do
+        eps_min = 0;
+        eps_max = eps = 1e-5;
+        do
         {
-          eps_1 = eps;
-          eps = (eps_min + eps_max) / 2;
-          sum = one + eps;
-          if (sum == one)
-            eps_min = eps;
-          else
-            eps_max = eps;
-        } while (ABS(eps - eps_1)/eps > 0.1);
-      tol_ = std::sqrt(eps);
+            eps_1 = eps;
+            eps = (eps_min + eps_max) / 2;
+            sum = one + eps;
+            if (sum == one)
+                eps_min = eps;
+            else
+                eps_max = eps;
+        }
+        while (ABS(eps - eps_1)/eps > 0.1);
+        tol_ = std::sqrt(eps);
     }
 
-  Mat<Float, Exc> &A = *pA;
-  Float a;
+    Mat<Float, Exc> &A = *pA;
+    Float a;
 
-  if (sc)   // initial scaling
+    if (sc)   // initial scaling
     {
-      Float s;
-      for (Index r, c, k, column=1; column<=c_last; column++)
+        Float s;
+        for (Index r, c, k, column=1; column<=c_last; column++)
         {
-          c = clist[column];
-          s = 0;
-          for (k=1; k<=r_dim; k++)
+            c = clist[column];
+            s = 0;
+            for (k=1; k<=r_dim; k++)
             {
-              r = rlist[k];
-              a = A(r,c);
-              s += a*a;
+                r = rlist[k];
+                a = A(r,c);
+                s += a*a;
             }
-          using namespace std;
-          s = std::sqrt(s);
-          if (s)
-            for (r=r_first; r<=r_last; r++)
-              A(r,c) /= s;
+            using namespace std;
+            s = std::sqrt(s);
+            if (s)
+                for (r=r_first; r<=r_last; r++)
+                    A(r,c) /= s;
         }
     }
 
-  for (Index r, c, column=1; column<=c_last; column++)
+    for (Index r, c, column=1; column<=c_last; column++)
     {
-      // column pivoting
-      Float maxd = 0;
-      Index maxi = column;
-      for (Index pivot=column; pivot<=c_last; pivot++)
+        // column pivoting
+        Float maxd = 0;
+        Index maxi = column;
+        for (Index pivot=column; pivot<=c_last; pivot++)
         {
-          c = clist[pivot];
-          Float s = 0;
-          for (Index k=1; k<=r_dim; k++)
+            c = clist[pivot];
+            Float s = 0;
+            for (Index k=1; k<=r_dim; k++)
             {
-              r = rlist[k];
-              a = A(r,c);
-              s += a*a;
+                r = rlist[k];
+                a = A(r,c);
+                s += a*a;
             }
-          if (s > maxd)
+            if (s > maxd)
             {
-              maxd = s;
-              maxi = pivot;
+                maxd = s;
+                maxi = pivot;
             }
         }
 
-      Index t = clist[column];
-      clist[column] = clist[maxi];
-      clist[maxi] = t;
+        Index t = clist[column];
+        clist[column] = clist[maxi];
+        clist[maxi] = t;
 
-      c = clist[column];
-      maxd = std::sqrt(maxd);
-      if (first)
-        norm(c) = maxd;
+        c = clist[column];
+        maxd = std::sqrt(maxd);
+        if (first)
+            norm(c) = maxd;
 
-      if (maxd < tol_)
+        if (maxd < tol_)
         {
-          for (Index d=column; d<=c_last; d++)
+            for (Index d=column; d<=c_last; d++)
             {
-              defect_++;
-              Index c = clist[d];
-              norm(c) = 0;
+                defect_++;
+                Index c = clist[d];
+                norm(c) = 0;
             }
-          return;
+            return;
         }
 
-      for (Index k=r_first; k<=r_last; k++)
-        A(k, c) /= maxd;
+        for (Index k=r_first; k<=r_last; k++)
+            A(k, c) /= maxd;
 
-      for (Index n, ncol=column+1; ncol<=A.cols(); ncol++)
+        for (Index n, ncol=column+1; ncol<=A.cols(); ncol++)
         {
-          n = clist[ncol];
-          Float dotp = 0;
-          for (Index k=1; k<=r_dim; k++)
+            n = clist[ncol];
+            Float dotp = 0;
+            for (Index k=1; k<=r_dim; k++)
             {
-              Index i = rlist[k];
-              dotp += A(i, c)*A(i, n);
+                Index i = rlist[k];
+                dotp += A(i, c)*A(i, n);
             }
 
-          for (Index m=r_first; m<=r_last; m++)
-            A(m, n) -= dotp*A(m, c);
+            for (Index m=r_first; m<=r_last; m++)
+                A(m, n) -= dotp*A(m, c);
         }
     }
 }

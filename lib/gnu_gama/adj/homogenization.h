@@ -29,40 +29,49 @@
 #include <set>
 
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
 
-  template <typename Float=double, typename Index=std::size_t>
-  class Homogenization
-  {
-  public:
+template <typename Float=double, typename Index=std::size_t>
+class Homogenization
+{
+public:
 
     Homogenization() : data(0), sm(0), ready(false)
     {
     }
     Homogenization(const AdjInputData* aid) : sm(0)
     {
-      reset(aid);
+        reset(aid);
     }
     ~Homogenization()
     {
-      delete sm;
+        delete sm;
     }
 
     void reset(const AdjInputData* aid=0)
     {
-      delete sm;
-      pr.reset();
-      sm    = 0;
-      data  = aid;
-      ready = false;
+        delete sm;
+        pr.reset();
+        sm    = 0;
+        data  = aid;
+        ready = false;
     }
 
-    const SparseMatrix<Float, Index>* mat() { run(); return sm; }
-    const Vec<Float>&                 rhs() { run(); return pr; }
+    const SparseMatrix<Float, Index>* mat()
+    {
+        run();
+        return sm;
+    }
+    const Vec<Float>&                 rhs()
+    {
+        run();
+        return pr;
+    }
 
 
-  private:
+private:
 
     Homogenization(const Homogenization&);
     void operator=(const Homogenization&);
@@ -79,168 +88,168 @@ namespace GNU_gama {
 
     void run()
     {
-      if (ready) return;
-      if (!data) throw Exception::matvec(Exception::BadRank, "Homogenization : No input data");
+        if (ready) return;
+        if (!data) throw Exception::matvec(Exception::BadRank, "Homogenization : No input data");
 
-      const BlockDiagonal<Float, Index>& cov = *data->cov();
+        const BlockDiagonal<Float, Index>& cov = *data->cov();
 
-      BlockDiagonal<Float, Index>* blockdiagonal = cov.replicate();
-      blockdiagonal->cholDec();
-      const BlockDiagonal<Float, Index>* bd = blockdiagonal;
+        BlockDiagonal<Float, Index>* blockdiagonal = cov.replicate();
+        blockdiagonal->cholDec();
+        const BlockDiagonal<Float, Index>* bd = blockdiagonal;
 
-      UpperBlockDiagonal<Float, Index> upper(bd);
-      const Sparse* mata           = data->mat();
-      Index total_scaled_nonzeroes = 0;
+        UpperBlockDiagonal<Float, Index> upper(bd);
+        const Sparse* mata           = data->mat();
+        Index total_scaled_nonzeroes = 0;
 
 
-      /* homogenised right-hand side */
+        /* homogenised right-hand side */
 
-      pr = data->rhs();
-      for (Index n, row=1; row<=pr.dim(); row++)   // forward substitution
+        pr = data->rhs();
+        for (Index n, row=1; row<=pr.dim(); row++)   // forward substitution
         {
-          const Float* b = upper.begin(row);
-          const Float* e = upper.end  (row);
-          const Float  x = pr(row) / *b++;
-          pr(row) = x;
-          n = row + 1;
-          while(b != e)
+            const Float* b = upper.begin(row);
+            const Float* e = upper.end  (row);
+            const Float  x = pr(row) / *b++;
+            pr(row) = x;
+            n = row + 1;
+            while(b != e)
             {
-              pr(n++) -= *b++ * x;
+                pr(n++) -= *b++ * x;
             }
         }
 
 
-      /* counting total number of nonzeros in scaled sparse matrix */
+        /* counting total number of nonzeros in scaled sparse matrix */
 
-      std::vector<Index> block_cols(bd->blocks()+1);   // 1 based indexing
+        std::vector<Index> block_cols(bd->blocks()+1);   // 1 based indexing
 
-      for (Index row=1, block_index=1; block_index<=bd->blocks(); block_index++)
+        for (Index row=1, block_index=1; block_index<=bd->blocks(); block_index++)
         {
-          const Index  block_dim   = bd->dim  (block_index);
-          const Index  block_width = bd->width(block_index);
+            const Index  block_dim   = bd->dim  (block_index);
+            const Index  block_width = bd->width(block_index);
 
-          if (block_width == 0)    // uncorrelated observations
+            if (block_width == 0)    // uncorrelated observations
             {
-              Index nonz = 0;
-              for (Index i=1; i<=block_dim; i++, row++)
+                Index nonz = 0;
+                for (Index i=1; i<=block_dim; i++, row++)
                 {
-                  nonz += mata->end(row) - mata->begin(row);
+                    nonz += mata->end(row) - mata->begin(row);
                 }
-              total_scaled_nonzeroes += nonz;
+                total_scaled_nonzeroes += nonz;
             }
-          else                     // correlated observations
+            else                     // correlated observations
             {
-              Indices indices;
-              for (Index i=1; i<=block_dim; i++, row++)
+                Indices indices;
+                for (Index i=1; i<=block_dim; i++, row++)
                 {
-                  const Index* n = mata->ibegin(row);
-                  const Index* e = mata->iend  (row);
-                  while (n != e)
+                    const Index* n = mata->ibegin(row);
+                    const Index* e = mata->iend  (row);
+                    while (n != e)
                     {
-                      indices.insert(*n++);
+                        indices.insert(*n++);
                     }
                 }
-              block_cols[block_index] = indices.size();
-              total_scaled_nonzeroes += block_dim*indices.size();
+                block_cols[block_index] = indices.size();
+                total_scaled_nonzeroes += block_dim*indices.size();
             }
         }
 
 
-      sm = new Sparse(total_scaled_nonzeroes, mata->rows(), mata->columns());
+        sm = new Sparse(total_scaled_nonzeroes, mata->rows(), mata->columns());
 
 
-      /* assembling scaled sparse matrix */
+        /* assembling scaled sparse matrix */
 
-      std::vector<Index> perm(mata->columns()+1);  // block index permutation
+        std::vector<Index> perm(mata->columns()+1);  // block index permutation
 
-      for (Index row=1, block_index=1; block_index<=bd->blocks(); block_index++)
+        for (Index row=1, block_index=1; block_index<=bd->blocks(); block_index++)
         {
-          const Float* block_b     = bd->begin(block_index);
-          const Index  block_dim   = bd->dim  (block_index);
-          const Index  block_width = bd->width(block_index);
+            const Float* block_b     = bd->begin(block_index);
+            const Index  block_dim   = bd->dim  (block_index);
+            const Index  block_width = bd->width(block_index);
 
-          if (block_width == 0)    // uncorrelated observations
-            for (Index i=1; i<=block_dim; i++, row++)
-              {
-                sm->new_row();
-                const Float  d = *block_b++;
-                const Index* n = mata->ibegin(row);
-                const Float* b = mata->begin (row);
-                const Float* e = mata->end   (row);
-                while (b != e)
-                  {
-                    sm->add_element(*b++/d, *n++);
-                  }
-              }
-          else                     // correlated observations
-            {
-              const Index bcols = block_cols[block_index];
-              std::vector<Index> invp(bcols+1);     // block inverse permutaion
-              Index invp_count = 0;
-
-              Mat<Float> T(block_dim, bcols);       // matrix of block columns
-              T.set_zero();
-
-              /* copy block sparse columns to T */
-
-              for (Index i=1; i<=block_dim; i++, row++)
+            if (block_width == 0)    // uncorrelated observations
+                for (Index i=1; i<=block_dim; i++, row++)
                 {
-                  const Float* b = mata->begin (row);
-                  const Float* e = mata->end   (row);
-                  const Index* n = mata->ibegin(row);
-                  while (b != e)
+                    sm->new_row();
+                    const Float  d = *block_b++;
+                    const Index* n = mata->ibegin(row);
+                    const Float* b = mata->begin (row);
+                    const Float* e = mata->end   (row);
+                    while (b != e)
                     {
-                      const Index c = *n++;
-                      if (perm[c] == 0)
+                        sm->add_element(*b++/d, *n++);
+                    }
+                }
+            else                     // correlated observations
+            {
+                const Index bcols = block_cols[block_index];
+                std::vector<Index> invp(bcols+1);     // block inverse permutaion
+                Index invp_count = 0;
+
+                Mat<Float> T(block_dim, bcols);       // matrix of block columns
+                T.set_zero();
+
+                /* copy block sparse columns to T */
+
+                for (Index i=1; i<=block_dim; i++, row++)
+                {
+                    const Float* b = mata->begin (row);
+                    const Float* e = mata->end   (row);
+                    const Index* n = mata->ibegin(row);
+                    while (b != e)
+                    {
+                        const Index c = *n++;
+                        if (perm[c] == 0)
                         {
-                          perm[c] = ++invp_count;
-                          invp[invp_count] = c;
+                            perm[c] = ++invp_count;
+                            invp[invp_count] = c;
                         }
 
-                      T(i, perm[c]) = *b++;
+                        T(i, perm[c]) = *b++;
                     }
                 }
 
-              /* forward substitution for T */
+                /* forward substitution for T */
 
-              for (Index c=1; c<=bcols; c++)
-                for (Index n, r=row-block_dim, i=1; i<=block_dim; i++, r++)
-                  {
-                    const Float* b = upper.begin(r);
-                    const Float* e = upper.end  (r);
-                    const Float  x = T(i,c) / *b++;
-                    T(i,c) = x;
-                    n = i + 1;
-                    while (b != e)
-                      {
-                        T(n++,c) -= *b++ * x;
-                      }
-                  }
+                for (Index c=1; c<=bcols; c++)
+                    for (Index n, r=row-block_dim, i=1; i<=block_dim; i++, r++)
+                    {
+                        const Float* b = upper.begin(r);
+                        const Float* e = upper.end  (r);
+                        const Float  x = T(i,c) / *b++;
+                        T(i,c) = x;
+                        n = i + 1;
+                        while (b != e)
+                        {
+                            T(n++,c) -= *b++ * x;
+                        }
+                    }
 
-              /* move transformed T to ouput sparse matrix  */
+                /* move transformed T to ouput sparse matrix  */
 
-              for (Index i=1; i<=block_dim; i++)
+                for (Index i=1; i<=block_dim; i++)
                 {
-                  sm->new_row();
-                  for (Index j=1; j<=bcols; j++)
-                    if (const Float element = T(i,j))
-                      {
-                        sm->add_element(element, invp[j]);
-                      }
+                    sm->new_row();
+                    for (Index j=1; j<=bcols; j++)
+                        if (const Float element = T(i,j))
+                        {
+                            sm->add_element(element, invp[j]);
+                        }
                 }
 
-              for (Index i=1; i<=bcols; i++)      // clear permutation vector
+                for (Index i=1; i<=bcols; i++)      // clear permutation vector
                 {
-                  perm[invp[i]] = 0;
+                    perm[invp[i]] = 0;
                 }
             }
         }
 
-      delete blockdiagonal;
-      ready = true;
+        delete blockdiagonal;
+        ready = true;
     }
 
-  };
+};
 
 }  // namespace GNU_gama
 

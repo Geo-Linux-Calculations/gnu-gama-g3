@@ -26,14 +26,18 @@
 #define GNU_gama__g3_point_h_gnugamag3pointh___gnu_gama_g3point
 
 
-namespace GNU_gama {  namespace g3 {
+namespace GNU_gama
+{
+namespace g3
+{
 
-  class Model;
+class Model;
 
-  /** g3 point class.  */
+/** g3 point class.  */
 
-  class Point : public ParXML {
-  public:
+class Point : public ParXML
+{
+public:
 
     typedef std::string   Name;
     typedef Model         Common;
@@ -71,7 +75,10 @@ namespace GNU_gama {  namespace g3 {
     void set_constr_height();
     void set_constr_position();
 
-    bool active() const { return !unused(); }
+    bool active() const
+    {
+        return !unused();
+    }
     bool unused() const;
     bool fixed_horizontal_position() const;
     bool fixed_height() const;
@@ -88,22 +95,46 @@ namespace GNU_gama {  namespace g3 {
     void set_height(double);
     void set_geoid(double);
 
-    bool has_position() const { return has_xyz_ || has_blh_; }
-    bool has_xyz()      const { return has_xyz_;    }
-    bool has_blh()      const { return has_blh_;    }
-    bool has_height()   const { return has_height_; }
-    bool has_geoid()    const { return has_geoid_;  }
+    bool has_position() const
+    {
+        return has_xyz_ || has_blh_;
+    }
+    bool has_xyz()      const
+    {
+        return has_xyz_;
+    }
+    bool has_blh()      const
+    {
+        return has_blh_;
+    }
+    bool has_height()   const
+    {
+        return has_height_;
+    }
+    bool has_geoid()    const
+    {
+        return has_geoid_;
+    }
 
     bool   test_model_height() const;
     double model_height()      const;
 
-    double X_dh(double dh) const { return X() + r13*dh; }
-    double Y_dh(double dh) const { return Y() + r23*dh; }
-    double Z_dh(double dh) const { return Z() + r33*dh; }
+    double X_dh(double dh) const
+    {
+        return X() + r13*dh;
+    }
+    double Y_dh(double dh) const
+    {
+        return Y() + r23*dh;
+    }
+    double Z_dh(double dh) const
+    {
+        return Z() + r33*dh;
+    }
 
     void write_xml(std::ostream&);
 
-  private:
+private:
 
     double x_transform(double n, double e, double u);
     double y_transform(double n, double e, double u);
@@ -114,20 +145,21 @@ namespace GNU_gama {  namespace g3 {
     double diff_E() const;
     double diff_U() const;
 
-    enum {
-      unused_          = 0,
-      fixed_h_pos_     = 1,
-      fixed_height_    = 2,
-      fixed_position_  = fixed_h_pos_ + fixed_height_,
-      free_h_pos_      = 4,
-      free_height_     = 8,
-      free_position_   = free_h_pos_  + free_height_,
-      constr_h_pos_    = 16 + free_position_,
-      constr_height_   = 32 + free_height_,
-      constr_position_ = constr_h_pos_ + constr_height_,
-      h_pos_           = fixed_h_pos_  + free_h_pos_,
-      hheight_         = fixed_height_ + free_height_,
-      position_        = h_pos_ + hheight_
+    enum
+    {
+        unused_          = 0,
+        fixed_h_pos_     = 1,
+        fixed_height_    = 2,
+        fixed_position_  = fixed_h_pos_ + fixed_height_,
+        free_h_pos_      = 4,
+        free_height_     = 8,
+        free_position_   = free_h_pos_  + free_height_,
+        constr_h_pos_    = 16 + free_position_,
+        constr_height_   = 32 + free_height_,
+        constr_position_ = constr_h_pos_ + constr_height_,
+        h_pos_           = fixed_h_pos_  + free_h_pos_,
+        hheight_         = fixed_height_ + free_height_,
+        position_        = h_pos_ + hheight_
     };
 
     friend class Model;
@@ -148,9 +180,10 @@ namespace GNU_gama {  namespace g3 {
 
     double   cxx, cxy, cxz, cyy, cyz, czz;
     void     set_cov_xyz();
-  };
+};
 
 
-}}
+}
+}
 
 #endif

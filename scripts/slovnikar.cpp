@@ -22,13 +22,14 @@
  *
  * ------------------------------------------------------------------------ */
 
-         const char* language[] = { "en", 
-                                    "ca", "cz", "du", "es", "fi",
-                                    "fr", "hu", "ru", "ua", "zh" };
+const char* language[] = { "en",
+                           "ca", "cz", "du", "es", "fi",
+                           "fr", "hu", "ru", "ua", "zh"
+                         };
 
-         const int N = sizeof(language)/sizeof(const char*);
+const int N = sizeof(language)/sizeof(const char*);
 
-         const char* version = "1.12";
+const char* version = "1.12";
 
 /* ---------------------------------------------------------------------------
  *
@@ -140,8 +141,9 @@
 
 using namespace std;
 
-struct Entry {
-  string lang[N];
+struct Entry
+{
+    string lang[N];
 };
 
 typedef map<string, Entry> Dictionary;
@@ -158,287 +160,296 @@ using namespace GNU_gama;
 enum parser_state { START, ENTRIES, ENTRY, END };
 int  result = 0;
 
-class Parser {
+class Parser
+{
 
-  XML_Parser expat_parser;
-  string     filename;
-  string     errString;
-  int        errCode;
-  int        errLine;
-  string     text;
+    XML_Parser expat_parser;
+    string     filename;
+    string     errString;
+    int        errCode;
+    int        errLine;
+    string     text;
 
 public:
 
-  Parser(string filename);
-  ~Parser();
+    Parser(string filename);
+    ~Parser();
 
-  parser_state state;
+    parser_state state;
 
-  void error(const char*);
+    void error(const char*);
 };
 
 
 
 void startElement(void *userData, const char *cname, const char **atts)
 {
-  Parser* parser = static_cast<Parser*>(userData);
-  const string name(cname);
+    Parser* parser = static_cast<Parser*>(userData);
+    const string name(cname);
 
-  if (parser->state == START && name == "entries")
+    if (parser->state == START && name == "entries")
     {
-      parser->state = ENTRIES;
+        parser->state = ENTRIES;
     }
-  else if (parser->state == ENTRIES && name == "e")
+    else if (parser->state == ENTRIES && name == "e")
     {
-      parser->state = ENTRY;
+        parser->state = ENTRY;
 
-      string id;
-      Entry  entry, dict_entry;
-      while (*atts)
+        string id;
+        Entry  entry, dict_entry;
+        while (*atts)
         {
-          string nam = string(*atts++);
-          string val = string(*atts++);
+            string nam = string(*atts++);
+            string val = string(*atts++);
 
-          if (nam == "id")
+            if (nam == "id")
             {
-              id = val;
-              dict_entry = dict[id];
-              continue;
+                id = val;
+                dict_entry = dict[id];
+                continue;
             }
-          else if (nam == "EN")
+            else if (nam == "EN")
             {
-              continue;   // "EN" is supposed to be comment attribute
+                continue;   // "EN" is supposed to be comment attribute
             }
 
-          int lang=N;
-          for (int i=0; i<N; i++)
-            if (nam == language[i])
-              {
-                entry.lang[i] = val;
-                lang = i;
-                break;
-              }
-          if (lang == N) parser->error("unknown language");
-        }
-
-      if (id == "")
-        parser->error("id not defined");
-      else
-        {
-          for (int l=0; l<N; l++)
-            {
-              if (entry.lang[l] == "") continue;
-
-              if (dict_entry.lang[l] != ""  &&
-                  dict_entry.lang[l] != entry.lang[l])
+            int lang=N;
+            for (int i=0; i<N; i++)
+                if (nam == language[i])
                 {
-                  string txt = id + " / "
-                    + string(language[l]) + " = "
-                    + entry.lang[l] + " redefined";
-                  parser->error(txt.c_str());
+                    entry.lang[i] = val;
+                    lang = i;
+                    break;
                 }
-              dict_entry.lang[l] = entry.lang[l];
+            if (lang == N) parser->error("unknown language");
+        }
+
+        if (id == "")
+            parser->error("id not defined");
+        else
+        {
+            for (int l=0; l<N; l++)
+            {
+                if (entry.lang[l] == "") continue;
+
+                if (dict_entry.lang[l] != ""  &&
+                        dict_entry.lang[l] != entry.lang[l])
+                {
+                    string txt = id + " / "
+                                 + string(language[l]) + " = "
+                                 + entry.lang[l] + " redefined";
+                    parser->error(txt.c_str());
+                }
+                dict_entry.lang[l] = entry.lang[l];
             }
 
-          dict[id] = dict_entry;
+            dict[id] = dict_entry;
         }
     }
-  else
-    parser->error("unknown tag");
+    else
+        parser->error("unknown tag");
 }
 
 void endElement(void *userData, const char * /*cname*/)
 {
-  Parser* parser = static_cast<Parser*>(userData);
+    Parser* parser = static_cast<Parser*>(userData);
 
-  switch (parser->state)
+    switch (parser->state)
     {
-    case ENTRIES: parser->state = END;     break;
-    case ENTRY  : parser->state = ENTRIES; break;
-    default     : break;
+    case ENTRIES:
+        parser->state = END;
+        break;
+    case ENTRY  :
+        parser->state = ENTRIES;
+        break;
+    default     :
+        break;
     }
 }
 
 void characterDataHandler(void *userData, const char* s, int len)
 {
-  Parser* parser = static_cast<Parser*>(userData);
+    Parser* parser = static_cast<Parser*>(userData);
 
-  for (int b=0; b <len; b++)
-    if (!isspace(s[b]))
-      {
-        parser->error("ignored junk");
-        return;
-      }
+    for (int b=0; b <len; b++)
+        if (!isspace(s[b]))
+        {
+            parser->error("ignored junk");
+            return;
+        }
 }
 
 
 
 Parser::Parser(string fn)
 {
-  expat_parser = XML_ParserCreate(0);
+    expat_parser = XML_ParserCreate(0);
 
-  XML_SetUserData(expat_parser, this);
-  XML_SetElementHandler(expat_parser, startElement, endElement);
-  XML_SetCharacterDataHandler(expat_parser, characterDataHandler);
-  XML_SetUnknownEncodingHandler(expat_parser, UnknownEncodingHandler, 0);
+    XML_SetUserData(expat_parser, this);
+    XML_SetElementHandler(expat_parser, startElement, endElement);
+    XML_SetCharacterDataHandler(expat_parser, characterDataHandler);
+    XML_SetUnknownEncodingHandler(expat_parser, UnknownEncodingHandler, 0);
 
-  filename = fn;
-  state = START;
+    filename = fn;
+    state = START;
 
-  ifstream inp(filename.c_str());
-  if (!inp) cerr << "cannot open file " << filename << endl;
-  while (getline(inp, text))
+    ifstream inp(filename.c_str());
+    if (!inp) cerr << "cannot open file " << filename << endl;
+    while (getline(inp, text))
     {
-      text += "\n";
-      int err = XML_Parse(expat_parser, text.c_str(), text.length(), false);
-      if (err == 0)
+        text += "\n";
+        int err = XML_Parse(expat_parser, text.c_str(), text.length(), false);
+        if (err == 0)
         {
-          errString = string(XML_ErrorString(XML_GetErrorCode(expat_parser)));
-          errCode   = XML_GetErrorCode(expat_parser);
-          errLine   = XML_GetCurrentLineNumber(expat_parser);
+            errString = string(XML_ErrorString(XML_GetErrorCode(expat_parser)));
+            errCode   = XML_GetErrorCode(expat_parser);
+            errLine   = XML_GetCurrentLineNumber(expat_parser);
 
-          cerr << filename << ":" << errLine << ": "
-               << errString << " : " << text << endl;
-          return;
+            cerr << filename << ":" << errLine << ": "
+                 << errString << " : " << text << endl;
+            return;
         }
     }
-  XML_Parse(expat_parser, "", 0, true);
+    XML_Parse(expat_parser, "", 0, true);
 }
 
 Parser::~Parser()
 {
-  XML_ParserFree(expat_parser);
+    XML_ParserFree(expat_parser);
 }
 
 void Parser::error(const char* message)
 {
-  int erl = XML_GetCurrentLineNumber(expat_parser);
-  cerr << filename << ":" << erl << ": " << message << ": " << text << endl;
-  result = 1;
+    int erl = XML_GetCurrentLineNumber(expat_parser);
+    cerr << filename << ":" << erl << ": " << message << ": " << text << endl;
+    result = 1;
 }
 
 int main()
 {
-  /* reading all input files*/
-  {
-    string f;
-    while (cin >> f) { Parser p(f); };
-  }
-
-  /* writing header-file language.h */
-  {
-    ofstream out("language.h");
-
-    out << "#ifndef GNU_gama_local___language__header_file_h\n";
-    out << "#define GNU_gama_local___language__header_file_h\n\n";
-
-    out << "namespace GNU_gama { namespace local {      /* slovnikar " << version << " */\n\n";
-
-    out << "enum gama_language {";
-    for (int N=sizeof(language)/sizeof(const char*)-1, i=0; i<=N; i++)
-      {
-        out << " " << language[i];
-        if (i != N) out << ",";
-      }
-    out << " };\n";
-    out << "void set_gama_language(gama_language);\n\n";
-
-    for (Dictionary::const_iterator i=dict.begin(); i!=dict.end(); ++i)
-      {
-        out << "extern const char* " << (*i).first << ";\n";
-      }
-
-    out << "\n}}\n\n";
-    out << "#endif\n";
-  }
-
-  /* language.html */
-  {
-    ofstream out("language.html");
-    out <<
-      "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-      "<!DOCTYPE html\n"
-      "     PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n"
-      "     \"DTD/xhtml1-strict.dtd\">\n"
-      "<html xmlns=\"http://www.w3.org/1999/xhtml\""
-      " xml:lang=\"en\" lang=\"en\">\n"
-      "  <head>\n"
-      "    <title>GNU Gama lang</title>\n"
-      "  </head>\n"
-      "<body>\n\n"
-      "<h1>GNU Gama lang</h1>\n\n"
-      "<table border=\"1\">\n\n";
-
-      for (Dictionary::const_iterator i=dict.begin(); i!=dict.end(); ++i)
+    /* reading all input files*/
+    {
+        string f;
+        while (cin >> f)
         {
-          out << "<tr><td colspan=\"2\"><tt style=\"color : navy\">"
-              << (*i).first << "</tt></td></tr>\n";
-          for (int l=0; l<N; l++)
+            Parser p(f);
+        };
+    }
+
+    /* writing header-file language.h */
+    {
+        ofstream out("language.h");
+
+        out << "#ifndef GNU_gama_local___language__header_file_h\n";
+        out << "#define GNU_gama_local___language__header_file_h\n\n";
+
+        out << "namespace GNU_gama { namespace local {      /* slovnikar " << version << " */\n\n";
+
+        out << "enum gama_language {";
+        for (int N=sizeof(language)/sizeof(const char*)-1, i=0; i<=N; i++)
+        {
+            out << " " << language[i];
+            if (i != N) out << ",";
+        }
+        out << " };\n";
+        out << "void set_gama_language(gama_language);\n\n";
+
+        for (Dictionary::const_iterator i=dict.begin(); i!=dict.end(); ++i)
+        {
+            out << "extern const char* " << (*i).first << ";\n";
+        }
+
+        out << "\n}}\n\n";
+        out << "#endif\n";
+    }
+
+    /* language.html */
+    {
+        ofstream out("language.html");
+        out <<
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+            "<!DOCTYPE html\n"
+            "     PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n"
+            "     \"DTD/xhtml1-strict.dtd\">\n"
+            "<html xmlns=\"http://www.w3.org/1999/xhtml\""
+            " xml:lang=\"en\" lang=\"en\">\n"
+            "  <head>\n"
+            "    <title>GNU Gama lang</title>\n"
+            "  </head>\n"
+            "<body>\n\n"
+            "<h1>GNU Gama lang</h1>\n\n"
+            "<table border=\"1\">\n\n";
+
+        for (Dictionary::const_iterator i=dict.begin(); i!=dict.end(); ++i)
+        {
+            out << "<tr><td colspan=\"2\"><tt style=\"color : navy\">"
+                << (*i).first << "</tt></td></tr>\n";
+            for (int l=0; l<N; l++)
             {
-              out << "<tr>"
-                  << "<td>" << language[l] << "</td>"
-                  << "<td>";
+                out << "<tr>"
+                    << "<td>" << language[l] << "</td>"
+                    << "<td>";
 
-              string s = (*i).second.lang[l];
-              for (string::const_iterator c=s.begin(); c!=s.end(); ++c)
-                if (*c == '<')
-                  out << "&lt;";
-                else if (*c == '>')
-                  out << "&gt;";
-                else if (*c == '&')
-                  out << "&amp;";
-                else
-                  out << *c;
+                string s = (*i).second.lang[l];
+                for (string::const_iterator c=s.begin(); c!=s.end(); ++c)
+                    if (*c == '<')
+                        out << "&lt;";
+                    else if (*c == '>')
+                        out << "&gt;";
+                    else if (*c == '&')
+                        out << "&amp;";
+                    else
+                        out << *c;
 
-              out << "</td>"
-                  << "</tr>\n";
+                out << "</td>"
+                    << "</tr>\n";
             }
         }
 
-    out << "\n</table>\n</body>\n</html>\n";
-  }
+        out << "\n</table>\n</body>\n</html>\n";
+    }
 
-  /* writing files language.cpp */
-  {
-    ofstream out("language.cpp");
-    out << "/* slovnikar " << version << " */\n\n"
-        << "#include <gnu_gama/local/language.h>\n\n"
-        << "namespace GNU_gama { namespace local {\n\n"
-        << "const char* T_language_cpp_internal_error = "
-        << "\" internal error : "
-        << "program must call function set_gama_language() \";\n\n";
+    /* writing files language.cpp */
+    {
+        ofstream out("language.cpp");
+        out << "/* slovnikar " << version << " */\n\n"
+            << "#include <gnu_gama/local/language.h>\n\n"
+            << "namespace GNU_gama { namespace local {\n\n"
+            << "const char* T_language_cpp_internal_error = "
+            << "\" internal error : "
+            << "program must call function set_gama_language() \";\n\n";
 
-    Dictionary::const_iterator i;
-    for (i=dict.begin(); i!=dict.end(); ++i)
-      {
-        out << "const char* "
-            << (*i).first
-            << " = T_language_cpp_internal_error;\n";
-      }
-    out << endl;
-
-    out << "void set_gama_language(gama_language lang)\n"
-        << "{\n"
-        << "   switch(lang)\n"
-        << "   {\n";
-
-    out << "   default:\n";
-    for (int l=0; l<N; l++)
-      {
-      out << "   case " << language[l] << ":\n";
-      for (i=dict.begin(); i!=dict.end(); ++i)
+        Dictionary::const_iterator i;
+        for (i=dict.begin(); i!=dict.end(); ++i)
         {
-          string text = (*i).second.lang[l];
-          if (text == "")
-            text = (*i).second.lang[0];   // English is used implicitly
-
-          out << "\t" << (*i).first << "=\"" << text << "\";\n";
+            out << "const char* "
+                << (*i).first
+                << " = T_language_cpp_internal_error;\n";
         }
-        out << "\treturn;\n\n";
+        out << endl;
 
-      }
-    out << "   }\n\n}\n\n}}   // namespace GNU_gama::local\n";
-  }
+        out << "void set_gama_language(gama_language lang)\n"
+            << "{\n"
+            << "   switch(lang)\n"
+            << "   {\n";
 
-  return result;
+        out << "   default:\n";
+        for (int l=0; l<N; l++)
+        {
+            out << "   case " << language[l] << ":\n";
+            for (i=dict.begin(); i!=dict.end(); ++i)
+            {
+                string text = (*i).second.lang[l];
+                if (text == "")
+                    text = (*i).second.lang[0];   // English is used implicitly
+
+                out << "\t" << (*i).first << "=\"" << text << "\";\n";
+            }
+            out << "\treturn;\n\n";
+
+        }
+        out << "   }\n\n}\n\n}}   // namespace GNU_gama::local\n";
+    }
+
+    return result;
 }

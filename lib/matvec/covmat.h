@@ -41,31 +41,39 @@
  */
 
 
-namespace GNU_gama {   /** \brief Covariance Matrix (symmetric band matrix) */
+namespace GNU_gama     /** \brief Covariance Matrix (symmetric band matrix) */
+{
 
 
-  template <typename Float=double, typename Exc=Exception::matvec>
-  class CovMat : public MatBase<Float, Exc>, public CholDecLD<Float, Exc> {
-  public:
+template <typename Float=double, typename Exc=Exception::matvec>
+class CovMat : public MatBase<Float, Exc>, public CholDecLD<Float, Exc>
+{
+public:
 
     CovMat() : band_(0), band_1(0), dim_b(0)
     {
     }
     CovMat(Index d, Index b)
-      : MatBase<Float, Exc>(d,d,d*(b+1) - b*(b+1)/2), band_(b),
-        band_1(b+1), dim_b(d-b)
+        : MatBase<Float, Exc>(d,d,d*(b+1) - b*(b+1)/2), band_(b),
+          band_1(b+1), dim_b(d-b)
     {
     }
 
     void reset()
     {
-      this->row_ = this->col_ = band_ = band_1 = dim_b = 0;
-      this->resize(0);
+        this->row_ = this->col_ = band_ = band_1 = dim_b = 0;
+        this->resize(0);
     }
 
     void   reset    (Index d, Index b);
-    Index  dim      () const { return this->row_; }
-    Index  bandWidth() const { return band_; }
+    Index  dim      () const
+    {
+        return this->row_;
+    }
+    Index  bandWidth() const
+    {
+        return band_;
+    }
     Float  operator ()(Index, Index) const;
     Float& operator ()(Index, Index);
     void   cholDec  ();
@@ -73,23 +81,24 @@ namespace GNU_gama {   /** \brief Covariance Matrix (symmetric band matrix) */
 
     const Float* operator[](Index row) const
     {
-      const Float* a_ = this->begin() + --row*band_1;
-      if (row > dim_b) {
-	const Index i_  = row - dim_b;
-	a_ -= i_*(i_+1)/2;
-      }
-      return a_;
+        const Float* a_ = this->begin() + --row*band_1;
+        if (row > dim_b)
+        {
+            const Index i_  = row - dim_b;
+            a_ -= i_*(i_+1)/2;
+        }
+        return a_;
     }
 
     Float* operator[](Index row)
     {
-      Float* a_ = this->begin() + --row*band_1;
-      if (row > dim_b)
+        Float* a_ = this->begin() + --row*band_1;
+        if (row > dim_b)
         {
-          const Index i_  = row - dim_b;
-          a_ -= i_*(i_+1)/2;
+            const Index i_  = row - dim_b;
+            a_ -= i_*(i_+1)/2;
         }
-      return a_;
+        return a_;
     }
 
     Vec<Float, Exc> operator*(const Vec<Float, Exc>&) const;
@@ -97,69 +106,71 @@ namespace GNU_gama {   /** \brief Covariance Matrix (symmetric band matrix) */
     std::istream&  read (std::istream&);
     std::ostream&  write(std::ostream&) const;
 
-  private:
+private:
 
     Index   band_, band_1, dim_b;
 
-  };      /* class CovMat */
+};      /* class CovMat */
 
 
-  template <typename Float, typename Exc>
-  void
-  CovMat<Float, Exc>::reset(Index d, Index b)
-  {
+template <typename Float, typename Exc>
+void
+CovMat<Float, Exc>::reset(Index d, Index b)
+{
     if (dim() != d || band_ != b)
-      {
+    {
         this->row_ = this->col_ = d;
         band_  = b;
         band_1 = b+1;
         dim_b  = d-b;
         this->resize(d*(b+1) - b*(b+1)/2);
-      }
-  }
+    }
+}
 
 
-  template <typename Float, typename Exc>
-  Float
-  CovMat<Float, Exc>::operator()(Index r, Index s) const
-  {
-    if (r > s) {
-      Index t = r;
-      r = s;
-      s = t;
+template <typename Float, typename Exc>
+Float
+CovMat<Float, Exc>::operator()(Index r, Index s) const
+{
+    if (r > s)
+    {
+        Index t = r;
+        r = s;
+        s = t;
     }
 
     if (s > r+band_)
-      return 0;
+        return 0;
 
     s -= r;
     return *(operator[](r) + s);
-  }
+}
 
 
-  template <typename Float, typename Exc>
-  Float&
-  CovMat<Float, Exc>::operator()(Index r, Index s)
-  {
-    if (r > s) {
-      Index t = r;
-      r = s;
-      s = t;
+template <typename Float, typename Exc>
+Float&
+CovMat<Float, Exc>::operator()(Index r, Index s)
+{
+    if (r > s)
+    {
+        Index t = r;
+        r = s;
+        s = t;
     }
 
     if (s > r+band_)
-      throw Exc(Exception::BadIndex,
-                "Float& CovMat::operator()(Index r, Index s)");
+        throw Exc(Exception::BadIndex,
+                  "Float& CovMat::operator()(Index r, Index s)");
 
     s -= r;
     return *(operator[](r) + s);
-  }
+}
 
 
-  template <typename Float, typename Exc>
-  void
-  CovMat<Float, Exc>::cholDec()
-  {
+template <typename Float, typename Exc>
+void
+CovMat<Float, Exc>::cholDec()
+{
     /*
      * Cholesky factorization of positive definite matrix A = L*D*trans(L)
      *
@@ -178,35 +189,35 @@ namespace GNU_gama {   /** \brief Covariance Matrix (symmetric band matrix) */
     Float  pivot, q;
 
     if (N == 0)
-      throw Exc(Exception::BadRank,
-                "CovMat::cholDec(Float  tol) - zero dim matrix");
+        throw Exc(Exception::BadRank,
+                  "CovMat::cholDec(Float  tol) - zero dim matrix");
 
     for (row=1; row<=N; row++)
-      {
+    {
         if((pivot = *B) < Tol)
-          throw Exc(Exception::NonPositiveDefinite,
-                    "CovMat::cholDec(Float  tol) - "
-                    "Matrix is not positive definite");
+            throw Exc(Exception::NonPositiveDefinite,
+                      "CovMat::cholDec(Float  tol) - "
+                      "Matrix is not positive definite");
 
         k = min(W, N-row);             // number of of-diagonal elements
         p = B+k;                       // next row address - 1
         for (n=1; n<=k; n++)
-          {
+        {
             q = B[n]/pivot;
-	    for (l=n; l<=k; l++) p[l] -= q*B[l];
+            for (l=n; l<=k; l++) p[l] -= q*B[l];
             p += min(W, N-row-n);
-          }
+        }
 
         B++;                           // *B++ = pivot = sqrt(pivot);
         for (; k; k--) *B++ /= pivot;
-      }
-  }
+    }
+}
 
 
-  template <typename Float, typename Exc>
-  void
-  CovMat<Float, Exc>::solve(Vec<Float, Exc>& rhs) const
-  {
+template <typename Float, typename Exc>
+void
+CovMat<Float, Exc>::solve(Vec<Float, Exc>& rhs) const
+{
     using namespace std;
     Index i, j, k;
     Float s;
@@ -214,74 +225,74 @@ namespace GNU_gama {   /** \brief Covariance Matrix (symmetric band matrix) */
 
     // forward substitution
     for (i=2; i<=dim(); i++)
-      {
+    {
         s = 0;
         for (j = i>band_ ? i-band_ : 1; j<i; j++) s += operator()(i,j)*rhs(j);
         rhs(i) -= s;
-      }
+    }
 
     // inverse of diagonal
     for (i=1; i<=dim(); i++) rhs(i) /= *operator[](i);
 
     // backward substituiton
     for (i=dim()-1; i>0; i--)
-      {
+    {
         s = 0;
         m = operator[](i) + 1;
         for (k=i+1; k<=min(i+band_,dim()); k++) s += *m++ * rhs(k);
         rhs(i) -= s;
-      }
-  }
+    }
+}
 
 
-  template <typename Float, typename Exc>
-  Vec<Float, Exc>
-  CovMat<Float, Exc>::operator*(const Vec<Float, Exc>& v) const
-  {
+template <typename Float, typename Exc>
+Vec<Float, Exc>
+CovMat<Float, Exc>::operator*(const Vec<Float, Exc>& v) const
+{
     Vec<Float, Exc> T(dim());
     Index i, j, k;
     Float s;
 
     for (i=1; i<=dim(); i++)
-      {
+    {
         s = 0;
 
         k = i+band_;
         if (k > dim()) k = dim();
         for (j = i>band_ ? i-band_ : 1; j<=k; j++)
-          {
+        {
             s += operator()(i,j)*v(j);
-          }
+        }
 
         T(i) = s;
-      }
+    }
 
     return T;
-  }
+}
 
 
-  template <typename Float, typename Exc>
-  std::istream&
-  CovMat<Float, Exc>::read(std::istream& inp)
-  {
+template <typename Float, typename Exc>
+std::istream&
+CovMat<Float, Exc>::read(std::istream& inp)
+{
     int inpd, inpb;
     inp >> inpd >> inpb;
     reset(inpd, inpb);
 
     Float  *b = this->begin();
     for (Index i=1; i<=dim(); i++)
-      for (Index j=i; j<=i+band_; j++)
-        if (j <= dim())
-          inp >> *b++;
+        for (Index j=i; j<=i+band_; j++)
+            if (j <= dim())
+                inp >> *b++;
 
     return inp;
-  }
+}
 
 
-  template <typename Float, typename Exc>
-  std::ostream&
-  CovMat<Float, Exc>::write(std::ostream& out) const
-  {
+template <typename Float, typename Exc>
+std::ostream&
+CovMat<Float, Exc>::write(std::ostream& out) const
+{
     int w = out.width();
     out.width(w);
     out << dim() << ' ';
@@ -290,15 +301,15 @@ namespace GNU_gama {   /** \brief Covariance Matrix (symmetric band matrix) */
 
     const Float  *b = this->begin();
     for (Index i=1; i<=dim(); i++, out << '\n')
-      for (Index j=i; j<=i+band_; j++)
-        if (j <= dim())
-          {
-            out.width(w);
-            out << *b++ << ' ';
-          }
+        for (Index j=i; j<=i+band_; j++)
+            if (j <= dim())
+            {
+                out.width(w);
+                out << *b++ << ' ';
+            }
 
     return out;
-  }
+}
 
 
 }      //  namespace GNU_gama

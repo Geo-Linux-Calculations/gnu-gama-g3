@@ -32,7 +32,8 @@
 
 #include <iostream>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
 /** \brief Marking interface for acyclic visitor design pattern.
  *
@@ -92,7 +93,7 @@ namespace GNU_gama {
 class BaseVisitor
 {
 public:
-  virtual ~BaseVisitor() {}
+    virtual ~BaseVisitor() {}
 };
 
 
@@ -125,8 +126,8 @@ public:
 template <typename Element> class Visitor
 {
 public:
-  virtual ~Visitor() {}
-  virtual void visit(Element* element) = 0;
+    virtual ~Visitor() {}
+    virtual void visit(Element* element) = 0;
 };
 
 
@@ -157,17 +158,18 @@ public:
  */
 
 template <typename Derived, typename Base>
-  class Accept : public Base {
+class Accept : public Base
+{
 public:
-  /** \brief Default implementation of accept method.
-   */
-  void accept(BaseVisitor* visitor)
-  {
-    if (Visitor<Derived>* v = dynamic_cast<Visitor<Derived>*>(visitor))
-      {
-        v->visit(static_cast<Derived*>(this));
-      }
-  }
+    /** \brief Default implementation of accept method.
+     */
+    void accept(BaseVisitor* visitor)
+    {
+        if (Visitor<Derived>* v = dynamic_cast<Visitor<Derived>*>(visitor))
+        {
+            v->visit(static_cast<Derived*>(this));
+        }
+    }
 
 };
 

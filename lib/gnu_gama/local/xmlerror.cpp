@@ -29,97 +29,97 @@ using namespace GNU_gama::local;
 
 XMLerror::XMLerror()
 {
-  clear();
+    clear();
 }
 
 
 void XMLerror::clear()
 {
-  _isValid = false;
-  _hasLineNumber = false;
-  _category.clear();
-  _strlist.clear();
+    _isValid = false;
+    _hasLineNumber = false;
+    _category.clear();
+    _strlist.clear();
 }
 
 void XMLerror::setIsValid(bool b)
 {
-  _isValid = b;
+    _isValid = b;
 }
 
 bool XMLerror::isValid() const
 {
-  return _isValid;
+    return _isValid;
 }
 
 bool XMLerror::hasLineNumber() const
 {
-  return _hasLineNumber;
+    return _hasLineNumber;
 }
 
 void XMLerror::setXmlOutput  (std::string s)
 {
-  _xmlOutput = s;
-  _isValid = true;
+    _xmlOutput = s;
+    _isValid = true;
 }
 
 void XMLerror::setDescription(std::string s)
 {
-  _strlist.push_back(s);
-  _isValid = true;
+    _strlist.push_back(s);
+    _isValid = true;
 }
 
 void XMLerror::setCategory(std::string s)
 {
-  _category = s;
-  _isValid = true;
+    _category = s;
+    _isValid = true;
 }
 
 void XMLerror::setLineNumber(int n)
 {
-  _lineNumber = n;
-  _hasLineNumber = true;
-  _isValid = true;
+    _lineNumber = n;
+    _hasLineNumber = true;
+    _isValid = true;
 }
 
 int XMLerror::write_xml(std::string category)
 {
-  _category = category;
+    _category = category;
 
-  if (!_xmlOutput.empty())
+    if (!_xmlOutput.empty())
     {
-      if (_xmlOutput == "-")
+        if (_xmlOutput == "-")
         {
-          write(std::cout);
+            write(std::cout);
         }
-      else
+        else
         {
-          std::ofstream file(_xmlOutput.c_str());
-          write(file);
+            std::ofstream file(_xmlOutput.c_str());
+            write(file);
         }
     }
 
-  return 0;
+    return 0;
 }
 
 void XMLerror::write(std::ostream& ostr)
 {
-  ostr <<
-    "<?xml version=\"1.0\"?>\n"
-    "<gama-local-adjustment xmlns=\"" << XSD_GAMA_LOCAL_ADJUSTMENT << "\">\n\n"
-    "<error category=\"" << _category << "\">\n";
+    ostr <<
+         "<?xml version=\"1.0\"?>\n"
+         "<gama-local-adjustment xmlns=\"" << XSD_GAMA_LOCAL_ADJUSTMENT << "\">\n\n"
+         "<error category=\"" << _category << "\">\n";
 
-  for (std::vector<std::string>::const_iterator
-         i=_strlist.begin(), e=_strlist.end(); i != e; ++i)
+    for (std::vector<std::string>::const_iterator
+            i=_strlist.begin(), e=_strlist.end(); i != e; ++i)
     {
-      ostr << "<description>" << *i << "</description>\n";
+        ostr << "<description>" << *i << "</description>\n";
     }
 
-  if (_hasLineNumber)
+    if (_hasLineNumber)
     {
-      ostr << "<lineNumber>" << _lineNumber << "</lineNumber>\n";
+        ostr << "<lineNumber>" << _lineNumber << "</lineNumber>\n";
     }
 
-  ostr <<
-    "</error>\n\n"
-    "</gama-local-adjustment>\n";
+    ostr <<
+         "</error>\n\n"
+         "</gama-local-adjustment>\n";
 }

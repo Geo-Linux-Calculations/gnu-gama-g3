@@ -24,10 +24,11 @@
 
 #include <string>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  std::string latitude (double rad, int prec=7);
-  std::string longitude(double rad, int prec=7);
+std::string latitude (double rad, int prec=7);
+std::string longitude(double rad, int prec=7);
 
 }
 

@@ -25,8 +25,8 @@
 
 namespace
 {
-  std::string latlong(double rad, int prec)
-  {
+std::string latlong(double rad, int prec)
+{
     bool neg = rad < 0;
     if (neg) rad = -rad;
 
@@ -54,29 +54,30 @@ namespace
 
     std::string s = ostr.str();
     if (neg)
-      {
+    {
         if      (s[2] == ' ') s[2] = '-';
         else if (s[1] == ' ') s[1] = '-';
         else                  s[0] = '-';
-      }
+    }
 
     return s;
-  }
+}
 }
 
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
 
 std::string latitude (double rad, int prec)
 {
-  return latlong(rad, prec);
+    return latlong(rad, prec);
 }
 
 
 std::string longitude(double rad, int prec)
 {
-  return latlong(rad, prec);
+    return latlong(rad, prec);
 }
 
 }

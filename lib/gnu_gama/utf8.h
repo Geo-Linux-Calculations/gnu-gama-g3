@@ -24,16 +24,18 @@
 
 #include <string>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  class Utf8 {
-  public:
+class Utf8
+{
+public:
 
     static std::size_t length  (std::string);
     static std::string leftPad (std::string, std::size_t, char=' ');
     static std::string rightPad(std::string, std::size_t, char=' ');
 
-  };
+};
 
 }  // namespace Utf8
 

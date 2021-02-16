@@ -27,23 +27,28 @@
 #include <gnu_gama/local/pobs/bearing.h>
 #include <gnu_gama/local/gamadata.h>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-class Orientation {
+class Orientation
+{
 
-   PointData&       PL;
-   ObservationList& OL;
+    PointData&       PL;
+    ObservationList& OL;
 
 public:
 
-   Orientation(PointData& p, ObservationList& o) : PL(p), OL(o) {}
+    Orientation(PointData& p, ObservationList& o) : PL(p), OL(o) {}
 
-   // L1 estimate of the standpoint orientation (iter. to the first direction)
-   void orientation(ObservationList::const_iterator&, Double&, int&);
+    // L1 estimate of the standpoint orientation (iter. to the first direction)
+    void orientation(ObservationList::const_iterator&, Double&, int&);
 
-   // add all possible orientations for the observation list
-   void add_all();
+    // add all possible orientations for the observation list
+    void add_all();
 };
 
-}}
+}
+}
 #endif

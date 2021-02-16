@@ -38,20 +38,21 @@
   \brief Implementation of #GNU_gama::local::sqlite_db::SqliteReader.
   */
 
-namespace {
-  const char* T_gamalite_database_not_open =
+namespace
+{
+const char* T_gamalite_database_not_open =
     "database not open"; ///< error message, used in #GNU_gama::local::sqlite_db::SqliteReader::SqliteReader
-  const char* T_gamalite_invalid_column_value =
+const char* T_gamalite_invalid_column_value =
     "invalid column value"; ///< error message, used in callbacks' to indicate bad value of database field
-  const char* T_gamalite_conversion_to_double_failed =
+const char* T_gamalite_conversion_to_double_failed =
     "conversion to double failed"; ///< error message, used in conversion function when no better message can be used
-  const char* T_gamalite_conversion_to_integer_failed =
+const char* T_gamalite_conversion_to_integer_failed =
     "conversion to integer failed"; ///< \copydoc T_gamalite_conversion_to_double_failed()
-  const char* T_gamalite_unknown_exception_in_callback =
+const char* T_gamalite_unknown_exception_in_callback =
     "unknown exception in SqliteReader's callback"; ///< error message, used in callbacks' catch(...)
-  const char* T_gamalite_stand_point_cluster_with_multi_dir_sets =
+const char* T_gamalite_stand_point_cluster_with_multi_dir_sets =
     "StandPoint cluster with multiple directions sets"; ///< error message, used in #sqlite_db_readObservations
-  const char* T_gamalite_configuration_not_found =
+const char* T_gamalite_configuration_not_found =
     "configuration not found"; ///< error message, used in #GNU_gama::local::sqlite_db::SqliteReader::retrieve
 }
 
@@ -203,10 +204,15 @@ extern "C" {
        the callback again and without running any subsequent SQL statements.
       */
 
-  typedef int (*SqliteReaderCallbackType)(void*, int, char**, char**);
+    typedef int (*SqliteReaderCallbackType)(void*, int, char**, char**);
 }
 
-namespace GNU_gama { namespace local { namespace sqlite_db {
+namespace GNU_gama
+{
+namespace local
+{
+namespace sqlite_db
+{
 
 /**
    \internal
@@ -237,50 +243,53 @@ struct ReaderData
        Strings are initialised by \c "" to satisfied GCC \c -Weffc++ warning options.
       */
 
-  ReaderData() : lnet(0),
-                 exception(0), sqlite3Handle(0), configurationId(""),
-                 currentStandPoint(0), currentVectors(0),
-                 currentCoordinates(0), currentHeightDifferences(0),
-                 currentCovarianceMatrix(0)
-  {
-  }
+    ReaderData() : lnet(0),
+        exception(0), sqlite3Handle(0), configurationId(""),
+        currentStandPoint(0), currentVectors(0),
+        currentCoordinates(0), currentHeightDifferences(0),
+        currentCovarianceMatrix(0)
+    {
+    }
 
-  GNU_gama::local::LocalNetwork* lnet; ///< pointer to network object
+    GNU_gama::local::LocalNetwork* lnet; ///< pointer to network object
 
-  GNU_gama::Exception::base* exception; ///< an exception which was caught in callback or \c NULL if no exception was thrown
-  sqlite3*  sqlite3Handle; ///< pointer to \c struct \c sqlite3
-  std::string configurationId; ///< configuration id in database
+    GNU_gama::Exception::base* exception; ///< an exception which was caught in callback or \c NULL if no exception was thrown
+    sqlite3*  sqlite3Handle; ///< pointer to \c struct \c sqlite3
+    std::string configurationId; ///< configuration id in database
 
-  /** provides access to same stand point for callback ::readObservations and caller of #exec() function */
-  GNU_gama::local::StandPoint*        currentStandPoint;
-  GNU_gama::local::Vectors*           currentVectors;
-  GNU_gama::local::Coordinates*       currentCoordinates;
-  GNU_gama::local::HeightDifferences* currentHeightDifferences;
-  /** provides access to same covariance matrix for callback ::readCovarianceMatrix and caller of #exec() function */
-  GNU_gama::local::CovMat*            currentCovarianceMatrix;
+    /** provides access to same stand point for callback ::readObservations and caller of #exec() function */
+    GNU_gama::local::StandPoint*        currentStandPoint;
+    GNU_gama::local::Vectors*           currentVectors;
+    GNU_gama::local::Coordinates*       currentCoordinates;
+    GNU_gama::local::HeightDifferences* currentHeightDifferences;
+    /** provides access to same covariance matrix for callback ::readCovarianceMatrix and caller of #exec() function */
+    GNU_gama::local::CovMat*            currentCovarianceMatrix;
 
 private:
-  /** disabled copy constructor */
-  ReaderData(const ReaderData&);
-  /** disabled assignment operator */
-  ReaderData& operator= (const ReaderData&);
+    /** disabled copy constructor */
+    ReaderData(const ReaderData&);
+    /** disabled assignment operator */
+    ReaderData& operator= (const ReaderData&);
 };
 
-}}} // namespace GNU_gama local sqlite_db
+}
+}
+} // namespace GNU_gama local sqlite_db
 
 
 using namespace GNU_gama::local::sqlite_db;
 
 
 SqliteReader::SqliteReader(const std::string& fileName)
-  : readerData(new ReaderData)
+    : readerData(new ReaderData)
 {
-  int resCode = sqlite3_open(fileName.c_str(), &readerData->sqlite3Handle);
+    int resCode = sqlite3_open(fileName.c_str(), &readerData->sqlite3Handle);
 
-  if (resCode) {
-    delete readerData;
-    throw GNU_gama::Exception::sqlitexc(T_gamalite_database_not_open);
-  }
+    if (resCode)
+    {
+        delete readerData;
+        throw GNU_gama::Exception::sqlitexc(T_gamalite_database_not_open);
+    }
 }
 
 /**
@@ -289,735 +298,747 @@ SqliteReader::SqliteReader(const std::string& fileName)
   */
 SqliteReader::~SqliteReader()
 {
-  int resCode = sqlite3_close(readerData->sqlite3Handle);
-  if (resCode == SQLITE_OK)
+    int resCode = sqlite3_close(readerData->sqlite3Handle);
+    if (resCode == SQLITE_OK)
     {
-      readerData->sqlite3Handle = 0;
+        readerData->sqlite3Handle = 0;
     }
 
-  if (readerData->exception) {
-    delete readerData->exception;
-    readerData->exception = 0;
-  }
-  delete readerData;
+    if (readerData->exception)
+    {
+        delete readerData->exception;
+        readerData->exception = 0;
+    }
+    delete readerData;
 }
 
-namespace {
+namespace
+{
 
-  /**
-     \internal
-     \brief A C++ wrapper around \c sqlite3_exec function.
+/**
+   \internal
+   \brief A C++ wrapper around \c sqlite3_exec function.
 
-     Connection to database has to be open. If the \a callback is \c NULL pointer,
-     then no callback function is called (result rows are ignored).
-     If callback requests query execution abort (by returning non-zero value),
-     no other callbacks is called and exception is thrown
-     (\c sqlite3_exec returns a value which differs from \c SQLITE_OK, see also <http://www.sqlite.org/capi3ref.html#SQLITE_ABORT>).
+   Connection to database has to be open. If the \a callback is \c NULL pointer,
+   then no callback function is called (result rows are ignored).
+   If callback requests query execution abort (by returning non-zero value),
+   no other callbacks is called and exception is thrown
+   (\c sqlite3_exec returns a value which differs from \c SQLITE_OK, see also <http://www.sqlite.org/capi3ref.html#SQLITE_ABORT>).
 
-     If callback stores pointer to an exception to #GNU_gama::local::sqlite_db::ReaderData::exception
-     and callback requests query execution abort, exception will be rethrown.
-     If #GNU_gama::local::sqlite_db::ReaderData::exception is \c NULL pointer,
-     #GNU_gama::Exception::sqlitexc will be thrown with SQLite error message.
+   If callback stores pointer to an exception to #GNU_gama::local::sqlite_db::ReaderData::exception
+   and callback requests query execution abort, exception will be rethrown.
+   If #GNU_gama::local::sqlite_db::ReaderData::exception is \c NULL pointer,
+   #GNU_gama::Exception::sqlitexc will be thrown with SQLite error message.
 
-     \param sqlite3Handle pointer to \c struct \c sqlite3
-     \param query query string
-     \param callback pointer to callback function
-     \param readerData pointer to \c struct ReaderData
+   \param sqlite3Handle pointer to \c struct \c sqlite3
+   \param query query string
+   \param callback pointer to callback function
+   \param readerData pointer to \c struct ReaderData
 
-     \throws #GNU_gama::Exception::sqlitexc if error occurs when reading from database
-     \throws GNU_gama::Exception::base if is error occurred by something another -- it depends on callback
-     It can also throw any other exception derived from this class.
+   \throws #GNU_gama::Exception::sqlitexc if error occurs when reading from database
+   \throws GNU_gama::Exception::base if is error occurred by something another -- it depends on callback
+   It can also throw any other exception derived from this class.
 
-     Callback functions are expected to handle exceptions like this:
-     \code
-            \\ ... try block
-            catch (GNU_gama::Exception::base& e)
-                {
-                    d->exception = e.clone();
-                }
-            catch (std::exception& e)
-                {
-                    d->exception = new GNU_gama::Exception::string(e.what());
-                }
-            catch (...)
-                {
-                    d->exception = new GNU_gama::Exception::string("unknown");
-                }
-            return 1;
-      \endcode
+   Callback functions are expected to handle exceptions like this:
+   \code
+          \\ ... try block
+          catch (GNU_gama::Exception::base& e)
+              {
+                  d->exception = e.clone();
+              }
+          catch (std::exception& e)
+              {
+                  d->exception = new GNU_gama::Exception::string(e.what());
+              }
+          catch (...)
+              {
+                  d->exception = new GNU_gama::Exception::string("unknown");
+              }
+          return 1;
+    \endcode
 
-      \sa #GNU_gama::local::sqlite_db::ReaderData, #SqliteReaderCallbackType, #GNU_gama::Exception::sqlitexc
-      */
-  void exec(sqlite3 *sqlite3Handle, const std::string& query, SqliteReaderCallbackType callback, ReaderData* readerData)
-  {
+    \sa #GNU_gama::local::sqlite_db::ReaderData, #SqliteReaderCallbackType, #GNU_gama::Exception::sqlitexc
+    */
+void exec(sqlite3 *sqlite3Handle, const std::string& query, SqliteReaderCallbackType callback, ReaderData* readerData)
+{
     char * errorMsg = 0;
     int rc = 0;
     rc = sqlite3_exec(sqlite3Handle, query.c_str(), callback, readerData, &errorMsg);
     if (rc != SQLITE_OK)
-      {
+    {
         if (readerData->exception != 0)
-          {
+        {
             readerData->exception->raise();
-          }
+        }
         else if (errorMsg)
-          {
+        {
             std::string s = errorMsg;
             sqlite3_free(errorMsg);
             throw GNU_gama::Exception::sqlitexc(s);
-          }
-      }
-  }
+        }
+    }
+}
 } // unnamed namespace
 
 
 void SqliteReader::retrieve(LocalNetwork*& locnet, const std::string& configuration)
 {
-  // at this point we do not know if locnet is defined yet
-  readerData->lnet = locnet;
+    // at this point we do not know if locnet is defined yet
+    readerData->lnet = locnet;
 
-  // configuration info
-  std::string query("select conf_id, "
-                    "       algorithm, sigma_apr, conf_pr, tol_abs, sigma_act,"
-                    "       update_cc, axes_xy, angles, epoch, ang_units, "
-                    "       latitude, ellipsoid, cov_band "
-                    "  from gnu_gama_local_configurations "
-                    " where conf_name = '" + configuration + "'");
-  exec(readerData->sqlite3Handle, query, sqlite_db_readConfigurationInfo, readerData);
+    // configuration info
+    std::string query("select conf_id, "
+                      "       algorithm, sigma_apr, conf_pr, tol_abs, sigma_act,"
+                      "       update_cc, axes_xy, angles, epoch, ang_units, "
+                      "       latitude, ellipsoid, cov_band "
+                      "  from gnu_gama_local_configurations "
+                      " where conf_name = '" + configuration + "'");
+    exec(readerData->sqlite3Handle, query, sqlite_db_readConfigurationInfo, readerData);
 
-  if (readerData->configurationId.empty())
-    throw GNU_gama::Exception::sqlitexc(T_gamalite_configuration_not_found);
+    if (readerData->configurationId.empty())
+        throw GNU_gama::Exception::sqlitexc(T_gamalite_configuration_not_found);
 
-  locnet = readerData->lnet; // now the pointer must be defined externally or in the callback
+    locnet = readerData->lnet; // now the pointer must be defined externally or in the callback
 
-  // configuration description
-  query = "select text from gnu_gama_local_descriptions "
-    " where conf_id = " + readerData->configurationId +
-    " order by indx asc";
-  exec(readerData->sqlite3Handle, query, sqlite_db_readConfigurationText, readerData);
+    // configuration description
+    query = "select text from gnu_gama_local_descriptions "
+            " where conf_id = " + readerData->configurationId +
+            " order by indx asc";
+    exec(readerData->sqlite3Handle, query, sqlite_db_readConfigurationText, readerData);
 
-  // points
-  query = "select id, x, y, z, txy, tz "
-          "  from gnu_gama_local_points where conf_id = " + readerData->configurationId;
-  exec(readerData->sqlite3Handle, query, sqlite_db_readPoints, readerData);
+    // points
+    query = "select id, x, y, z, txy, tz "
+            "  from gnu_gama_local_points where conf_id = " + readerData->configurationId;
+    exec(readerData->sqlite3Handle, query, sqlite_db_readPoints, readerData);
 
-  // changed cluster to ccluster
-  query = "select ccluster, dim, band, tag "
-         "  from gnu_gama_local_clusters where conf_id = " + readerData->configurationId;
-  exec(readerData->sqlite3Handle, query, sqlite_db_readClusters, readerData);
+    // changed cluster to ccluster
+    query = "select ccluster, dim, band, tag "
+            "  from gnu_gama_local_clusters where conf_id = " + readerData->configurationId;
+    exec(readerData->sqlite3Handle, query, sqlite_db_readClusters, readerData);
 }
 
 
-namespace {
-  /**
-     \brief Converts string to double.
+namespace
+{
+/**
+   \brief Converts string to double.
 
-     Parameter \a s can not be \c NULL pointer.
-     If conversion fails, exception is thrown.
+   Parameter \a s can not be \c NULL pointer.
+   If conversion fails, exception is thrown.
 
-     \param s string to convert
-     \param m error message if conversion fails
+   \param s string to convert
+   \param m error message if conversion fails
 
-     \throws #GNU_gama::Exception::sqlitexc
-  */
-  double ToDouble(const char* s, const std::string& m = T_gamalite_conversion_to_double_failed)
-  {
+   \throws #GNU_gama::Exception::sqlitexc
+*/
+double ToDouble(const char* s, const std::string& m = T_gamalite_conversion_to_double_failed)
+{
     std::string ss = s;
     if (!GNU_gama::IsFloat(ss))
-      throw GNU_gama::Exception::sqlitexc(m);
+        throw GNU_gama::Exception::sqlitexc(m);
     std::istringstream istr(ss);
     double d;
     istr >> d;
     return  d;
-  }
+}
 
-  /**
-     \brief Converts string to integer
+/**
+   \brief Converts string to integer
 
-     \copydetails ToDouble()
-  */
-  int ToInteger(const char* s, const std::string& m = T_gamalite_conversion_to_integer_failed)
-  {
+   \copydetails ToDouble()
+*/
+int ToInteger(const char* s, const std::string& m = T_gamalite_conversion_to_integer_failed)
+{
     std::string ss = s;
     if (!GNU_gama::IsInteger(ss)) throw GNU_gama::Exception::sqlitexc(m);
     std::istringstream istr(ss);
     int n;
     istr >> n;
     return  n;
-  }
+}
 } // unnamed namespace
 
 
 /////////////// callbacks - extern "C" ///////////////////
 int sqlite_db_readConfigurationInfo(void* data, int argc, char** argv, char**)
 {
-  ReaderData* d = static_cast<ReaderData*>(data);
+    ReaderData* d = static_cast<ReaderData*>(data);
 
-  try {
-    if (argc == 14 && argv[0])
-      {
-        d->configurationId = argv[0];
+    try
+    {
+        if (argc == 14 && argv[0])
+        {
+            d->configurationId = argv[0];
 
-        if (argv[1])
-          d->lnet->set_algorithm(argv[1]);
+            if (argv[1])
+                d->lnet->set_algorithm(argv[1]);
 
-        using namespace GNU_gama::local;
+            using namespace GNU_gama::local;
 
-        // create a new local newtwork if not defined
-        if (d->lnet == 0)
-          {
-            d->lnet = new LocalNetwork;
-          }
+            // create a new local newtwork if not defined
+            if (d->lnet == 0)
+            {
+                d->lnet = new LocalNetwork;
+            }
 
-        d->lnet->apriori_m_0(ToDouble(argv[2]));
-        d->lnet->conf_pr(ToDouble(argv[3]));
-        d->lnet->tol_abs(ToDouble(argv[4]));
+            d->lnet->apriori_m_0(ToDouble(argv[2]));
+            d->lnet->conf_pr(ToDouble(argv[3]));
+            d->lnet->tol_abs(ToDouble(argv[4]));
 
-        if (std::string(argv[5]) == "apriori")
-          d->lnet->set_m_0_apriori();
+            if (std::string(argv[5]) == "apriori")
+                d->lnet->set_m_0_apriori();
+            else
+                d->lnet->set_m_0_aposteriori();
+
+            d->lnet->update_constrained_coordinates((std::string(argv[6]) == "yes"));
+
+            std::string val = argv[7];
+            LocalCoordinateSystem::CS& lcs = d->lnet->PD.local_coordinate_system;
+            if      (val == "ne") lcs = LocalCoordinateSystem::NE;
+            else if (val == "sw") lcs = LocalCoordinateSystem::SW;
+            else if (val == "es") lcs = LocalCoordinateSystem::ES;
+            else if (val == "wn") lcs = LocalCoordinateSystem::WN;
+            else if (val == "en") lcs = LocalCoordinateSystem::EN;
+            else if (val == "nw") lcs = LocalCoordinateSystem::NW;
+            else if (val == "se") lcs = LocalCoordinateSystem::SE;
+            else if (val == "ws") lcs = LocalCoordinateSystem::WS;
+            else lcs = LocalCoordinateSystem::NE;
+
+            // d->lnet->PD.right_handed_angles = (std::string(argv[8]) == "right-handed");
+            if (std::string(argv[8]) == "right-handed")
+                d->lnet->PD.setAngularObservations_Righthanded();
+            else
+                d->lnet->PD.setAngularObservations_Lefthanded();
+
+            if (argv[9])
+                d->lnet->set_epoch(ToDouble(argv[9]));
+
+            if (std::string(argv[10]) == "400")
+                d->lnet->set_gons();
+            else
+                d->lnet->degrees();
+
+            using namespace std;
+            if (argv[11])
+                d->lnet->set_latitude(atoi(argv[11]) * M_PI / 200);
+
+            if (argv[12])
+                d->lnet->set_ellipsoid(argv[12]);
+
+            d->lnet->set_xml_covband(atoi(argv[13]));
+
+            return 0;
+        }
         else
-          d->lnet->set_m_0_aposteriori();
-
-        d->lnet->update_constrained_coordinates((std::string(argv[6]) == "yes"));
-
-        std::string val = argv[7];
-        LocalCoordinateSystem::CS& lcs = d->lnet->PD.local_coordinate_system;
-        if      (val == "ne") lcs = LocalCoordinateSystem::NE;
-        else if (val == "sw") lcs = LocalCoordinateSystem::SW;
-        else if (val == "es") lcs = LocalCoordinateSystem::ES;
-        else if (val == "wn") lcs = LocalCoordinateSystem::WN;
-        else if (val == "en") lcs = LocalCoordinateSystem::EN;
-        else if (val == "nw") lcs = LocalCoordinateSystem::NW;
-        else if (val == "se") lcs = LocalCoordinateSystem::SE;
-        else if (val == "ws") lcs = LocalCoordinateSystem::WS;
-        else lcs = LocalCoordinateSystem::NE;
-
-        // d->lnet->PD.right_handed_angles = (std::string(argv[8]) == "right-handed");
-	if (std::string(argv[8]) == "right-handed")
-	  d->lnet->PD.setAngularObservations_Righthanded();
-	else
-	  d->lnet->PD.setAngularObservations_Lefthanded();
-
-        if (argv[9])
-          d->lnet->set_epoch(ToDouble(argv[9]));
-
-        if (std::string(argv[10]) == "400")
-          d->lnet->set_gons();
-        else
-          d->lnet->degrees();
-
-        using namespace std;
-        if (argv[11])
-          d->lnet->set_latitude(atoi(argv[11]) * M_PI / 200);
-
-        if (argv[12])
-          d->lnet->set_ellipsoid(argv[12]);
-
-        d->lnet->set_xml_covband(atoi(argv[13]));
-
-        return 0;
-      }
-    else
-      {
-        throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
-      }
-  }
-  catch (GNU_gama::Exception::base& e)
-    {
-      d->exception = e.clone();
+        {
+            throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
+        }
     }
-  catch (std::exception& e)
+    catch (GNU_gama::Exception::base& e)
     {
-      d->exception = new GNU_gama::Exception::string(e.what());
+        d->exception = e.clone();
     }
-  catch (...)
+    catch (std::exception& e)
     {
-      d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+        d->exception = new GNU_gama::Exception::string(e.what());
     }
-  return 1;
+    catch (...)
+    {
+        d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+    }
+    return 1;
 }
 
 int sqlite_db_readConfigurationText(void* data, int argc, char** argv, char**)
 {
-  ReaderData* d = static_cast<ReaderData*>(data);
-  try {
-    if (argc == 1 && argv[0])
-      {
-        d->lnet->description += argv[0];
-        return 0;
-      }
-    else
-      throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
-  }
-  catch (GNU_gama::Exception::base& e)
+    ReaderData* d = static_cast<ReaderData*>(data);
+    try
     {
-      d->exception = e.clone();
+        if (argc == 1 && argv[0])
+        {
+            d->lnet->description += argv[0];
+            return 0;
+        }
+        else
+            throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
     }
-  catch (std::exception& e)
+    catch (GNU_gama::Exception::base& e)
     {
-      d->exception = new GNU_gama::Exception::string(e.what());
+        d->exception = e.clone();
     }
-  catch (...)
+    catch (std::exception& e)
     {
-      d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+        d->exception = new GNU_gama::Exception::string(e.what());
     }
-  return 1;
+    catch (...)
+    {
+        d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+    }
+    return 1;
 }
 
 int sqlite_db_readPoints(void* data, int argc, char** argv, char**)
 {
-  ReaderData* d = static_cast<ReaderData*>(data);
-  try {
-    if (argc == 6 && argv[0])
-      {
-        GNU_gama::local::LocalPoint p;
-        if (argv[1] && argv[2])
-          p.set_xy(ToDouble(argv[1]), ToDouble(argv[2]));
-        if (argv[3])
-          p.set_z(ToDouble(argv[3]));
-        if (argv[4])
-          {
-            std::string txy = argv[4];
-            if      (txy == "fixed")       p.set_fixed_xy();
-            else if (txy == "adjusted")    p.set_free_xy();
-            else if (txy == "constrained") p.set_constrained_xy();
-          }
-        if (argv[5])
-          {
-            std::string tz = argv[5];
-            if      (tz == "fixed")       p.set_fixed_z();
-            else if (tz == "adjusted")    p.set_free_z();
-            else if (tz == "constrained") p.set_constrained_z();
-          }
-        std::string pid = argv[0];
-        d->lnet->PD[pid] = p;
+    ReaderData* d = static_cast<ReaderData*>(data);
+    try
+    {
+        if (argc == 6 && argv[0])
+        {
+            GNU_gama::local::LocalPoint p;
+            if (argv[1] && argv[2])
+                p.set_xy(ToDouble(argv[1]), ToDouble(argv[2]));
+            if (argv[3])
+                p.set_z(ToDouble(argv[3]));
+            if (argv[4])
+            {
+                std::string txy = argv[4];
+                if      (txy == "fixed")       p.set_fixed_xy();
+                else if (txy == "adjusted")    p.set_free_xy();
+                else if (txy == "constrained") p.set_constrained_xy();
+            }
+            if (argv[5])
+            {
+                std::string tz = argv[5];
+                if      (tz == "fixed")       p.set_fixed_z();
+                else if (tz == "adjusted")    p.set_free_z();
+                else if (tz == "constrained") p.set_constrained_z();
+            }
+            std::string pid = argv[0];
+            d->lnet->PD[pid] = p;
 
-        return 0;
-      }
-    else
-      throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
-  }
-  catch (GNU_gama::Exception::base& e)
-    {
-      d->exception = e.clone();
+            return 0;
+        }
+        else
+            throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
     }
-  catch (std::exception& e)
+    catch (GNU_gama::Exception::base& e)
     {
-      d->exception = new GNU_gama::Exception::string(e.what());
+        d->exception = e.clone();
     }
-  catch (...)
+    catch (std::exception& e)
     {
-      d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+        d->exception = new GNU_gama::Exception::string(e.what());
     }
-  return 1;
+    catch (...)
+    {
+        d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+    }
+    return 1;
 }
 
 int sqlite_db_readClusters(void* data, int argc, char** argv, char**)
 {
-  ReaderData* d = static_cast<ReaderData*>(data);
-  try {
-    if (argc ==4 && argv[0] && argv[1] && argv[2] && argv[3])
-      {
-        std::string currentClusterId = argv[0];
-        std::string tag = argv[3];
-
-        GNU_gama::Cluster<GNU_gama::local::Observation>* c = 0;
-
-        if (tag == "obs")
-          {
-            d->currentStandPoint = new GNU_gama::local::StandPoint(&d->lnet->OD);
-
-            std::string query =
-              "select indx, tag, from_id, to_id, to_id2, val, stdev, "
-              "       from_dh, to_dh, to_dh2, dist, rejected "
-              "  from gnu_gama_local_obs "
-              " where conf_id = " + d->configurationId +
-              "   and ccluster = " + currentClusterId ;
-            exec(d->sqlite3Handle, query.c_str(), sqlite_db_readObservations, d);
-
-            c = d->currentStandPoint;
-            d->currentStandPoint = 0;
-          }
-        else if (tag == "vectors")
-          {
-            d->currentVectors = new GNU_gama::local::Vectors(&d->lnet->OD);
-
-            std::string query =
-              "select indx, from_id, to_id, dx, dy, dz, "
-              "       from_dh, to_dh, rejected "
-              "  from gnu_gama_local_vectors "
-              " where conf_id = " + d->configurationId +
-              "   and ccluster = " + currentClusterId ;
-            exec(d->sqlite3Handle, query.c_str(), sqlite_db_readVectors, d);
-
-            c = d->currentVectors;
-            d->currentVectors = 0;
-          }
-        else if (tag == "coordinates")
-          {
-            d->currentCoordinates = new GNU_gama::local::Coordinates(&d->lnet->OD);
-
-            std::string query =
-              "select indx, id, x, y, z, rejected "
-              "  from gnu_gama_local_coordinates "
-              " where conf_id = " + d->configurationId +
-              "   and ccluster = " + currentClusterId ;
-            exec(d->sqlite3Handle, query.c_str(), sqlite_db_readCoordinates, d);
-
-            c = d->currentCoordinates;
-            d->currentCoordinates = 0;
-          }
-        else if (tag == "height-differences")
-          {
-            d->currentHeightDifferences = new GNU_gama::local::HeightDifferences(&d->lnet->OD);
-
-            // clusters HeightDifferences share the same table with clusters StandPoint
-            std::string query =
-              "select indx, tag, from_id, to_id, to_id2, val, stdev, "
-              "       from_dh, to_dh, to_dh2, dist, rejected "
-              "  from gnu_gama_local_obs "
-              " where conf_id = " + d->configurationId +
-              "   and ccluster = " + currentClusterId ;
-            exec(d->sqlite3Handle, query.c_str(), sqlite_db_readHeightDifferences, d);
-
-            c = d->currentHeightDifferences;
-            d->currentHeightDifferences = 0;
-          }
-
-        d->lnet->OD.clusters.push_back(c);
-
-        int dim = ToInteger(argv[1]); // index is unsigned
-        int band = ToInteger(argv[2]);
-
-        c->covariance_matrix.reset(dim, band);
-        d->currentCovarianceMatrix = &c->covariance_matrix;
-
-        std::string query =
-          "select rind, cind, val "
-          "  from gnu_gama_local_covmat "
-          " where conf_id = " + d->configurationId +
-          "   and ccluster = " + currentClusterId ;
-        exec(d->sqlite3Handle, query.c_str(), sqlite_db_readCovarianceMatrix, d);
-
-        d->currentCovarianceMatrix = 0;
-        c->update();
-
-        return 0;
-      }
-    else
-      throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
-  }
-  catch (GNU_gama::Exception::base& e)
+    ReaderData* d = static_cast<ReaderData*>(data);
+    try
     {
-      d->exception = e.clone();
+        if (argc ==4 && argv[0] && argv[1] && argv[2] && argv[3])
+        {
+            std::string currentClusterId = argv[0];
+            std::string tag = argv[3];
+
+            GNU_gama::Cluster<GNU_gama::local::Observation>* c = 0;
+
+            if (tag == "obs")
+            {
+                d->currentStandPoint = new GNU_gama::local::StandPoint(&d->lnet->OD);
+
+                std::string query =
+                    "select indx, tag, from_id, to_id, to_id2, val, stdev, "
+                    "       from_dh, to_dh, to_dh2, dist, rejected "
+                    "  from gnu_gama_local_obs "
+                    " where conf_id = " + d->configurationId +
+                    "   and ccluster = " + currentClusterId ;
+                exec(d->sqlite3Handle, query.c_str(), sqlite_db_readObservations, d);
+
+                c = d->currentStandPoint;
+                d->currentStandPoint = 0;
+            }
+            else if (tag == "vectors")
+            {
+                d->currentVectors = new GNU_gama::local::Vectors(&d->lnet->OD);
+
+                std::string query =
+                    "select indx, from_id, to_id, dx, dy, dz, "
+                    "       from_dh, to_dh, rejected "
+                    "  from gnu_gama_local_vectors "
+                    " where conf_id = " + d->configurationId +
+                    "   and ccluster = " + currentClusterId ;
+                exec(d->sqlite3Handle, query.c_str(), sqlite_db_readVectors, d);
+
+                c = d->currentVectors;
+                d->currentVectors = 0;
+            }
+            else if (tag == "coordinates")
+            {
+                d->currentCoordinates = new GNU_gama::local::Coordinates(&d->lnet->OD);
+
+                std::string query =
+                    "select indx, id, x, y, z, rejected "
+                    "  from gnu_gama_local_coordinates "
+                    " where conf_id = " + d->configurationId +
+                    "   and ccluster = " + currentClusterId ;
+                exec(d->sqlite3Handle, query.c_str(), sqlite_db_readCoordinates, d);
+
+                c = d->currentCoordinates;
+                d->currentCoordinates = 0;
+            }
+            else if (tag == "height-differences")
+            {
+                d->currentHeightDifferences = new GNU_gama::local::HeightDifferences(&d->lnet->OD);
+
+                // clusters HeightDifferences share the same table with clusters StandPoint
+                std::string query =
+                    "select indx, tag, from_id, to_id, to_id2, val, stdev, "
+                    "       from_dh, to_dh, to_dh2, dist, rejected "
+                    "  from gnu_gama_local_obs "
+                    " where conf_id = " + d->configurationId +
+                    "   and ccluster = " + currentClusterId ;
+                exec(d->sqlite3Handle, query.c_str(), sqlite_db_readHeightDifferences, d);
+
+                c = d->currentHeightDifferences;
+                d->currentHeightDifferences = 0;
+            }
+
+            d->lnet->OD.clusters.push_back(c);
+
+            int dim = ToInteger(argv[1]); // index is unsigned
+            int band = ToInteger(argv[2]);
+
+            c->covariance_matrix.reset(dim, band);
+            d->currentCovarianceMatrix = &c->covariance_matrix;
+
+            std::string query =
+                "select rind, cind, val "
+                "  from gnu_gama_local_covmat "
+                " where conf_id = " + d->configurationId +
+                "   and ccluster = " + currentClusterId ;
+            exec(d->sqlite3Handle, query.c_str(), sqlite_db_readCovarianceMatrix, d);
+
+            d->currentCovarianceMatrix = 0;
+            c->update();
+
+            return 0;
+        }
+        else
+            throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
     }
-  catch (std::exception& e)
+    catch (GNU_gama::Exception::base& e)
     {
-      d->exception = new GNU_gama::Exception::string(e.what());
+        d->exception = e.clone();
     }
-  catch (...)
+    catch (std::exception& e)
     {
-      d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+        d->exception = new GNU_gama::Exception::string(e.what());
     }
-  return 1;
+    catch (...)
+    {
+        d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+    }
+    return 1;
 }
 
 int sqlite_db_readObservations(void* data, int argc, char** argv, char**)
 {
-  ReaderData* d = static_cast<ReaderData*>(data);
-  try {
-    if (argc ==12 && argv[1] && argv[2] && argv[3] && argv[5] && argv[11])
-      {
-        //    0    1       2      3       4     5      6      7       8      9      10     11
-        //  indx, tag, from_id, to_id, to_id2, val, stdev, from_dh, to_dh, to_dh2, dist, rejected
-        // 1 2 3 5 11  tested for NULL on input
-        // 0 4 6 7 8 9 10  not tested
-        // indx = argv[0] shouldn't be NULL but gama doesn't use it
-
-        std::string dir_from;
-        std::string tag  = argv[1];
-        std::string from = argv[2];
-        std::string to   = argv[3];
-        double      val  = ToDouble(argv[5]);
-
-        GNU_gama::local::Observation* obs = 0;
-
-        if (tag == "direction")
-          {
-            obs = new GNU_gama::local::Direction(from, to, val);
-            if (dir_from.empty())
-              {
-                d->currentStandPoint->station = dir_from = from;
-              }
-            if (dir_from != from)
-              {
-                throw GNU_gama::Exception::sqlitexc(T_gamalite_stand_point_cluster_with_multi_dir_sets);
-              }
-          }
-        else if (tag == "distance")
-          {
-            obs = new GNU_gama::local::Distance  (from, to, val);
-          }
-        else if (tag == "angle" && argv[4])
-          {
-            GNU_gama::local::Angle*
-              ang = new GNU_gama::local::Angle (from, to, argv[4], val);
-            if (argv[9]) ang->set_fs_dh(ToDouble(argv[9]));
-            obs = ang;
-          }
-        else if (tag == "s-distance")
-          {
-            obs = new GNU_gama::local::S_Distance(from, to, val);
-          }
-        else if (tag == "z-angle")
-          {
-            obs = new GNU_gama::local::Z_Angle   (from, to, val);
-          }
-        else if (tag == "azimuth")
-          {
-            obs = new GNU_gama::local::Azimuth   (from, to, val);
-          }
-        else if (tag == "dh")
-          {
-            GNU_gama::local::H_Diff*
-              dh = new GNU_gama::local::H_Diff    (from, to, val);
-            if (argv[10]) dh->set_dist(ToDouble(argv[10]));
-            obs = dh;
-          }
-
-        if (argv[7]) obs->set_from_dh(ToDouble(argv[7]));
-        if (argv[8]) obs->set_to_dh  (ToDouble(argv[8]));
-
-        if(d->currentStandPoint)
-          d->currentStandPoint->observation_list.push_back(obs);
-
-        int rejected = ToInteger(argv[11]);
-        if (rejected) obs->set_passive();
-
-        return 0;
-      }
-    else
-      throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
-  }
-  catch (GNU_gama::Exception::base& e)
+    ReaderData* d = static_cast<ReaderData*>(data);
+    try
     {
-      d->exception = e.clone();
+        if (argc ==12 && argv[1] && argv[2] && argv[3] && argv[5] && argv[11])
+        {
+            //    0    1       2      3       4     5      6      7       8      9      10     11
+            //  indx, tag, from_id, to_id, to_id2, val, stdev, from_dh, to_dh, to_dh2, dist, rejected
+            // 1 2 3 5 11  tested for NULL on input
+            // 0 4 6 7 8 9 10  not tested
+            // indx = argv[0] shouldn't be NULL but gama doesn't use it
+
+            std::string dir_from;
+            std::string tag  = argv[1];
+            std::string from = argv[2];
+            std::string to   = argv[3];
+            double      val  = ToDouble(argv[5]);
+
+            GNU_gama::local::Observation* obs = 0;
+
+            if (tag == "direction")
+            {
+                obs = new GNU_gama::local::Direction(from, to, val);
+                if (dir_from.empty())
+                {
+                    d->currentStandPoint->station = dir_from = from;
+                }
+                if (dir_from != from)
+                {
+                    throw GNU_gama::Exception::sqlitexc(T_gamalite_stand_point_cluster_with_multi_dir_sets);
+                }
+            }
+            else if (tag == "distance")
+            {
+                obs = new GNU_gama::local::Distance  (from, to, val);
+            }
+            else if (tag == "angle" && argv[4])
+            {
+                GNU_gama::local::Angle*
+                ang = new GNU_gama::local::Angle (from, to, argv[4], val);
+                if (argv[9]) ang->set_fs_dh(ToDouble(argv[9]));
+                obs = ang;
+            }
+            else if (tag == "s-distance")
+            {
+                obs = new GNU_gama::local::S_Distance(from, to, val);
+            }
+            else if (tag == "z-angle")
+            {
+                obs = new GNU_gama::local::Z_Angle   (from, to, val);
+            }
+            else if (tag == "azimuth")
+            {
+                obs = new GNU_gama::local::Azimuth   (from, to, val);
+            }
+            else if (tag == "dh")
+            {
+                GNU_gama::local::H_Diff*
+                dh = new GNU_gama::local::H_Diff    (from, to, val);
+                if (argv[10]) dh->set_dist(ToDouble(argv[10]));
+                obs = dh;
+            }
+
+            if (argv[7]) obs->set_from_dh(ToDouble(argv[7]));
+            if (argv[8]) obs->set_to_dh  (ToDouble(argv[8]));
+
+            if(d->currentStandPoint)
+                d->currentStandPoint->observation_list.push_back(obs);
+
+            int rejected = ToInteger(argv[11]);
+            if (rejected) obs->set_passive();
+
+            return 0;
+        }
+        else
+            throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
     }
-  catch (std::exception& e)
+    catch (GNU_gama::Exception::base& e)
     {
-      d->exception = new GNU_gama::Exception::string(e.what());
+        d->exception = e.clone();
     }
-  catch (...)
+    catch (std::exception& e)
     {
-      d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+        d->exception = new GNU_gama::Exception::string(e.what());
     }
-  return 1;
+    catch (...)
+    {
+        d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+    }
+    return 1;
 }
 
 
 int sqlite_db_readVectors(void* data, int argc, char** argv, char**)
 {
-  ReaderData* d = static_cast<ReaderData*>(data);
-  try {
-    if (argc ==9 && argv[1] && argv[2] && argv[3] && argv[4] && argv[5] && argv[8])
-      {
-        //  0     1        2      3   4   5   6        7      8
-        //  indx, from_id, to_id, dx, dy, dz, from_dh, to_dh, rejected
-
-        std::string from = argv[1];
-        std::string to   = argv[2];
-        double      dx   = ToDouble(argv[3]);
-        double      dy   = ToDouble(argv[4]);
-        double      dz   = ToDouble(argv[5]);
-
-        GNU_gama::local::Xdiff* xdiff = new GNU_gama::local::Xdiff(from, to, dx);
-        GNU_gama::local::Ydiff* ydiff = new GNU_gama::local::Ydiff(from, to, dy);
-        GNU_gama::local::Zdiff* zdiff = new GNU_gama::local::Zdiff(from, to, dz);
-
-        if (argv[6])
-          {
-            double from_dh = ToDouble(argv[7]);
-            xdiff->set_from_dh(from_dh);
-            ydiff->set_from_dh(from_dh);
-            zdiff->set_from_dh(from_dh);
-          }
-
-        if (argv[7])
-          {
-            double to_dh = ToDouble(argv[8]);
-            xdiff->set_to_dh(to_dh);
-            ydiff->set_to_dh(to_dh);
-            zdiff->set_to_dh(to_dh);
-          }
-
-        if (int rejected = ToInteger(argv[8]))
-          {
-            xdiff->set_passive();
-            ydiff->set_passive();
-            zdiff->set_passive();
-          }
-
-        d->currentVectors->observation_list.push_back(xdiff);
-        d->currentVectors->observation_list.push_back(ydiff);
-        d->currentVectors->observation_list.push_back(zdiff);
-
-        return 0;
-      }
-    else
-      throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
-  }
-  catch (GNU_gama::Exception::base& e)
+    ReaderData* d = static_cast<ReaderData*>(data);
+    try
     {
-      d->exception = e.clone();
+        if (argc ==9 && argv[1] && argv[2] && argv[3] && argv[4] && argv[5] && argv[8])
+        {
+            //  0     1        2      3   4   5   6        7      8
+            //  indx, from_id, to_id, dx, dy, dz, from_dh, to_dh, rejected
+
+            std::string from = argv[1];
+            std::string to   = argv[2];
+            double      dx   = ToDouble(argv[3]);
+            double      dy   = ToDouble(argv[4]);
+            double      dz   = ToDouble(argv[5]);
+
+            GNU_gama::local::Xdiff* xdiff = new GNU_gama::local::Xdiff(from, to, dx);
+            GNU_gama::local::Ydiff* ydiff = new GNU_gama::local::Ydiff(from, to, dy);
+            GNU_gama::local::Zdiff* zdiff = new GNU_gama::local::Zdiff(from, to, dz);
+
+            if (argv[6])
+            {
+                double from_dh = ToDouble(argv[7]);
+                xdiff->set_from_dh(from_dh);
+                ydiff->set_from_dh(from_dh);
+                zdiff->set_from_dh(from_dh);
+            }
+
+            if (argv[7])
+            {
+                double to_dh = ToDouble(argv[8]);
+                xdiff->set_to_dh(to_dh);
+                ydiff->set_to_dh(to_dh);
+                zdiff->set_to_dh(to_dh);
+            }
+
+            if (int rejected = ToInteger(argv[8]))
+            {
+                xdiff->set_passive();
+                ydiff->set_passive();
+                zdiff->set_passive();
+            }
+
+            d->currentVectors->observation_list.push_back(xdiff);
+            d->currentVectors->observation_list.push_back(ydiff);
+            d->currentVectors->observation_list.push_back(zdiff);
+
+            return 0;
+        }
+        else
+            throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
     }
-  catch (std::exception& e)
+    catch (GNU_gama::Exception::base& e)
     {
-      d->exception = new GNU_gama::Exception::string(e.what());
+        d->exception = e.clone();
     }
-  catch (...)
+    catch (std::exception& e)
     {
-      d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+        d->exception = new GNU_gama::Exception::string(e.what());
     }
-  return 1;
+    catch (...)
+    {
+        d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+    }
+    return 1;
 }
 
 
 int sqlite_db_readCoordinates(void* data, int argc, char** argv, char**)
 {
-  ReaderData* d = static_cast<ReaderData*>(data);
-  try {
-    if (argc ==6 && argv[1])
-      {
-        //  0     1   2  3  4  5
-        //  indx, id, x, y, z, rejected
-
-        std::string id = argv[1];
-
-        int reject = 0;
-        if (argv[5]) reject = ToInteger(argv[5]);
-
-        GNU_gama::local::X* x = 0;
-        GNU_gama::local::Y* y = 0;
-        GNU_gama::local::Z* z = 0;
-
-        if (argv[2] && argv[3])
-          {
-            x = new GNU_gama::local::X(id, ToDouble(argv[2]));
-            y = new GNU_gama::local::Y(id, ToDouble(argv[3]));
-            if (reject)
-              {
-                x->set_passive();
-                y->set_passive();
-             }
-          }
-
-        if (argv[4])
-          {
-            z = new GNU_gama::local::Z(id, ToDouble(argv[4]));
-            if (reject)
-              {
-                z->set_passive();
-              }
-          }
-
-        if (x) d->currentCoordinates->observation_list.push_back(x);
-        if (y) d->currentCoordinates->observation_list.push_back(y);
-        if (z) d->currentCoordinates->observation_list.push_back(z);
-
-        return 0;
-      }
-    else
-      throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
-  }
-  catch (GNU_gama::Exception::base& e)
+    ReaderData* d = static_cast<ReaderData*>(data);
+    try
     {
-      d->exception = e.clone();
+        if (argc ==6 && argv[1])
+        {
+            //  0     1   2  3  4  5
+            //  indx, id, x, y, z, rejected
+
+            std::string id = argv[1];
+
+            int reject = 0;
+            if (argv[5]) reject = ToInteger(argv[5]);
+
+            GNU_gama::local::X* x = 0;
+            GNU_gama::local::Y* y = 0;
+            GNU_gama::local::Z* z = 0;
+
+            if (argv[2] && argv[3])
+            {
+                x = new GNU_gama::local::X(id, ToDouble(argv[2]));
+                y = new GNU_gama::local::Y(id, ToDouble(argv[3]));
+                if (reject)
+                {
+                    x->set_passive();
+                    y->set_passive();
+                }
+            }
+
+            if (argv[4])
+            {
+                z = new GNU_gama::local::Z(id, ToDouble(argv[4]));
+                if (reject)
+                {
+                    z->set_passive();
+                }
+            }
+
+            if (x) d->currentCoordinates->observation_list.push_back(x);
+            if (y) d->currentCoordinates->observation_list.push_back(y);
+            if (z) d->currentCoordinates->observation_list.push_back(z);
+
+            return 0;
+        }
+        else
+            throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
     }
-  catch (std::exception& e)
+    catch (GNU_gama::Exception::base& e)
     {
-      d->exception = new GNU_gama::Exception::string(e.what());
+        d->exception = e.clone();
     }
-  catch (...)
+    catch (std::exception& e)
     {
-      d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+        d->exception = new GNU_gama::Exception::string(e.what());
     }
-  return 1;
+    catch (...)
+    {
+        d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+    }
+    return 1;
 }
 
 
 int sqlite_db_readHeightDifferences(void* data, int argc, char** argv, char**)
 {
-  ReaderData* d = static_cast<ReaderData*>(data);
-  try {
-    if (argc ==12 && argv[1] && argv[2] && argv[3] && argv[5] && argv[11])
-      {
-        //  0     1    2        3      4       5    6      7        8      9       10    11
-        //  indx, tag, from_id, to_id, to_id2, val, stdev, from_dh, to_dh, to_dh2, dist, rejected
-        // 1 2 3 5 10 11  tested for NULL on input
-        // 0 4 6 7 8 9  not tested
-        // indx = argv[0] shouldn't be NULL but gama doesn't use it
-
-        std::string   tag  = argv[1];
-        std::string   from = argv[2];
-        std::string   to   = argv[3];
-        double        val  = ToDouble(argv[5]);
-        double        dist = 0;
-        if (argv[10]) dist = ToDouble(argv[10]);
-
-        GNU_gama::local::H_Diff* hdiff = new GNU_gama::local::H_Diff(from, to, val, dist);
-
-        d->currentHeightDifferences->observation_list.push_back(hdiff);
-
-        return 0;
-      }
-    else
-      throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
-  }
-  catch (GNU_gama::Exception::base& e)
+    ReaderData* d = static_cast<ReaderData*>(data);
+    try
     {
-      d->exception = e.clone();
+        if (argc ==12 && argv[1] && argv[2] && argv[3] && argv[5] && argv[11])
+        {
+            //  0     1    2        3      4       5    6      7        8      9       10    11
+            //  indx, tag, from_id, to_id, to_id2, val, stdev, from_dh, to_dh, to_dh2, dist, rejected
+            // 1 2 3 5 10 11  tested for NULL on input
+            // 0 4 6 7 8 9  not tested
+            // indx = argv[0] shouldn't be NULL but gama doesn't use it
+
+            std::string   tag  = argv[1];
+            std::string   from = argv[2];
+            std::string   to   = argv[3];
+            double        val  = ToDouble(argv[5]);
+            double        dist = 0;
+            if (argv[10]) dist = ToDouble(argv[10]);
+
+            GNU_gama::local::H_Diff* hdiff = new GNU_gama::local::H_Diff(from, to, val, dist);
+
+            d->currentHeightDifferences->observation_list.push_back(hdiff);
+
+            return 0;
+        }
+        else
+            throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
     }
-  catch (std::exception& e)
+    catch (GNU_gama::Exception::base& e)
     {
-      d->exception = new GNU_gama::Exception::string(e.what());
+        d->exception = e.clone();
     }
-  catch (...)
+    catch (std::exception& e)
     {
-      d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+        d->exception = new GNU_gama::Exception::string(e.what());
     }
-  return 1;
+    catch (...)
+    {
+        d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+    }
+    return 1;
 }
 
 
 int sqlite_db_readCovarianceMatrix(void* data, int argc, char** argv, char**)
 {
-  ReaderData* d = static_cast<ReaderData*>(data);
-  try {
-    if (argc == 3 && argv[0] && argv[1] && argv[2])
-      {
-        int r = ToInteger(argv[0]);
-        int c = ToInteger(argv[1]);
-        double v = ToDouble (argv[2]);
+    ReaderData* d = static_cast<ReaderData*>(data);
+    try
+    {
+        if (argc == 3 && argv[0] && argv[1] && argv[2])
+        {
+            int r = ToInteger(argv[0]);
+            int c = ToInteger(argv[1]);
+            double v = ToDouble (argv[2]);
 
-        (*d->currentCovarianceMatrix)(r,c) = v;
+            (*d->currentCovarianceMatrix)(r,c) = v;
 
-        return 0;
-      }
-    else
-      throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
-  }
-  catch (GNU_gama::Exception::base& e)
-    {
-      d->exception = e.clone();
+            return 0;
+        }
+        else
+            throw GNU_gama::Exception::sqlitexc(T_gamalite_invalid_column_value);
     }
-  catch (std::exception& e)
+    catch (GNU_gama::Exception::base& e)
     {
-      d->exception = new GNU_gama::Exception::string(e.what());
+        d->exception = e.clone();
     }
-  catch (...)
+    catch (std::exception& e)
     {
-      d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+        d->exception = new GNU_gama::Exception::string(e.what());
     }
-  return 1;
+    catch (...)
+    {
+        d->exception = new GNU_gama::Exception::string(T_gamalite_unknown_exception_in_callback);
+    }
+    return 1;
 }
 
 /////////////// end of callbacks ///////////////////

@@ -39,7 +39,10 @@
 #include <gnu_gama/gon2deg.h>
 #include <gnu_gama/utf8.h>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 /** \brief Visitor class for writing 'value' column in 'Outlying absolute terms' table.
  *
@@ -204,64 +207,66 @@ public:
 template <typename OutStream>
 void OutlyingAbsoluteTerms(GNU_gama::local::LocalNetwork* IS, OutStream& out)
 {
-  using namespace std;
-  using namespace GNU_gama::local;
+    using namespace std;
+    using namespace GNU_gama::local;
 
-  if (!IS->huge_abs_terms()) return;
+    if (!IS->huge_abs_terms()) return;
 
-  out << T_GaMa_abstrm_Review_of_outlying_abs_terms << "\n"
-      << underline(T_GaMa_abstrm_Review_of_outlying_abs_terms, '*') << "\n\n";
+    out << T_GaMa_abstrm_Review_of_outlying_abs_terms << "\n"
+        << underline(T_GaMa_abstrm_Review_of_outlying_abs_terms, '*') << "\n\n";
 
-  out.width(IS->maxw_obs());
-  out << "i" << " ";
-  out.width(IS->maxw_id());
-  out << T_GaMa_standpoint << " ";
-  out.width(IS->maxw_id());
-  out << T_GaMa_target << T_GaMa_abstrm_header1;
-  {  // for ...
-    for (int i=0; i < (IS->maxw_obs() + 2*(IS->maxw_id()) + 13); i++)
-      out << "=";
-  }  // for ...
-  out << T_GaMa_abstrm_header2;
-  out.flush();
-
-  PointID predcs = "";   // previous standpoint ID
-
-  OutlyingAbsoluteTermsVisitor<OutStream> visitor(IS, out);
-
-  for (int i=1; i<=IS->sum_observations(); i++)
+    out.width(IS->maxw_obs());
+    out << "i" << " ";
+    out.width(IS->maxw_id());
+    out << T_GaMa_standpoint << " ";
+    out.width(IS->maxw_id());
+    out << T_GaMa_target << T_GaMa_abstrm_header1;
     {
-      Observation* pm = IS->ptr_obs(i);
-      if (IS->test_abs_term(i))
+        // for ...
+        for (int i=0; i < (IS->maxw_obs() + 2*(IS->maxw_id()) + 13); i++)
+            out << "=";
+    }  // for ...
+    out << T_GaMa_abstrm_header2;
+    out.flush();
+
+    PointID predcs = "";   // previous standpoint ID
+
+    OutlyingAbsoluteTermsVisitor<OutStream> visitor(IS, out);
+
+    for (int i=1; i<=IS->sum_observations(); i++)
+    {
+        Observation* pm = IS->ptr_obs(i);
+        if (IS->test_abs_term(i))
         {
-          out.width(IS->maxw_obs());
-          out << i << " ";
+            out.width(IS->maxw_obs());
+            out << i << " ";
 
-          PointID cs = pm->from();
-          out.width(IS->maxw_id());
-          if (cs != predcs)
-            out << Utf8::leftPad(cs.str(), IS->maxw_id());
-          else
+            PointID cs = pm->from();
+            out.width(IS->maxw_id());
+            if (cs != predcs)
+                out << Utf8::leftPad(cs.str(), IS->maxw_id());
+            else
+                out << " ";
             out << " ";
-          out << " ";
 
-          PointID cc = pm->to();
-          out << Utf8::leftPad(cc.str(), IS->maxw_id());
-          out.setf(ios_base::fixed, ios_base::floatfield);
+            PointID cc = pm->to();
+            out << Utf8::leftPad(cc.str(), IS->maxw_id());
+            out.setf(ios_base::fixed, ios_base::floatfield);
 
-          pm->accept(&visitor);
+            pm->accept(&visitor);
 
-          out << setiosflags(ios_base::scientific) << setprecision(5);
-          out << setw(13) << IS->rhs(i);       // 1.1.56 << pm->rhs();
-          out << '\n';
-          out.flush();
+            out << setiosflags(ios_base::scientific) << setprecision(5);
+            out << setw(13) << IS->rhs(i);       // 1.1.56 << pm->rhs();
+            out << '\n';
+            out.flush();
         }
     }
 
-  out << "\n\n";
+    out << "\n\n";
 }
 
-}}
+}
+}
 
 #endif
 

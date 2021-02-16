@@ -26,71 +26,76 @@
 #include <algorithm>
 #include <vector>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 
-    class ApproximateVectors
-	{
-	private:
+class ApproximateVectors
+{
+private:
 
-	    struct ObservedVData {
-		std::vector<const Xdiff*>  XD;
-		std::vector<const Ydiff*>  YD;
-		std::vector<const Zdiff*>  ZD;
-	    };
+    struct ObservedVData
+    {
+        std::vector<const Xdiff*>  XD;
+        std::vector<const Ydiff*>  YD;
+        std::vector<const Zdiff*>  ZD;
+    };
 
-	    typedef std::vector<const Xdiff*>::const_iterator X_const_iterator;
-	    typedef std::vector<const Ydiff*>::const_iterator Y_const_iterator;
-	    typedef std::vector<const Zdiff*>::const_iterator Z_const_iterator;
+    typedef std::vector<const Xdiff*>::const_iterator X_const_iterator;
+    typedef std::vector<const Ydiff*>::const_iterator Y_const_iterator;
+    typedef std::vector<const Zdiff*>::const_iterator Z_const_iterator;
 
-	    bool obs_list_empty() const
-		{
-		    return OVD.XD.empty() && OVD.YD.empty() && OVD.ZD.empty();
-		}
+    bool obs_list_empty() const
+    {
+        return OVD.XD.empty() && OVD.YD.empty() && OVD.ZD.empty();
+    }
 
-	    Y_const_iterator find_ydiff(const PointID& from_id, const PointID& to_id )
-		{
-		    for (Y_const_iterator ci = OVD.YD.begin(); ci != OVD.YD.end(); ++ci)
-			if ( ( (*ci)->from() == from_id ) && ( (*ci)->to() == to_id) )
-			    return ci;
-		    return OVD.YD.end();
-		}
+    Y_const_iterator find_ydiff(const PointID& from_id, const PointID& to_id )
+    {
+        for (Y_const_iterator ci = OVD.YD.begin(); ci != OVD.YD.end(); ++ci)
+            if ( ( (*ci)->from() == from_id ) && ( (*ci)->to() == to_id) )
+                return ci;
+        return OVD.YD.end();
+    }
 
-	    static bool known_xy(const LocalPoint& lp)
-		{
-		    return lp.active_xy() && lp.test_xy();
-		}
+    static bool known_xy(const LocalPoint& lp)
+    {
+        return lp.active_xy() && lp.test_xy();
+    }
 
-	    static bool unknown_xy(const LocalPoint& lp)
-		{
-		    return lp.active_xy() && !lp.test_xy();
-		}
+    static bool unknown_xy(const LocalPoint& lp)
+    {
+        return lp.active_xy() && !lp.test_xy();
+    }
 
-	    static bool known_z(const LocalPoint& lp)
-		{
-		    return lp.active_z() && lp.test_z();
-		}
+    static bool known_z(const LocalPoint& lp)
+    {
+        return lp.active_z() && lp.test_z();
+    }
 
-	    static bool unknown_z(const LocalPoint& lp)
-		{
-		    return lp.active_z() && !lp.test_z();
-		}
+    static bool unknown_z(const LocalPoint& lp)
+    {
+        return lp.active_z() && !lp.test_z();
+    }
 
-	    bool                missing_coords;
-	    PointData&          PD;
-	    ObservationData&    OD;
+    bool                missing_coords;
+    PointData&          PD;
+    ObservationData&    OD;
 
-	    ObservedVData      OVD;
+    ObservedVData      OVD;
 
-	public:
+public:
 
-	    ApproximateVectors(PointData& b, ObservationData& m);
-	    void execute();
-	    void print(std::ostream&);
+    ApproximateVectors(PointData& b, ObservationData& m);
+    void execute();
+    void print(std::ostream&);
 
-	};
+};
 
- }}   // namespace GNU_gama::local
+}
+}   // namespace GNU_gama::local
 
 #endif
 

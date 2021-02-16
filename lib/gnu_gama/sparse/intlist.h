@@ -24,13 +24,15 @@
 
 #include <cstddef>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
 /** Integer list class */
 
 template <typename Index=std::size_t>
 
-  class IntegerList {     // Integer List class
+class IntegerList       // Integer List class
+{
 
     IntegerList (const IntegerList&);
     void operator=(const IntegerList&);
@@ -38,7 +40,7 @@ template <typename Index=std::size_t>
     Index*  m;
     Index*  e;
 
-    public:
+public:
 
     IntegerList() : m(0), e(0)
     {
@@ -46,51 +48,75 @@ template <typename Index=std::size_t>
 
     IntegerList(Index n)
     {
-      m = new Index[n];
-      e = m + n;
+        m = new Index[n];
+        e = m + n;
     }
 
     ~IntegerList()
     {
-      delete[] m;
+        delete[] m;
     }
 
-    Index dim() const { return Index(e-m); }
+    Index dim() const
+    {
+        return Index(e-m);
+    }
 
     void reset()
     {
-      delete[] m;
-      m = e = 0;
+        delete[] m;
+        m = e = 0;
     }
 
     void reset(Index n)
     {
-      delete[] m;
-      m = new Index[n];
-      e = m + n;
+        delete[] m;
+        m = new Index[n];
+        e = m + n;
     }
 
     void set_all(Index f)
     {
-      iterator b = m;
-      while (b != e)  *b++ = f;
+        iterator b = m;
+        while (b != e)  *b++ = f;
     }
 
-    void set_zero() { set_all(Index()); }
+    void set_zero()
+    {
+        set_all(Index());
+    }
 
 
     typedef Index*       iterator;
     typedef const Index* const_iterator;
 
-    iterator begin() { return m; }
-    iterator end()   { return e; }
+    iterator begin()
+    {
+        return m;
+    }
+    iterator end()
+    {
+        return e;
+    }
 
-    const_iterator begin() const { return m; }
-    const_iterator end()   const { return e; }
+    const_iterator begin() const
+    {
+        return m;
+    }
+    const_iterator end()   const
+    {
+        return e;
+    }
 
-    Index  operator()(Index i) const { return m[i]; }
-    Index& operator()(Index i)       { return m[i]; }
-  };
+    Index  operator()(Index i) const
+    {
+        return m[i];
+    }
+    Index& operator()(Index i)
+    {
+        return m[i];
+    }
+};
 
 }   // namespace GNU_gama
 
@@ -108,22 +134,22 @@ using namespace GNU_gama;
 
 int main()
 {
-  cout << "\n---  Integer List demo  ------------------------------------\n\n";
+    cout << "\n---  Integer List demo  ------------------------------------\n\n";
 
-  IntegerList<> ilist;
-  ilist.reset(20);
-  IntegerList<>::iterator c = ilist.begin();
-  IntegerList<>::const_iterator e = ilist.end();
-  for (int i=1, j=1, k=1; c!=e; k = i+j, i=j, j=k)
+    IntegerList<> ilist;
+    ilist.reset(20);
+    IntegerList<>::iterator c = ilist.begin();
+    IntegerList<>::const_iterator e = ilist.end();
+    for (int i=1, j=1, k=1; c!=e; k = i+j, i=j, j=k)
     {
-      *c++ = i;
+        *c++ = i;
     }
 
-  for (IntegerList<>::const_iterator a=ilist.begin(), b=ilist.end(); a!=b; a++)
+    for (IntegerList<>::const_iterator a=ilist.begin(), b=ilist.end(); a!=b; a++)
     {
-      cout << *a << " ";
+        cout << *a << " ";
     }
-  cout << "\n\n";
+    cout << "\n\n";
 }
 
 

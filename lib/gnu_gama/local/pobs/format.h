@@ -22,36 +22,41 @@
 #ifndef gama_local_Bod_Mer_FORMAT_H
 #define gama_local_Bod_Mer_FORMAT_H
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-class Format {
+class Format
+{
 
-  static int coordinates_p;
-  static int centesimal_degrees_p;
-  static int standard_deviations_p;
+    static int coordinates_p;
+    static int centesimal_degrees_p;
+    static int standard_deviations_p;
 
 public:
 
-  static int coord_p(int n = coordinates_p)
-             {
-                int p = coordinates_p;
-                coordinates_p = n;
-                return p;
-             }
-  static int gon_p(int n = centesimal_degrees_p)
-             {
-                int p = centesimal_degrees_p;
-                centesimal_degrees_p = n;
-                return p;
-             }
-  static int stdev_p(int n = standard_deviations_p)
-             {
-                int p = standard_deviations_p;
-                standard_deviations_p = n;
-                return p;
-             }
+    static int coord_p(int n = coordinates_p)
+    {
+        int p = coordinates_p;
+        coordinates_p = n;
+        return p;
+    }
+    static int gon_p(int n = centesimal_degrees_p)
+    {
+        int p = centesimal_degrees_p;
+        centesimal_degrees_p = n;
+        return p;
+    }
+    static int stdev_p(int n = standard_deviations_p)
+    {
+        int p = standard_deviations_p;
+        standard_deviations_p = n;
+        return p;
+    }
 
 };
 
-}}
+}
+}
 #endif

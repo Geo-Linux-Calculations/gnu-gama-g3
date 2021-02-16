@@ -26,40 +26,40 @@ using namespace GNU_gama::g3;
 
 void ObsCluster::write_xml(std::ostream& out) const
 {
-  out << "\n<obs>\n";
+    out << "\n<obs>\n";
 
-  List<ObservationType*>::const_iterator i = observation_list.begin();
-  List<ObservationType*>::const_iterator e = observation_list.end();
-  while (i != e)
+    List<ObservationType*>::const_iterator i = observation_list.begin();
+    List<ObservationType*>::const_iterator e = observation_list.end();
+    while (i != e)
     {
-      const ObservationType* obs = (*i);
+        const ObservationType* obs = (*i);
 
-      if (const Distance* distance = dynamic_cast<const Distance*>(obs))
+        if (const Distance* distance = dynamic_cast<const Distance*>(obs))
         {
-          out << "<distance>\n  "
-              << " <from>" << distance->from  << "</from>"
-              << " <to>"   << distance->to    << "</to>"
-              << " <val>"  << distance->obs() << "</val>\n"
-              << "   </distance>\n";
+            out << "<distance>\n  "
+                << " <from>" << distance->from  << "</from>"
+                << " <to>"   << distance->to    << "</to>"
+                << " <val>"  << distance->obs() << "</val>\n"
+                << "   </distance>\n";
         }
 
-      ++i;
+        ++i;
     }
 
-  const int dim  = covariance_matrix.dim();
-  const int band = covariance_matrix.bandWidth();
-  out << "\n<cov> "
-      << "<dim>"  << dim  << "</dim> "
-      << "<band>" << band << "</band>\n";
-  for (int i=1; i<=dim; i++)
+    const int dim  = covariance_matrix.dim();
+    const int band = covariance_matrix.bandWidth();
+    out << "\n<cov> "
+        << "<dim>"  << dim  << "</dim> "
+        << "<band>" << band << "</band>\n";
+    for (int i=1; i<=dim; i++)
     {
-      for (int j=i; j<=i+band && j<=dim; j++)
+        for (int j=i; j<=i+band && j<=dim; j++)
         {
-          out << "<flt>" << covariance_matrix(i,j) <<  "</flt> ";
+            out << "<flt>" << covariance_matrix(i,j) <<  "</flt> ";
         }
-      out << "\n";
+        out << "\n";
     }
-  out << "</cov>\n";
-  out << "</obs>\n";
+    out << "</cov>\n";
+    out << "</obs>\n";
 }
 

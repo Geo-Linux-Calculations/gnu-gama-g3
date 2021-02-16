@@ -25,50 +25,67 @@
 #include <matvec/vecbase.h>
 
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  /** \brief Cholesky Decomposition of Positive Definite Matrix
-   *
-   * Two variants of implementation are possible:
-   *
-   *    -    A = L*trans(L)
-   *    -    A = L*D*trans(L),   where D is diagonal and L has 1 on diagonal
-   */
+/** \brief Cholesky Decomposition of Positive Definite Matrix
+ *
+ * Two variants of implementation are possible:
+ *
+ *    -    A = L*trans(L)
+ *    -    A = L*D*trans(L),   where D is diagonal and L has 1 on diagonal
+ */
 
 
 template <typename Float=double, typename Exc=Exception::matvec>
-class CholDec {
+class CholDec
+{
 
-  Float  tol_;
+    Float  tol_;
 
 public:
 
-  CholDec(Float t=1e-8) : tol_(t) {}
-  virtual ~CholDec() {}
+    CholDec(Float t=1e-8) : tol_(t) {}
+    virtual ~CholDec() {}
 
-  Float  cholTol() const  { return tol_; }
-  Float  cholTol(Float t) { tol_ = t; return tol_; }
+    Float  cholTol() const
+    {
+        return tol_;
+    }
+    Float  cholTol(Float t)
+    {
+        tol_ = t;
+        return tol_;
+    }
 
-  virtual void cholDec() = 0;    // `in situ' Cholesky decomposition
-  virtual void solve(Vec<Float, Exc>& rhs) const = 0;
+    virtual void cholDec() = 0;    // `in situ' Cholesky decomposition
+    virtual void solve(Vec<Float, Exc>& rhs) const = 0;
 };
 
 
 template <typename Float=double, typename Exc=Exception::matvec>
-class CholDecLD {
+class CholDecLD
+{
 
-  Float  tol_;
+    Float  tol_;
 
 public:
 
-  CholDecLD(Float t=1e-8) : tol_(t) {}
-  virtual ~CholDecLD() {}
+    CholDecLD(Float t=1e-8) : tol_(t) {}
+    virtual ~CholDecLD() {}
 
-  Float  cholTol() const  { return tol_; }
-  Float  cholTol(Float t) { tol_ = t; return tol_; }
+    Float  cholTol() const
+    {
+        return tol_;
+    }
+    Float  cholTol(Float t)
+    {
+        tol_ = t;
+        return tol_;
+    }
 
-  virtual void cholDec() = 0;    // `in situ' Cholesky decomposition
-  virtual void solve(Vec<Float, Exc>& rhs) const = 0;
+    virtual void cholDec() = 0;    // `in situ' Cholesky decomposition
+    virtual void solve(Vec<Float, Exc>& rhs) const = 0;
 };
 
 

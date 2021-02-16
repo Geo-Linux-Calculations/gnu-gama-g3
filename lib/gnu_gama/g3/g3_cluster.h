@@ -29,12 +29,16 @@
 #include <gnu_gama/g3/g3_model.h>
 #include <iostream>
 
-namespace GNU_gama { namespace g3 {
+namespace GNU_gama
+{
+namespace g3
+{
 
-  /** g3 cluster helper class. */
+/** g3 cluster helper class. */
 
-  class g3Cluster :  public GNU_gama::Cluster<Observation> {
-  public:
+class g3Cluster :  public GNU_gama::Cluster<Observation>
+{
+public:
 
     g3Cluster(const Model::ObservationData* obs) : Cluster<Observation>(obs)
     {
@@ -42,26 +46,28 @@ namespace GNU_gama { namespace g3 {
 
     g3Cluster* clone(const Model::ObservationData*) const
     {
-      throw
+        throw
         GNU_gama::Exception::string("g3Cluster::clone() not implemented");
-      return 0;
+        return 0;
     }
 
     virtual void write_xml(std::ostream&) const = 0;
-  };
+};
 
 
-  /**  g3 observation cluster class. */
+/**  g3 observation cluster class. */
 
-  class ObsCluster : public g3Cluster {
-  public:
+class ObsCluster : public g3Cluster
+{
+public:
 
     ObsCluster(const Model::ObservationData* obs) : g3Cluster(obs) {}
 
     void write_xml(std::ostream& out) const;
-  };
+};
 
 
-}}
+}
+}
 
 #endif

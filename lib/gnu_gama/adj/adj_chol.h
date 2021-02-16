@@ -28,16 +28,23 @@
 #include <matvec/inderr.h>
 #include <matvec/symmat.h>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  template <typename Float=double,
-            typename Exc=Exception::matvec>
-  class AdjCholDec : public AdjBaseFull<Float, Exc>
-  {
-  public:
+template <typename Float=double,
+         typename Exc=Exception::matvec>
+class AdjCholDec : public AdjBaseFull<Float, Exc>
+{
+public:
 
-    AdjCholDec()  { init();          }
-    ~AdjCholDec() { delete[] minx_i; }
+    AdjCholDec()
+    {
+        init();
+    }
+    ~AdjCholDec()
+    {
+        delete[] minx_i;
+    }
 
     Index defect  ();
     Float q_xx    (Index, Index);
@@ -48,7 +55,7 @@ namespace GNU_gama {
     void  min_x   (Index, Index[]);
     void  solve   ();
 
-  private:
+private:
 
     Index               M, N;    // number of observations, parameters
     Vec   <Index>       perm;
@@ -68,17 +75,17 @@ namespace GNU_gama {
 
     void init()
     {
-      s_tol   = Float();
-      nullity = Index();
-      minx_t  = ALL;
-      minx_i  = 0;
+        s_tol   = Float();
+        nullity = Index();
+        minx_t  = ALL;
+        minx_i  = 0;
     }
 
     Mat<Float, Exc> G;
     Float dot(const Mat<Float,Exc>& M, Index i, Index j) const;
     Float T(Index, Index) const;
 
-  };
+};
 
 }
 

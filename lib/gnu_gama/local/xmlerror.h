@@ -32,40 +32,54 @@
 #include <iostream>
 #include <fstream>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-class XMLerror {
+class XMLerror
+{
 public:
 
-  XMLerror();
+    XMLerror();
 
-  void clear();
-  void setIsValid(bool b);
-  bool isValid() const;
-  bool hasLineNumber() const;
+    void clear();
+    void setIsValid(bool b);
+    bool isValid() const;
+    bool hasLineNumber() const;
 
-  void setXmlOutput  (std::string s);
-  void setCategory   (std::string s);
-  void setDescription(std::string s);
-  void setLineNumber (int n);
+    void setXmlOutput  (std::string s);
+    void setCategory   (std::string s);
+    void setDescription(std::string s);
+    void setLineNumber (int n);
 
-  int  getLineNumber() const { return _lineNumber; }
-  const std::string& getCategory() const { return _category; }
-  const std::vector<std::string>& getDescription() const { return _strlist; }
+    int  getLineNumber() const
+    {
+        return _lineNumber;
+    }
+    const std::string& getCategory() const
+    {
+        return _category;
+    }
+    const std::vector<std::string>& getDescription() const
+    {
+        return _strlist;
+    }
 
-  int  write_xml(std::string category);
+    int  write_xml(std::string category);
 
 private:
-  bool                     _isValid;
-  bool                     _hasLineNumber;
-  std::string              _xmlOutput;
-  std::string              _category;
-  std::vector<std::string> _strlist;
-  int                      _lineNumber;
+    bool                     _isValid;
+    bool                     _hasLineNumber;
+    std::string              _xmlOutput;
+    std::string              _category;
+    std::vector<std::string> _strlist;
+    int                      _lineNumber;
 
-  void write(std::ostream& ostr);
+    void write(std::ostream& ostr);
 };
 
-}}
+}
+}
 
 #endif

@@ -29,11 +29,14 @@
 
 
 
-namespace GNU_gama { namespace g3 {
+namespace GNU_gama
+{
+namespace g3
+{
 
-  /** g3 visitor class for writing observation data in XML. */
+/** g3 visitor class for writing observation data in XML. */
 
-  class WriteObservationXML :
+class WriteObservationXML :
     public GNU_gama::BaseVisitor,
     public GNU_gama::Visitor<Angle>,
     public GNU_gama::Visitor<Azimuth>,
@@ -43,12 +46,12 @@ namespace GNU_gama { namespace g3 {
     public GNU_gama::Visitor<Vector>,
     public GNU_gama::Visitor<XYZ>,
     public GNU_gama::Visitor<ZenithAngle>
-  {
-  private:
+{
+private:
 
     std::ostream& out;
 
-  public:
+public:
 
     WriteObservationXML(std::ostream& ostr) : out(ostr) {}
 
@@ -61,9 +64,10 @@ namespace GNU_gama { namespace g3 {
     void visit(XYZ*);
     void visit(ZenithAngle*);
 
-  };
+};
 
 
-}}
+}
+}
 
 #endif

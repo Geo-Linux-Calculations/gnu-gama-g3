@@ -22,13 +22,14 @@
 #ifndef GNU_GAMA_VERSION_H___GNU_Gama_version_h___gnugamaversionh
 #define GNU_GAMA_VERSION_H___GNU_Gama_version_h___gnugamaversionh
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  extern const char* GNU_gama_version;
-  extern const char* GNU_gama_compiler;
-  extern const char* GNU_gama_year;
+extern const char* GNU_gama_version;
+extern const char* GNU_gama_compiler;
+extern const char* GNU_gama_year;
 
-  int version(const char* program, const char* copyright_holder);
+int version(const char* program, const char* copyright_holder);
 }
 
 #endif

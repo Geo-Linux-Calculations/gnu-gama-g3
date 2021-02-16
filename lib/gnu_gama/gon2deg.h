@@ -28,18 +28,19 @@
 #define M_PI 3.14159265358979323846264338327950288419716939937510
 #endif
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  // sign 0  conversion without sign
-  //      1  sign left-padded
-  //      2  sign right-padded
-  //      3  signed with leading spaces trimmed
-  std::string gon2deg(double gon,  int sign, int prec);
+// sign 0  conversion without sign
+//      1  sign left-padded
+//      2  sign right-padded
+//      3  signed with leading spaces trimmed
+std::string gon2deg(double gon,  int sign, int prec);
 
-  bool        deg2gon(std::string, double &);
+bool        deg2gon(std::string, double &);
 
-  double dms2rad(double);
-  double rad2dms(double);
+double dms2rad(double);
+double rad2dms(double);
 }
 
 #endif

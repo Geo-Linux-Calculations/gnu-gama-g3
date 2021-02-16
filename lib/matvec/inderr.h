@@ -25,54 +25,65 @@
 #include <cstddef>
 #include <exception>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  typedef size_t Index;
+typedef size_t Index;
 
-  inline const char* matvec_version() { return "1.00"; }
+inline const char* matvec_version()
+{
+    return "1.00";
+}
 
-  /** Exception \brief Matrix/vector exceptions
-   */
+/** Exception \brief Matrix/vector exceptions
+ */
 
-  namespace Exception {
+namespace Exception
+{
 
-    enum
-      {
-        BadRank,
-        BadIndex,
-        Singular,
-        BadRegularization,
-        NoConvergence,
-        ZeroDivision,
-        NonPositiveDefinite,
-        NotImplemented,
-        StreamError
-      };
+enum
+{
+    BadRank,
+    BadIndex,
+    Singular,
+    BadRegularization,
+    NoConvergence,
+    ZeroDivision,
+    NonPositiveDefinite,
+    NotImplemented,
+    StreamError
+};
 
-    class base : public std::exception
+class base : public std::exception
+{
+public:
+    virtual base* clone() const = 0;
+    virtual void  raise() const = 0;
+};
+
+class matvec : public base
+{
+public:
+    const int    error;
+    const char*  description;
+
+    matvec(int e, const char* t) : error(e), description(t) {}
+
+    matvec* clone() const
     {
-    public:
-      virtual base* clone() const = 0;
-      virtual void  raise() const = 0;
-    };
-
-    class matvec : public base
+        return new matvec(*this);
+    }
+    void    raise() const
     {
-    public:
-      const int    error;
-      const char*  description;
+        throw *this;
+    }
 
-      matvec(int e, const char* t) : error(e), description(t) {}
-
-      matvec* clone() const { return new matvec(*this); }
-      void    raise() const { throw *this; }
-
-      const char* what() const throw()
-      {
-	return description;
-      }
-    };
-  }
+    const char* what() const throw()
+    {
+        return description;
+    }
+};
+}
 }
 
 #endif

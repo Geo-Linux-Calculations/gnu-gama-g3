@@ -29,28 +29,28 @@ using GNU_gama::local::LocalNetwork;
 
 int main(int argc, char* argv[])
 {
-  if (argc != 5)
+    if (argc != 5)
     {
-      std::cout << "   #### " << argv[0] << " wrong number of arguments\n";
-      return 1;
+        std::cout << "   #### " << argv[0] << " wrong number of arguments\n";
+        return 1;
     }
 
-  const int algorithm = alg_gso;
-  std::string aconf = argv[1];
-  LocalNetwork* aln = getNet(algorithm, argv[2]);
-  std::string bconf = argv[3];
-  LocalNetwork* bln = getNet(algorithm, argv[4]);
+    const int algorithm = alg_gso;
+    std::string aconf = argv[1];
+    LocalNetwork* aln = getNet(algorithm, argv[2]);
+    std::string bconf = argv[3];
+    LocalNetwork* bln = getNet(algorithm, argv[4]);
 
-  double maxdiff = xyzMaxDiff(aln,bln);
-  bool failed = std::abs(maxdiff) >= 1e-5;
+    double maxdiff = xyzMaxDiff(aln,bln);
+    bool failed = std::abs(maxdiff) >= 1e-5;
 
-  std::cout << "max.diff"
-	    << std::scientific << std::setprecision(3) << std::setw(11)
-	    << maxdiff << "[m] "
-	    << aconf << " " << bconf;
+    std::cout << "max.diff"
+              << std::scientific << std::setprecision(3) << std::setw(11)
+              << maxdiff << "[m] "
+              << aconf << " " << bconf;
 
-  if (failed) std::cout << "  !!!";
+    if (failed) std::cout << "  !!!";
 
-  std::cout << "\n";
-  return failed;
+    std::cout << "\n";
+    return failed;
 }

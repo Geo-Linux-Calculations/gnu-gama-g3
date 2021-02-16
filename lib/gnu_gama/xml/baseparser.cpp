@@ -29,34 +29,35 @@ using namespace GNU_gama;
 
 // ===========================================================================
 
-namespace {
-  extern "C" {
+namespace
+{
+extern "C" {
 
     void characterDataHandler(void *userData, const char* s, int len)
     {
-      using namespace GNU_gama;
-      CoreParser* gexp = static_cast<CoreParser*>(userData);
+        using namespace GNU_gama;
+        CoreParser* gexp = static_cast<CoreParser*>(userData);
 
-      gexp->characterDataHandler(s, len);
+        gexp->characterDataHandler(s, len);
     }
 
     void startElement(void *userData, const char *cname, const char **atts)
     {
-      using namespace GNU_gama;
-      CoreParser* gexp = static_cast<CoreParser*>(userData);
+        using namespace GNU_gama;
+        CoreParser* gexp = static_cast<CoreParser*>(userData);
 
-      gexp->startElement(cname, atts);
+        gexp->startElement(cname, atts);
     }
 
     void endElement(void *userData, const char *cname)
     {
-      using namespace GNU_gama;
-      CoreParser* gexp = static_cast<CoreParser*>(userData);
+        using namespace GNU_gama;
+        CoreParser* gexp = static_cast<CoreParser*>(userData);
 
-      gexp->endElement(cname);
+        gexp->endElement(cname);
     }
 
-  }   // extern "C"
+}   // extern "C"
 }     // unnamed namespace
 
 // ===========================================================================
@@ -65,78 +66,78 @@ namespace {
 
 CoreParser::CoreParser()
 {
-  errCode = errLineNumber = 0;
+    errCode = errLineNumber = 0;
 
-  parser  = XML_ParserCreate(0);
+    parser  = XML_ParserCreate(0);
 
-  XML_SetUserData              (parser, this);
-  XML_SetElementHandler        (parser, ::startElement, ::endElement);
-  XML_SetCharacterDataHandler  (parser, ::characterDataHandler);
-  XML_SetUnknownEncodingHandler(parser, UnknownEncodingHandler, 0);
+    XML_SetUserData              (parser, this);
+    XML_SetElementHandler        (parser, ::startElement, ::endElement);
+    XML_SetCharacterDataHandler  (parser, ::characterDataHandler);
+    XML_SetUnknownEncodingHandler(parser, UnknownEncodingHandler, 0);
 }
 
 CoreParser::~CoreParser()
 {
-  XML_ParserFree(parser);
+    XML_ParserFree(parser);
 }
 
 
 bool CoreParser::toDouble(const std::string& s, double& d) const
 {
-  using namespace std;        // Visual C++ doesn't know std::atof ???
+    using namespace std;        // Visual C++ doesn't know std::atof ???
 
-  if (IsFloat(s))
+    if (IsFloat(s))
     {
-      d = atof(s.c_str());
-      return true;
+        d = atof(s.c_str());
+        return true;
     }
-  else
-    return false;
+    else
+        return false;
 }
 
 
 bool CoreParser::toInteger(const std::string& s, int& value) const
 {
-  if (IsInteger(s))
+    if (IsInteger(s))
     {
-      using namespace std;
-      value =atoi(s.c_str());
-      return true;
+        using namespace std;
+        value =atoi(s.c_str());
+        return true;
     }
-  else
+    else
     {
-      return false;
+        return false;
     }
 }
 
 
 bool CoreParser::toIndex(const std::string& s, std::size_t& index) const
 {
-  for (std::string::const_iterator i=s.begin(); i!=s.end(); ++i)
-    if (!isspace(*i) && !isdigit(*i))
-      return false;
+    for (std::string::const_iterator i=s.begin(); i!=s.end(); ++i)
+        if (!isspace(*i) && !isdigit(*i))
+            return false;
 
-  double d;
-  if (toDouble(s, d))
+    double d;
+    if (toDouble(s, d))
     {
-      index = static_cast<std::size_t>(d);
-      return true;
+        index = static_cast<std::size_t>(d);
+        return true;
     }
-  else
-    return false;
+    else
+        return false;
 }
 
 
 int CoreParser::error(const char* text)
 {
-  // store only the first detected error
-  if(errCode) return 1;
+    // store only the first detected error
+    if(errCode) return 1;
 
-  errString = std::string(text);
-  errCode   = -1;
-  errLineNumber = XML_GetCurrentLineNumber(parser);
-  state = 0;     /*  state_error is 0  */
-  return 1;
+    errString = std::string(text);
+    errCode   = -1;
+    errLineNumber = XML_GetCurrentLineNumber(parser);
+    state = 0;     /*  state_error is 0  */
+    return 1;
 }
 
 

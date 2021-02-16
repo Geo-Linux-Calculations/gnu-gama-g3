@@ -25,11 +25,12 @@
 #include <gnu_gama/adj/adj_envelope.h>
 
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  template <typename Float, typename Index, typename Exc>
-  void AdjEnvelope<Float, Index, Exc>::reset(const AdjInputData *data)
-  {
+template <typename Float, typename Index, typename Exc>
+void AdjEnvelope<Float, Index, Exc>::reset(const AdjInputData *data)
+{
     observations = data->mat()->rows();
     parameters   = data->mat()->columns();
     this->input  = data;
@@ -37,36 +38,36 @@ namespace GNU_gama {
     indbuf.erase();
     qxxbuf.resize(indbuf.size());
     for (Index i=0; i<qxxbuf.size(); i++)
-      qxxbuf[i].reset();
+        qxxbuf[i].reset();
 
     set_stage(stage_init);
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  void AdjEnvelope<Float, Index, Exc>::set_stage(Stage s)
-  {
+template <typename Float, typename Index, typename Exc>
+void AdjEnvelope<Float, Index, Exc>::set_stage(Stage s)
+{
     switch (s)
-      {
-      default:
-      case stage_init:
-      case stage_ordering:
-      case stage_x0:
+    {
+    default:
+    case stage_init:
+    case stage_ordering:
+    case stage_x0:
         init_residuals = true;
         init_q0        = true;
         init_x         = true;
-      case stage_q0:
+    case stage_q0:
         init_q_bb      = true;
         ;
-      }
+    }
 
     this->stage = s;
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  void AdjEnvelope<Float, Index, Exc>::solve_ordering()
-  {
+template <typename Float, typename Index, typename Exc>
+void AdjEnvelope<Float, Index, Exc>::solve_ordering()
+{
     if (this->stage >= stage_ordering) return;
 
     hom.reset(this->input);
@@ -84,30 +85,30 @@ namespace GNU_gama {
     tmpvec.set_zero();
 
     for (Index r=1; r<=design_matrix->rows(); r++)
-      {
+    {
         const Float* b=design_matrix->begin (r);
         const Float* e=design_matrix->end   (r);
         const Index* n=design_matrix->ibegin(r);
 
         while (b != e)
-          {
+        {
             const Index c = ordering.invp(*n++);
             const Float a = *b++;
 
             // absolute terms in normal equations
             tmpvec(c) +=  a * rhs(r);
-          }
-      }
+        }
+    }
 
     envelope.set(design_matrix, &graph, &ordering);
 
     set_stage(stage_ordering);
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  void AdjEnvelope<Float, Index, Exc>::solve_x0()
-  {
+template <typename Float, typename Index, typename Exc>
+void AdjEnvelope<Float, Index, Exc>::solve_x0()
+{
     if (this->stage >= stage_x0) return;
     solve_ordering();
 
@@ -121,9 +122,9 @@ namespace GNU_gama {
 
     x0.reset(tmpvec.dim());
     for (Index i=1; i<=tmpvec.dim(); i++)
-      {
+    {
         x0(ordering.perm(i)) = tmpvec(i);
-      }
+    }
     tmpvec.reset();
 
     // sum of squares of weighted residuals
@@ -132,49 +133,49 @@ namespace GNU_gama {
     const Vec         <Float>&         rhs = hom.rhs();
     squares = 0;
     for (Index i=1; i<=mat->rows(); i++)
-      {
+    {
         Float *b = mat->begin(i);
         Float *e = mat->end(i);
         Index *n = mat->ibegin(i);
         Float  s = Float();
         while(b != e)
-          {
+        {
             s += *b++ * x0(*n++);
-          }
+        }
 
         const Float t = s - rhs(i);
         squares += t*t;
-      }
+    }
 
     nullity = envelope.defect();
 
     if (nullity)
-      {
+    {
         qxxbuf.resize(indbuf.size());
         for (Index i=0; i<qxxbuf.size(); i++)
-          qxxbuf[i].reset(parameters);
-      }
+            qxxbuf[i].reset(parameters);
+    }
 
     set_stage(stage_x0);
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  const GNU_gama::Vec<Float, Exc>&
-  AdjEnvelope<Float, Index, Exc>::unknowns()
-  {
+template <typename Float, typename Index, typename Exc>
+const GNU_gama::Vec<Float, Exc>&
+AdjEnvelope<Float, Index, Exc>::unknowns()
+{
     if (init_x) solve_x();
 
     return x;
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  const GNU_gama::Vec<Float, Exc>&
-  AdjEnvelope<Float, Index, Exc>::residuals()
-  {
+template <typename Float, typename Index, typename Exc>
+const GNU_gama::Vec<Float, Exc>&
+AdjEnvelope<Float, Index, Exc>::residuals()
+{
     if (init_residuals)
-      {
+    {
         if (this->stage < stage_x0) solve_x0();
 
         const SparseMatrix<Float, Index>* mat = this->input->mat();
@@ -183,73 +184,73 @@ namespace GNU_gama {
         resid.reset(N);
 
         for (Index i=1; i<=N; i++)        // residuals = Ax - rhs
-          {
+        {
             Float *b = mat->begin(i);
             Float *e = mat->end(i);
             Index *n = mat->ibegin(i);
             Float  s = Float();
             while(b != e)
-              {
+            {
                 s += *b++ * x0(*n++);
-              }
+            }
 
             resid(i) = s - rhs(i);
-          }
+        }
 
         init_residuals = false;
-      }
+    }
 
     return resid;
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  Float AdjEnvelope<Float, Index, Exc>::sum_of_squares()
-  {
+template <typename Float, typename Index, typename Exc>
+Float AdjEnvelope<Float, Index, Exc>::sum_of_squares()
+{
     if (this->stage < stage_x0) solve_x0();
 
     return squares;
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  Index AdjEnvelope<Float, Index, Exc>::defect()
-  {
+template <typename Float, typename Index, typename Exc>
+Index AdjEnvelope<Float, Index, Exc>::defect()
+{
     if (this->stage < stage_x0) solve_x0();
 
     return nullity;
-  }
+}
 
 
-  // T = I - alpha*inv(alpha'*alpha)*alpha'
+// T = I - alpha*inv(alpha'*alpha)*alpha'
 
-  template <typename Float, typename Index, typename Exc>
-  void AdjEnvelope<Float, Index, Exc>
-  ::T_row(GNU_gama::Vec<Float, Exc>& row, Index ii)
-  {
+template <typename Float, typename Index, typename Exc>
+void AdjEnvelope<Float, Index, Exc>
+::T_row(GNU_gama::Vec<Float, Exc>& row, Index ii)
+{
     Float t;
     const Index i = ordering.invp(ii);
     for (Index jj=1; jj<=parameters; jj++)
-      {
+    {
         const Index j = ordering.invp(jj);
         t = Float();
         if (i == j) t = Float(1);
 
         for (Index k=0; k<min_x_size; k++)
-          if (min_x_list[k] == jj)
+            if (min_x_list[k] == jj)
             {
-              for (Index c=1; c<=nullity; c++) t -= G(i,c)*G(j,c);
-              break;
+                for (Index c=1; c<=nullity; c++) t -= G(i,c)*G(j,c);
+                break;
             }
 
         row(j) = t;
-      }
-  }
+    }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  Float AdjEnvelope<Float, Index, Exc>::q_xx(Index i, Index j)
-  {
+template <typename Float, typename Index, typename Exc>
+Float AdjEnvelope<Float, Index, Exc>::q_xx(Index i, Index j)
+{
     if (this->stage < stage_q0) solve_q0();
 
     if (nullity == 0) return q0_xx(i, j);
@@ -264,28 +265,28 @@ namespace GNU_gama {
     Vec<Float, Exc>& a = qxxbuf[pa.first];
     Vec<Float, Exc>& b = qxxbuf[pb.first];
     if (!pa.second)
-      {
+    {
         T_row(a, i);
         envelope.lowerSolve(1, parameters, a.begin());
-      }
+    }
     if (!pb.second)
-      {
+    {
         T_row(b, j);
         envelope.lowerSolve(1, parameters, b.begin());
-      }
+    }
 
     Float s = Float();
     for (Index i=1; i<=parameters; i++)
-      if (const Float d = envelope.diagonal(i))
-        s += a(i)/d*b(i);
+        if (const Float d = envelope.diagonal(i))
+            s += a(i)/d*b(i);
 
     return s;
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  Float AdjEnvelope<Float, Index, Exc>::q0_xx(Index i, Index j)
-  {
+template <typename Float, typename Index, typename Exc>
+Float AdjEnvelope<Float, Index, Exc>::q0_xx(Index i, Index j)
+{
     if (this->stage < stage_q0) solve_q0();
 
     Float* q = q0.element(ordering.invp(i), ordering.invp(j));
@@ -294,11 +295,11 @@ namespace GNU_gama {
     // elements outside the envelope (full solution)
 
     if (qxxbuf[0].dim() != parameters)
-      {
+    {
         qxxbuf.resize(indbuf.size());
         for (Index i=0; i<qxxbuf.size(); i++)
-          qxxbuf[i].reset(parameters);
-      }
+            qxxbuf[i].reset(parameters);
+    }
 
     Index ii = ordering.invp(i);
     Index jj = ordering.invp(j);
@@ -308,19 +309,19 @@ namespace GNU_gama {
 
     Vec<Float, Exc>& a = qxxbuf[pa.first];
     if (!pa.second)
-      {
+    {
         a.set_zero();
         a(ii) = 1;
         envelope.solve(a.begin(), a.dim());
-      }
+    }
 
     return a(jj);
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  Float AdjEnvelope<Float, Index, Exc>::q_bb(Index i, Index j)
-  {
+template <typename Float, typename Index, typename Exc>
+Float AdjEnvelope<Float, Index, Exc>::q_bb(Index i, Index j)
+{
     if (this->stage < stage_q0) solve_q0();
 
     // if i == j the test for null pointers is redundant
@@ -334,29 +335,29 @@ namespace GNU_gama {
     const Float* qk;
     Float qbb = Float();
     while (b != e)
-      {
+    {
         const Index k = ordering.invp(*n++);
         b2 = design_matrix->begin (j);
         e2 = design_matrix->end   (j);
         n2 = design_matrix->ibegin(j);
         Float s = Float();
         while (b2 != e2)
-          {
+        {
             qk = q0.element(k, ordering.invp(*n2++));
             if (qk == 0) goto FULL_VECTOR;
             s += *qk * *b2++;
-          }
+        }
         qbb += *b++ * s;
-      }
+    }
     return qbb;
 
 
-  FULL_VECTOR:
+FULL_VECTOR:
 
     if (init_q_bb)
     {
-      tmpres.reset(parameters);
-      init_q_bb = false;
+        tmpres.reset(parameters);
+        init_q_bb = false;
     }
 
     tmpres.set_zero();
@@ -364,9 +365,9 @@ namespace GNU_gama {
     e = design_matrix->end   (j);
     n = design_matrix->ibegin(j);
     while (b != e)
-      {
+    {
         tmpres(ordering.invp(*n++)) = *b++;
-      }
+    }
 
     envelope.solve(tmpres.begin(), parameters);
 
@@ -375,110 +376,110 @@ namespace GNU_gama {
     n = design_matrix->ibegin(i);
     Float s = Float();
     while (b != e)
-      {
+    {
         s += *b++ * tmpres(ordering.invp(*n++));
-      }
+    }
 
     return s;
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  Float AdjEnvelope<Float, Index, Exc>::q_bx(Index i, Index j)
-  {
+template <typename Float, typename Index, typename Exc>
+Float AdjEnvelope<Float, Index, Exc>::q_bx(Index i, Index j)
+{
     throw Exc(Exception::BadRegularization,
               "q_bx not implemented");
     return 0;
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  bool AdjEnvelope<Float, Index, Exc>::lindep(Index i)
-  {
+template <typename Float, typename Index, typename Exc>
+bool AdjEnvelope<Float, Index, Exc>::lindep(Index i)
+{
     if (this->stage < stage_x0) solve_x0();
 
     return (envelope.diagonal(i) == Float());
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  void AdjEnvelope<Float, Index, Exc>::min_x()
-  {
+template <typename Float, typename Index, typename Exc>
+void AdjEnvelope<Float, Index, Exc>::min_x()
+{
     delete[] min_x_list;
     min_x_list = 0;
 
     init_x = true;
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  void AdjEnvelope<Float, Index, Exc>::min_x(Index n, Index m[])
-  {
+template <typename Float, typename Index, typename Exc>
+void AdjEnvelope<Float, Index, Exc>::min_x(Index n, Index m[])
+{
     delete[] min_x_list;
     min_x_size = n;
     min_x_list = new Index[min_x_size];
     for (Index i=0; i<min_x_size; i++)
-      min_x_list[i] = m[i];
+        min_x_list[i] = m[i];
 
     init_x = true;
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  void AdjEnvelope<Float, Index, Exc>::solve()
-  {
+template <typename Float, typename Index, typename Exc>
+void AdjEnvelope<Float, Index, Exc>::solve()
+{
     solve_x();
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  void AdjEnvelope<Float, Index, Exc>::solve_q0()
-  {
+template <typename Float, typename Index, typename Exc>
+void AdjEnvelope<Float, Index, Exc>::solve_q0()
+{
     if (init_q0)
-      {
+    {
         if (this->stage < stage_x0) solve_x0();
 
         q0.inverse(envelope);
 
         init_q0 = false;
         set_stage(stage_q0);
-      }
-  }
+    }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  Float AdjEnvelope<Float, Index, Exc>::dot(Index i, Index j) const
-  {
+template <typename Float, typename Index, typename Exc>
+Float AdjEnvelope<Float, Index, Exc>::dot(Index i, Index j) const
+{
     Float s = Float();
     for (Index n=0; n<min_x_size; n++)
-      {
+    {
         const Index k = ordering.invp(min_x_list[n]);
         s += G(k,i)*G(k,j);
-      }
+    }
     return s;
-  }
+}
 
 
-  template <typename Float, typename Index, typename Exc>
-  void AdjEnvelope<Float, Index, Exc>::solve_x()
-  {
+template <typename Float, typename Index, typename Exc>
+void AdjEnvelope<Float, Index, Exc>::solve_x()
+{
     if (init_x)
-      {
+    {
         if (min_x_list == 0)   // regularization for all parameters
-          {
+        {
             min_x_size = parameters;
             min_x_list = new Index[min_x_size];
             for (Index i=0; i<min_x_size; i++)
-              min_x_list[i] = i+1;
-          }
+                min_x_list[i] = i+1;
+        }
 
         if (this->stage < stage_x0) solve_x0();
         init_x = false;
         if (defect() == 0)
-          {
+        {
             x = x0;
             return;
-          }
+        }
 
         nullity = defect();
         const Index N1 = nullity+1;
@@ -486,60 +487,60 @@ namespace GNU_gama {
         Vec<Float, Exc> tmp(parameters);
 
         for (Index k=1, column=1; column<=parameters; column++)
-          if (envelope.diagonal(column) == 0)
+            if (envelope.diagonal(column) == 0)
             {
-              for (Index i=1; i<=parameters; i++)
-                if (Float* e = envelope.element(i, column))
-                  tmp(i) = *e;
-                else
-                  tmp(i) = Float();
+                for (Index i=1; i<=parameters; i++)
+                    if (Float* e = envelope.element(i, column))
+                        tmp(i) = *e;
+                    else
+                        tmp(i) = Float();
 
-              envelope.upperSolve(1, parameters, tmp.begin());
+                envelope.upperSolve(1, parameters, tmp.begin());
 
-              tmp(column) = Float(-1);
-              for (Index i=1; i<=parameters; i++)
-                  G(i,k) = tmp(i);
+                tmp(column) = Float(-1);
+                for (Index i=1; i<=parameters; i++)
+                    G(i,k) = tmp(i);
 
-              k++;
+                k++;
             }
 
         for (Index i=1; i<=parameters; i++)
-          G(ordering.invp(i), N1) = x0(i);
+            G(ordering.invp(i), N1) = x0(i);
 
 
         // Gramm-Schmidt orthogonalization
 
         static Float s_tol = Float();
         if (s_tol <= Float())
-          {
+        {
             s_tol = std::sqrt( std::numeric_limits<Float>::epsilon() );
-          }
+        }
 
         for (Index column=1; column<=nullity; column++)
-          {
+        {
             const Float pivot = std::sqrt( dot(column, column) );
             if (pivot < s_tol)
-              {
+            {
                 init_x = true;
                 throw Exc(Exception::BadRegularization,
-                        "AdjEnvelope::solve_x() --- bad regularization");
-              }
+                          "AdjEnvelope::solve_x() --- bad regularization");
+            }
             for (Index i=1; i<=parameters; i++)
-              G(i,column) /= pivot;
+                G(i,column) /= pivot;
 
             for (Index col=column+1; col<=N1; col++)
-              {
+            {
                 const Float dp = dot(column, col);
                 for (Index i=1; i<=parameters; i++)
-                  G(i,col) -= dp*G(i, column);
-              }
-          }
+                    G(i,col) -= dp*G(i, column);
+            }
+        }
 
         x.reset(parameters);
         for (Index i=1; i<=parameters; i++)
-          x(ordering.perm(i)) = G(i, N1);
-      }
-  }
+            x(ordering.perm(i)) = G(i, N1);
+    }
+}
 
 }
 

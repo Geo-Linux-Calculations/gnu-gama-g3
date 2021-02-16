@@ -34,21 +34,22 @@
 #define gama_local_Adj__adjustment_class__h
 
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
 
-  class AdjInputData;
+class AdjInputData;
 
-  /** \brief General adjustment class for GNU Gama project.
-    */
+/** \brief General adjustment class for GNU Gama project.
+  */
 
-  class Adj
-  {
-  public:
+class Adj
+{
+public:
 
     /** Adjustment algorithms implemented in Adj class */
     enum algorithm
-      {
+    {
         /** Sparse matrix solution of Cholesky decomposition minimizing
             local bandwidth.
          */
@@ -56,40 +57,64 @@ namespace GNU_gama {
         gso,       /*!< Gram-Schmidt ortogonalization of design matrix */
         svd,       /*!< Singular Value decomposition of project matrix */
         cholesky   /*!< Cholesky decomposition of normal equations     */
-      };
+    };
 
-    Adj () : data(0), algorithm_(envelope), minx_dim(0), minx(0) { init(0); }
+    Adj () : data(0), algorithm_(envelope), minx_dim(0), minx(0)
+    {
+        init(0);
+    }
     virtual ~Adj();
 
-    int n_obs() const { return n_obs_; }   /*!< number of observations */
-    int n_par() const { return n_par_; }   /*!< number of parameters   */
+    int n_obs() const
+    {
+        return n_obs_;    /*!< number of observations */
+    }
+    int n_par() const
+    {
+        return n_par_;    /*!< number of parameters   */
+    }
 
     /**  sets pointer to input data object */
-    void set(const AdjInputData* inp) { init(inp); }
+    void set(const AdjInputData* inp)
+    {
+        init(inp);
+    }
 
     /** numerical algorithm                 */
     void set_algorithm(Adj::algorithm);
     /** returns current numerical algorithm */
-    Adj::algorithm get_algorithm() const { return algorithm_; }
+    Adj::algorithm get_algorithm() const
+    {
+        return algorithm_;
+    }
 
-    int    defect() const { return least_squares->defect(); }
-    double rtr   () const { return rtr_; }     /*!< weighted sum of squares */
+    int    defect() const
+    {
+        return least_squares->defect();
+    }
+    double rtr   () const
+    {
+        return rtr_;    /*!< weighted sum of squares */
+    }
     const Vec<>& x();                          /*!< adjusted parameters     */
     const Vec<>& r();                          /*!< adjusted residuals      */
 
     /** weight coeficients of adjusted parameters    */
-    double q_xx(Index i, Index j) { return least_squares->q_xx(i,j); }
+    double q_xx(Index i, Index j)
+    {
+        return least_squares->q_xx(i,j);
+    }
     /** weight coefficients of adjusted observations */
     double q_bb(Index i, Index j);
 
-  private:
+private:
 
     const AdjInputData *data;
 
     typedef GNU_gama::AdjBase<double, Index, Vec<> >         AdjBase;
     typedef GNU_gama::AdjBaseFull<double, Exception::matvec> AdjBaseFull;
     typedef GNU_gama::AdjBaseSparse<double, Index, Vec<>,
-                                    GNU_gama::AdjInputData>  AdjBaseSparse;
+            GNU_gama::AdjInputData>  AdjBaseSparse;
 
     AdjBase*       least_squares;
 
@@ -109,14 +134,15 @@ namespace GNU_gama {
 
     Index  minx_dim;
     Index* minx;
-  };
+};
 
 
-  /** \brief Adjustment input data class.
-   */
+/** \brief Adjustment input data class.
+ */
 
-  class AdjInputData {
-  public:
+class AdjInputData
+{
+public:
 
     AdjInputData();
     ~AdjInputData();
@@ -125,25 +151,52 @@ namespace GNU_gama {
     void read_xml(std::istream&);
 
     /** Sparse design matrix */
-    const SparseMatrix <> * mat () const { return A;     }
+    const SparseMatrix <> * mat () const
+    {
+        return A;
+    }
     /** Block diagonal matrix of observtion covariances */
-    const BlockDiagonal<> * cov () const { return pcov;  }
+    const BlockDiagonal<> * cov () const
+    {
+        return pcov;
+    }
     /** Right-hand site*/
-    const Vec          <> & rhs () const { return prhs;  }
+    const Vec          <> & rhs () const
+    {
+        return prhs;
+    }
     /** List of parameters indexes used in regulrization of singular systems */
-    const IntegerList  <> * minx() const { return pminx; }
+    const IntegerList  <> * minx() const
+    {
+        return pminx;
+    }
 
-    void set_mat (SparseMatrix <> * p) { delete A;     A     = p; }
-    void set_cov (BlockDiagonal<> * p) { delete pcov;  pcov  = p; }
-    void set_rhs (Vec          <>   p) {               prhs  = p; }
-    void set_minx(IntegerList  <> * p) { delete pminx; pminx = p; }
+    void set_mat (SparseMatrix <> * p)
+    {
+        delete A;
+        A     = p;
+    }
+    void set_cov (BlockDiagonal<> * p)
+    {
+        delete pcov;
+        pcov  = p;
+    }
+    void set_rhs (Vec          <>   p)
+    {
+        prhs  = p;
+    }
+    void set_minx(IntegerList  <> * p)
+    {
+        delete pminx;
+        pminx = p;
+    }
 
     /* Sparse project equations for uncorrelated observations. *
      * Defined here only for backward data compatibility       */
     void read_gama_local_old_format(std::istream&);
 
 
-  private:
+private:
 
     friend class Adj;
 
@@ -153,7 +206,7 @@ namespace GNU_gama {
     IntegerList  <> * pminx;
 
     void swap(AdjInputData *);
-  };
+};
 
 }  // namespace GNU_gama
 

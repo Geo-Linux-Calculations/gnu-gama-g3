@@ -24,61 +24,62 @@
 
 #include <matvec/matvec.h>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  /** \brief Inverse of a finite segment of the Hilbert matrix
-   *
-   * CACM Algorithm 50 by John R. Herndon (1961), corrections by
-   * B. Randel, improved version by P. Naur
-   *
-   * This procedure computes the elements of the innverse of an n x n
-   * finite segment of the Hilbert Matrix. The Hilbert matrix has the
-   * elements H(i,j) = 1/(i+j-1). The segments of this are known to be
-   * increasingly ill-conditioned with increasing size.
-   *
-   */
+/** \brief Inverse of a finite segment of the Hilbert matrix
+ *
+ * CACM Algorithm 50 by John R. Herndon (1961), corrections by
+ * B. Randel, improved version by P. Naur
+ *
+ * This procedure computes the elements of the innverse of an n x n
+ * finite segment of the Hilbert Matrix. The Hilbert matrix has the
+ * elements H(i,j) = 1/(i+j-1). The segments of this are known to be
+ * increasingly ill-conditioned with increasing size.
+ *
+ */
 
 template <typename Float, typename Exc> Mat<Float, Exc> InvHilbert(Index n)
 {
-  Mat<Float, Exc> H(n,n);
+    Mat<Float, Exc> H(n,n);
 
-  Index i, j, k;
-  Float w;
+    Index i, j, k;
+    Float w;
 
-  w = H(1,1) = n*n;
+    w = H(1,1) = n*n;
 
-  for (i=2; i<=n; i++)
+    for (i=2; i<=n; i++)
     {
-      Float k = Float(n+i-1)*(n-i+1)/((i-1)*(i-1));
-      w = H(i,i) = w * k * k;
+        Float k = Float(n+i-1)*(n-i+1)/((i-1)*(i-1));
+        w = H(i,i) = w * k * k;
     }
 
-  for (i=1; i<=n-1; i++)
-    for (j=i+1; j<=n; j++)
-      {
-        k = j - 1;
-        H(i,j) = -H(i,k)*(n+k)*(n-k)/(k*k);
-      }
+    for (i=1; i<=n-1; i++)
+        for (j=i+1; j<=n; j++)
+        {
+            k = j - 1;
+            H(i,j) = -H(i,k)*(n+k)*(n-k)/(k*k);
+        }
 
-  for (i=2; i<=n; i++)
-    for (j=1; j<=i; j++)
-      H(i,j) = H(j,i) = H(j,i)/(i+j-1);
+    for (i=2; i<=n; i++)
+        for (j=1; j<=i; j++)
+            H(i,j) = H(j,i) = H(j,i)/(i+j-1);
 
-  return H;
+    return H;
 }
 
-  /** Hilbert matrix */
+/** Hilbert matrix */
 
 template <typename Float, typename Exc> Mat<Float, Exc> Hilbert(Index n)
 {
-  GNU_gama::Mat<Float, Exc> H(n,n);
-  const Float one = 1;
+    GNU_gama::Mat<Float, Exc> H(n,n);
+    const Float one = 1;
 
-  for (Index i=1; i<=n; i++)
-    for (Index j=1; j<=n; j++)
-      H(i,j) = one / (i+j-1);
+    for (Index i=1; i<=n; i++)
+        for (Index j=1; j<=n; j++)
+            H(i,j) = one / (i+j-1);
 
-  return H;
+    return H;
 }
 
 }

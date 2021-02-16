@@ -24,8 +24,8 @@
 
 enum {alg_svd, alg_gso, alg_chol, alg_env};
 
-double                     xyzMaxDiff(GNU_gama::local::LocalNetwork* lnet1, 
-				      GNU_gama::local::LocalNetwork* lnet2);
+double                     xyzMaxDiff(GNU_gama::local::LocalNetwork* lnet1,
+                                      GNU_gama::local::LocalNetwork* lnet2);
 GNU_gama::local::LocalNetwork* getNet(int alg, const char* file);
 
 #endif

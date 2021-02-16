@@ -25,7 +25,10 @@
 #include <matvec/matvec.h>
 #include <iostream>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 
 /*
@@ -40,28 +43,29 @@ void Read_Sparse_Abw(std::istream& inp,
                      gMatVec::Vec<Float, Exc>& b,
                      gMatVec::Vec<Float, Exc>& w)
 {
-   int M, N;
-   inp >> N >> M;                   // number of unknowns and observations
-   A.reset(M, N);
-   b.reset(M);
-   w.reset(M);
+    int M, N;
+    inp >> N >> M;                   // number of unknowns and observations
+    A.reset(M, N);
+    b.reset(M);
+    w.reset(M);
 
-   A.set_zero();
+    A.set_zero();
 
-   int* ind = new int[N];
-   for (int n, r=1; r<=M; r++)      // all project equations 1, 2, ..., M
-      {
-         inp >> n;                  // number of nonzero coefficients
-         for (int i=0; i<n; i++)
+    int* ind = new int[N];
+    for (int n, r=1; r<=M; r++)      // all project equations 1, 2, ..., M
+    {
+        inp >> n;                  // number of nonzero coefficients
+        for (int i=0; i<n; i++)
             inp >> ind[i];          // list of indexes of nonzero coefficients
-         inp >> w(r) >> b(r);       // weight and rhs
-         for (int j=0; j<n; j++)
+        inp >> w(r) >> b(r);       // weight and rhs
+        for (int j=0; j<n; j++)
             inp >> A(r,ind[j]);     // list of nonzero coefficients
-      }
-      delete[] ind;
+    }
+    delete[] ind;
 }
 
-}}      // namespace GNU_gama::local
+}
+}      // namespace GNU_gama::local
 
 #endif
 

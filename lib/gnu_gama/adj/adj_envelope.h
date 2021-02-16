@@ -30,19 +30,23 @@
 #include <gnu_gama/movetofront.h>
 #include <vector>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
 
-  template <typename Float=double,  typename Index=std::size_t,
-            typename Exc=Exception::matvec>
-  class AdjEnvelope : public AdjBaseSparse<Float, Index,
-                                           GNU_gama::Vec<Float, Exc>,
-                                           AdjInputData >
-  {
-  public:
+template <typename Float=double,  typename Index=std::size_t,
+         typename Exc=Exception::matvec>
+class AdjEnvelope : public AdjBaseSparse<Float, Index,
+    GNU_gama::Vec<Float, Exc>,
+    AdjInputData >
+{
+public:
 
     AdjEnvelope() : min_x_list(0) {}
-    ~AdjEnvelope() { delete[] min_x_list; }
+    ~AdjEnvelope()
+    {
+        delete[] min_x_list;
+    }
 
     virtual const GNU_gama::Vec<Float, Exc>& unknowns();
     virtual const GNU_gama::Vec<Float, Exc>& residuals();
@@ -63,7 +67,7 @@ namespace GNU_gama {
 
     virtual void reset(const AdjInputData *data);
 
-  private:
+private:
 
     ReverseCuthillMcKee<Index>   ordering;
     Homogenization<Float, Index>      hom;
@@ -85,11 +89,12 @@ namespace GNU_gama {
     std::vector<GNU_gama::Vec<Float, Exc> > qxxbuf;
     GNU_gama::MoveToFront<3,Index,Index>    indbuf;
 
-    enum Stage {
-      stage_init,       // implicitly set by Adj_BaseSparse constuctor
-      stage_ordering,   // permutation vector
-      stage_x0,         // particular solution (dependent unknown set to 0)
-      stage_q0
+    enum Stage
+    {
+        stage_init,       // implicitly set by Adj_BaseSparse constuctor
+        stage_ordering,   // permutation vector
+        stage_x0,         // particular solution (dependent unknown set to 0)
+        stage_q0
     };
 
     bool init_q_bb;         // weight coefficieants of adjusted observations
@@ -110,7 +115,7 @@ namespace GNU_gama {
 
     Index* min_x_list;
     Index  min_x_size;
-  };
+};
 
 }  // namespace GNU_gama
 

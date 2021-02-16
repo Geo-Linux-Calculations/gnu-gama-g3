@@ -25,59 +25,60 @@
 #include <matvec/svd.h>
 
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  /** \brief Moore-Penrose pseudoinverse of a real M x N matrix.
+/** \brief Moore-Penrose pseudoinverse of a real M x N matrix.
 
-  \param  A input matrix
-  \return pseudoinverse of A
+\param  A input matrix
+\return pseudoinverse of A
 
-  Definition:
+Definition:
 
-  \f{eqnarray*}
-  AA^+A    &=& A     \\
-  A^+A^A   &=& A^+   \\
-  (AA^+)^T &=& AA^+  \\
-  (A^+A)^T &=& A^+A  \\
-  \f}
+\f{eqnarray*}
+AA^+A    &=& A     \\
+A^+A^A   &=& A^+   \\
+(AA^+)^T &=& AA^+  \\
+(A^+A)^T &=& A^+A  \\
+\f}
 
-  Pseudoinverse is computed by using singular value decomposition
-  (template class SVD).
+Pseudoinverse is computed by using singular value decomposition
+(template class SVD).
 
-  */
+*/
 
 template <typename Float, typename Exc>
 Mat<Float, Exc> pinv(const Mat<Float, Exc>& A)
 {
-  const Index M = A.rows();
-  const Index N = A.cols();
-  SVD<Float, Exc> svd(A);
-  svd.decompose();
+    const Index M = A.rows();
+    const Index N = A.cols();
+    SVD<Float, Exc> svd(A);
+    svd.decompose();
 
-  const Mat<Float, Exc>& U = svd.SVD_U();
-  const Vec<Float, Exc>& W = svd.SVD_W();
-  const Mat<Float, Exc>& V = svd.SVD_V();
+    const Mat<Float, Exc>& U = svd.SVD_U();
+    const Vec<Float, Exc>& W = svd.SVD_W();
+    const Mat<Float, Exc>& V = svd.SVD_V();
 
-  Vec<Float,Exc> W_inv(N);
-  for (Index k=1; k<=N; k++)
-    if (!svd.lindep(k))
-      W_inv(k) = 1 / W(k);
-    else
-      W_inv(k) = 0;
+    Vec<Float,Exc> W_inv(N);
+    for (Index k=1; k<=N; k++)
+        if (!svd.lindep(k))
+            W_inv(k) = 1 / W(k);
+        else
+            W_inv(k) = 0;
 
-  Mat<Float, Exc> pseudo_inverse(N, M);  // V*inv(W)*trans(U);
+    Mat<Float, Exc> pseudo_inverse(N, M);  // V*inv(W)*trans(U);
 
-  Float s;
-  for (Index i=1; i<=N; i++)
-    for (Index j=1; j<=M; j++)
-      {
-        s = 0;
-        for (Index k=1; k<=N; k++)
-          s += V(i,k)*W_inv(k)*U(j,k);
-        pseudo_inverse(i,j) = s;
-      }
+    Float s;
+    for (Index i=1; i<=N; i++)
+        for (Index j=1; j<=M; j++)
+        {
+            s = 0;
+            for (Index k=1; k<=N; k++)
+                s += V(i,k)*W_inv(k)*U(j,k);
+            pseudo_inverse(i,j) = s;
+        }
 
-  return pseudo_inverse;
+    return pseudo_inverse;
 
 }       /* Mat<Float, Exc> pinv(const Mat<Float, Exc>& A) */
 

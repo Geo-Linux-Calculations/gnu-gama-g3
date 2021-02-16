@@ -33,57 +33,67 @@
   \brief #GNU_gama::local::sqlite_db::SqliteReader header file.
   */
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-    namespace Exception {
+namespace Exception
+{
+
+/**
+  \brief Exception class for #GNU_gama::local::sqlite_db::SqliteReader
+  */
+class sqlitexc : public GNU_gama::Exception::string
+{
+public:
+    /** \param message sqlite database error message or SqliteReader message */
+    sqlitexc(const std::string& message)
+        : string(message)
+    { }
 
     /**
-      \brief Exception class for #GNU_gama::local::sqlite_db::SqliteReader
+      Clones an exception.
+      \internal
+      The way as it is used in callback functions:
+      \code
+        // ... try block
+        catch (GNU_gama::Exception::base& e)
+            {
+                d->exception = e.clone();
+            }
+        return 1;
+      \endcode
       */
-    class sqlitexc : public GNU_gama::Exception::string
+    virtual sqlitexc* clone() const
     {
-    public:
-        /** \param message sqlite database error message or SqliteReader message */
-        sqlitexc(const std::string& message)
-            : string(message)
-            { }
+        return new sqlitexc(*this);
+    }
 
-        /**
-          Clones an exception.
-          \internal
-          The way as it is used in callback functions:
-          \code
-            // ... try block
-            catch (GNU_gama::Exception::base& e)
-                {
-                    d->exception = e.clone();
-                }
-            return 1;
-          \endcode
-          */
-        virtual sqlitexc* clone() const { return new sqlitexc(*this); }
+    /**
+      Rethrows an exception polymorphically.
+      \internal
+      The way as it is used in function \c exec in file sqlitereader.cpp:
+      \code
+        if (readerData->exception != 0)
+            {
+                readerData->exception->raise();
+            }
+      \endcode
+      */
+    virtual void raise() const
+    {
+        throw *this;
+    }
+};
 
-        /**
-          Rethrows an exception polymorphically.
-          \internal
-          The way as it is used in function \c exec in file sqlitereader.cpp:
-          \code
-            if (readerData->exception != 0)
-                {
-                    readerData->exception->raise();
-                }
-          \endcode
-          */
-        virtual void raise() const { throw *this; }
-    };
+} // namespace Exception
 
-    } // namespace Exception
+namespace local
+{
 
-namespace local {
+class LocalNetwork;
 
-    class LocalNetwork;
-
-namespace sqlite_db {
+namespace sqlite_db
+{
 
 struct ReaderData;
 

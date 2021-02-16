@@ -26,26 +26,30 @@
 #include <gnu_gama/local/language.h>
 #include <cctype>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 template <typename OutStream>
 void NetworkDescription(const std::string& description, OutStream& out)
 {
-   using namespace std;
-   using namespace GNU_gama::local;
+    using namespace std;
+    using namespace GNU_gama::local;
 
-   if (description.empty()) return;
+    if (description.empty()) return;
 
-   out << T_GaMa_network_description << '\n'
-       << underline(T_GaMa_network_description, '*') << '\n'
-       << description << "\n\n";
+    out << T_GaMa_network_description << '\n'
+        << underline(T_GaMa_network_description, '*') << '\n'
+        << description << "\n\n";
 
-   if ((*description.rbegin()) != '\n')
-     out << '\n';
+    if ((*description.rbegin()) != '\n')
+        out << '\n';
 
-   out.flush();
+    out.flush();
 }
 
-}}
+}
+}
 
 #endif

@@ -24,21 +24,22 @@
 
 #include <gnu_gama/adj/adj_base.h>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  /** \brief Base adjustment class for full matrix solutions. */
+/** \brief Base adjustment class for full matrix solutions. */
 
-  template <typename Float, typename Exc>
-  class AdjBaseFull : public AdjBase<Float, Index, Vec<Float, Exc> >
-  {
-  public:
+template <typename Float, typename Exc>
+class AdjBaseFull : public AdjBase<Float, Index, Vec<Float, Exc> >
+{
+public:
 
     AdjBaseFull() : pA(0), pb(0), is_solved(false)
     {
     }
 
     AdjBaseFull(const Mat<Float, Exc>& A, const Vec<Float, Exc>& b)
-      : pA(&A), pb(&b), is_solved(false)
+        : pA(&A), pb(&b), is_solved(false)
     {
     }
 
@@ -48,34 +49,34 @@ namespace GNU_gama {
 
     virtual void reset(const Mat<Float, Exc>& A, const Vec<Float, Exc>& b)
     {
-      pA = &A;
-      pb = &b;
-      is_solved = false;
+        pA = &A;
+        pb = &b;
+        is_solved = false;
     }
 
     const Vec<Float, Exc>& unknowns()
     {
-      if (!is_solved) solve();
-      return x;
+        if (!is_solved) solve();
+        return x;
     }
 
     const Vec<Float, Exc>& residuals()
     {
-      if (!is_solved) solve();
-      return r;
+        if (!is_solved) solve();
+        return r;
     }
 
     Float sum_of_squares()
     {
-      const Vec<Float, Exc>& res = residuals();
-      return res.dot(res);
+        const Vec<Float, Exc>& res = residuals();
+        return res.dot(res);
     }
 
     // solve() must compute vectors x, r  and set is_solved=true
     virtual void solve() = 0;
 
 
-  protected:
+protected:
 
     const Mat<Float, Exc>* pA;
     const Vec<Float, Exc>* pb;
@@ -84,7 +85,7 @@ namespace GNU_gama {
     Vec<Float, Exc> r;
     bool is_solved;
 
-  };
+};
 
 
 }

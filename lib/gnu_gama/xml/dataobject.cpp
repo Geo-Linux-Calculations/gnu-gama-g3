@@ -28,11 +28,11 @@ using namespace GNU_gama::DataObject;
 
 string Base::xml_begin()
 {
-  return
-    "<?xml version=\"1.0\" ?>\n"
-    "<!DOCTYPE gnu-gama-data SYSTEM \"gnu-gama-data.dtd\">\n\n"
+    return
+        "<?xml version=\"1.0\" ?>\n"
+        "<!DOCTYPE gnu-gama-data SYSTEM \"gnu-gama-data.dtd\">\n\n"
 
-    "<gnu-gama-data>\n";
+        "<gnu-gama-data>\n";
 }
 
 
@@ -40,5 +40,5 @@ string Base::xml_begin()
 
 string Base::xml_end()
 {
-  return "\n</gnu-gama-data>\n";
+    return "\n</gnu-gama-data>\n";
 }

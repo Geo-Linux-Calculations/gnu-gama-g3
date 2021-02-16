@@ -135,7 +135,7 @@ bool ReduceToEllipsoid::reduce_z_angle_to_ellipsoid(Z_Angle* obs)
     const double bearing23 = bearing(p2, p3);
 
     double correction = +EF.central_angle12(p2)*cos(bearing23 - bearing21);
-                  //  = -EF.central_angle23(p2,p3)*cos(bearing23 - bearing21);
+    //  = -EF.central_angle23(p2,p3)*cos(bearing23 - bearing21);
 
     reduced[obs] = obs->value();
     obs->set_value( obs->value() + correction);
@@ -178,12 +178,11 @@ bool ReduceToEllipsoid::reduce_direction_to_ellipsoid(Direction* obs)
                 zenithSum += o->value();
                 ++zenithNum;
             }
-            else
-                if ( (p3id == from) && (p2id == to) )
-                {
-                    zenithSum += (M_PI - o->value());
-                    ++zenithNum;
-                }
+            else if ( (p3id == from) && (p2id == to) )
+            {
+                zenithSum += (M_PI - o->value());
+                ++zenithNum;
+            }
         }
     }
 
@@ -243,11 +242,10 @@ void ReduceToEllipsoid::execute()
         {
             reduce_direction_to_ellipsoid(d);
         }
-        else
-            if ( Z_Angle* z = dynamic_cast<Z_Angle*>(obs) )
-            {
-                reduce_z_angle_to_ellipsoid(z);
-            }
+        else if ( Z_Angle* z = dynamic_cast<Z_Angle*>(obs) )
+        {
+            reduce_z_angle_to_ellipsoid(z);
+        }
     }
 
 }

@@ -27,19 +27,28 @@
 
 #include <gnu_gama/local/network.h>
 
-namespace GNU_gama { namespace local
+namespace GNU_gama
 {
-  class LocalNetwork2sql {
-  public:
+namespace local
+{
+class LocalNetwork2sql
+{
+public:
 
     LocalNetwork2sql(LocalNetwork& lnet);
 
     void readGkf(std::istream& istr);
     void write  (std::ostream& ostr, std::string conf);
-    void setDelete(bool del) { delrec = del;  }
-    bool getDelete() const   { return delrec; }
+    void setDelete(bool del)
+    {
+        delrec = del;
+    }
+    bool getDelete() const
+    {
+        return delrec;
+    }
 
-  private:
+private:
     GNU_gama::local::LocalNetwork&    localNetwork;
     GNU_gama::local::PointData&       points;
     GNU_gama::local::ObservationData& observations;
@@ -51,18 +60,19 @@ namespace GNU_gama { namespace local
     void write_cluster(std::ostream& ostr, const Cluster* c,
                        int cluster, std::string tag);
     int  rejected(const GNU_gama::local::Observation* m) const
-      {
+    {
         return m->active() ? 0 : 1;
-      }
+    }
     std::string cnfg() const
-      {
+    {
         return
-          "(select new_id from (select conf_id as new_id"
-          " from gnu_gama_local_configurations"
-          " where conf_name='" + config + "')x)";
-      }
-  };
+            "(select new_id from (select conf_id as new_id"
+            " from gnu_gama_local_configurations"
+            " where conf_name='" + config + "')x)";
+    }
+};
 
-}}
+}
+}
 
 #endif

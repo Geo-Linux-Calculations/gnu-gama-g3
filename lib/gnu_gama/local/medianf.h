@@ -24,29 +24,33 @@
 
 #include <gnu_gama/local/matvec.h>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 template <typename Float, typename Exc>
 Float median(GenVec<Float, Exc>& a)
 {
-   sort(a);
-   return (a((a.dim()+1)/2) + a((a.dim()+2)/2))/2;
+    sort(a);
+    return (a((a.dim()+1)/2) + a((a.dim()+2)/2))/2;
 }
 
 template <typename Float, typename Exc>
 double MAD(GenVec<Float, Exc>& a)
 {
-   const Float c = median(a);
+    const Float c = median(a);
 
-   Float d;
-   for (int i=1; i<=a.dim(); i++)
-      {
-         d = a(i) - c;
-         a(i) = (d>=0) ? d : -d;
-      }
+    Float d;
+    for (int i=1; i<=a.dim(); i++)
+    {
+        d = a(i) - c;
+        a(i) = (d>=0) ? d : -d;
+    }
 
-   return median(a)/0.6745;
+    return median(a)/0.6745;
 }
 
-}}      // namespace GNU_gama::local
+}
+}      // namespace GNU_gama::local
 #endif

@@ -28,10 +28,11 @@
 
 using namespace std;
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  string gon2deg(double gon, int sign, int prec)
-  {
+string gon2deg(double gon, int sign, int prec)
+{
     bool negative = (gon < 0);
     if (negative) gon = -gon;
 
@@ -47,13 +48,13 @@ namespace GNU_gama {
     if (sign == 1 || sign == 2) dms << " ";
     dms.setf(ios_base::fixed, ios_base::floatfield);
     if (sign == 3)
-      {
+    {
         if (negative) dms << "-";
-      }
+    }
     else
-      {
+    {
         dms << setw(3);
-      }
+    }
     dms << d << "-";
     dms.fill('0');
     dms << setw(2) << m << "-"
@@ -61,24 +62,24 @@ namespace GNU_gama {
 
     string deg = dms.str();
     if (negative)
-      {
+    {
         if (sign == 1)
-          deg[0] = '-';
+            deg[0] = '-';
         else if (sign == 2)
-          {
+        {
             int k = 0;
             if (deg[1] == ' ') k = 1;
             if (deg[2] == ' ') k = 2;
             deg[k] = '-';
-          }
-      }
+        }
+    }
 
     return deg;
-  }
+}
 
 
-  bool deg2gon(string deg, double& gon)
-  {
+bool deg2gon(string deg, double& gon)
+{
     string::const_iterator b=deg.begin();
     string::const_iterator e=deg.end();
 
@@ -108,19 +109,23 @@ namespace GNU_gama {
     if (gon && negative) gon = -gon;
 
     return true;
-  }
+}
 
 double dms2rad(double dms)
 {
     double sgn = 1;
     if (dms < 0)
-        {
-            dms = -dms;
-            sgn = -1;
-        }
+    {
+        dms = -dms;
+        sgn = -1;
+    }
 
-    double d = int(dms);  dms -= d;  dms *= 100;
-    double m = int(dms);  dms -= m;  dms *= 100;
+    double d = int(dms);
+    dms -= d;
+    dms *= 100;
+    double m = int(dms);
+    dms -= m;
+    dms *= 100;
 
     double r = sgn*(d/180.0 + m/10800.0 + dms/648000.0) * M_PI;
     double z = 2*M_PI;
@@ -136,8 +141,12 @@ double rad2dms(double rad)
     while (rad >= 360) rad -= 360;
     while (rad <   0 ) rad += 360;
 
-    double d = int(rad);  rad -= d;  rad *= 60;
-    double m = int(rad);  rad -= m;  rad *= 60;
+    double d = int(rad);
+    rad -= d;
+    rad *= 60;
+    double m = int(rad);
+    rad -= m;
+    rad *= 60;
 
     return d + m/100 + rad/10000;
 }

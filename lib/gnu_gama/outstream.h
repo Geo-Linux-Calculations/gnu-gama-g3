@@ -27,74 +27,92 @@
 #ifndef GNU_gama__outstream__h____output_stream__outstreamh
 #define GNU_gama__outstream__h____output_stream__outstreamh
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  class OutStream {
-  public:
+class OutStream
+{
+public:
 
     enum { utf_8, iso_8859_2, iso_8859_2_flat, cp_1250, cp_1251 };
 
     OutStream(std::ostream* str);
 
     OutStream& operator << (const char* c)
-      {
+    {
         if (str) *str << recode(c);
         return *this;
-      }
+    }
     OutStream& operator << (const std::string& s)
-      {
+    {
         if (str) *str << recode(s.c_str());
         return *this;
-      }
+    }
 
     template<typename T> OutStream& operator << (const T& t)
-      {
+    {
         if (str) *str << t;
         return *this;
-      }
+    }
 
-    std::ostream* std_stream() { return str; }
+    std::ostream* std_stream()
+    {
+        return str;
+    }
 
     void setf (std::ios_base::fmtflags t, std::ios_base::fmtflags v)
     {
-      if (str) str->setf(t, v);
+        if (str) str->setf(t, v);
     }
-    void width     (int t)  { if (str) str->width(t);     }
-    void precision (int t)  { if (str) str->precision(t); }
-    void flush     ()       { if (str) str->flush();      }
+    void width     (int t)
+    {
+        if (str) str->width(t);
+    }
+    void precision (int t)
+    {
+        if (str) str->precision(t);
+    }
+    void flush     ()
+    {
+        if (str) str->flush();
+    }
 
-    void set_encoding(int e) { encoding = e; }
+    void set_encoding(int e)
+    {
+        encoding = e;
+    }
 
-  private:
+private:
 
     std::ostream* str;
     int           encoding;
     std::string   text;
 
     const char* recode(const char* s);
-  };
+};
 
 
-  class SaveFlags {
-  public:
+class SaveFlags
+{
+public:
 
     SaveFlags(std::ostream& out) : std_stream(out)
     {
-      flgs = std_stream.flags();
-      prec = std_stream.precision();
+        flgs = std_stream.flags();
+        prec = std_stream.precision();
     }
     ~SaveFlags()
     {
-      std_stream.precision(prec);
-      std_stream.flags(flgs);
+        std_stream.precision(prec);
+        std_stream.flags(flgs);
     }
 
-  private:
+private:
 
     std::ostream&           std_stream;
     std::ios_base::fmtflags flgs;
     int                     prec;
-  };
+};
 
 }
 

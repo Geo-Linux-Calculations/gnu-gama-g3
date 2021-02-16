@@ -21,11 +21,15 @@
 
 #include <gnu_gama/local/pobs/format.h>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 int Format::coordinates_p = 3;
 int Format::centesimal_degrees_p = 4;
 int Format::standard_deviations_p = 1;
 
-}}
+}
+}
 

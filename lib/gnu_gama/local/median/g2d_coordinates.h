@@ -36,201 +36,205 @@
 #include <gnu_gama/local/median/g2d_cogo.h>
 
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-  class ApproximateCoordinates
+class ApproximateCoordinates
+{
+private:
+
+    // point list used to return results
+    PointData&       SB;
+    ObservationData& OD;
+    ObservationList  SM;
+
+    // Solution_state_tag -> see g2d_helper.h
+    Solution_state_tag state;
+
+    // list of selected points (with unknown coordinates)
+    PointIDList selected;
+
+    // list of solved points
+    PointData solved_pd;
+    int depth;
+
+    // number of points with known coordinates
+    int known_coordinates_;
+
+    bool absent(PointID cb)
     {
-    private:
-
-      // point list used to return results
-      PointData&       SB;
-      ObservationData& OD;
-      ObservationList  SM;
-
-      // Solution_state_tag -> see g2d_helper.h
-      Solution_state_tag state;
-
-      // list of selected points (with unknown coordinates)
-      PointIDList selected;
-
-      // list of solved points
-      PointData solved_pd;
-      int depth;
-
-      // number of points with known coordinates
-      int known_coordinates_;
-
-      bool absent(PointID cb)
-        {
-          return
+        return
             (std::find(selected.begin(),selected.end(),cb) == selected.end());
-        }
+    }
 
-      bool local_observations(ObservationList::iterator sm, PointIDList sb)
+    bool local_observations(ObservationList::iterator sm, PointIDList sb)
+    {
+        bool pom = false;
+        pom = (std::find(sb.begin(), sb.end(), (*sm)->from()) != sb.end()) &&
+              (std::find(sb.begin(), sb.end(), (*sm)->to()) != sb.end());
+        if(Angle* u = dynamic_cast<Angle*>(*sm))
         {
-          bool pom = false;
-          pom = (std::find(sb.begin(), sb.end(), (*sm)->from()) != sb.end()) &&
-            (std::find(sb.begin(), sb.end(), (*sm)->to()) != sb.end());
-          if(Angle* u = dynamic_cast<Angle*>(*sm))
-            {
-              pom = pom && (std::find(sb.begin(), sb.end(), u->fs())
-                            != sb.end());
-            }
-          return pom;
+            pom = pom && (std::find(sb.begin(), sb.end(), u->fs())
+                          != sb.end());
         }
+        return pom;
+    }
 
-      void reset();
+    void reset();
 
-      bool observation_hasID(ObservationList::iterator m,
-                             PointIDList::iterator cb)
+    bool observation_hasID(ObservationList::iterator m,
+                           PointIDList::iterator cb)
+    {
+        bool pom = (((*m)->from() == (*cb)) || ((*m)->to() == (*cb)));
+
+        if (Angle* u = dynamic_cast<Angle*>(*m))
         {
-          bool pom = (((*m)->from() == (*cb)) || ((*m)->to() == (*cb)));
+            pom = pom || (u->fs() == (*cb));
+        };
+        return pom;
+    }
 
-          if (Angle* u = dynamic_cast<Angle*>(*m))
-            {
-              pom = pom || (u->fs() == (*cb));
-            };
-          return pom;
-        }
+    // true - at least two points exist with known coordinates
+    bool solvable_data(PointData& b);
 
-      // true - at least two points exist with known coordinates
-      bool solvable_data(PointData& b);
+    // true - at least 2 observations with point ID exist
+    bool necessary_observations(PointID ID);
 
-      // true - at least 2 observations with point ID exist
-      bool necessary_observations(PointID ID);
+    // in lists SM and SB finds points without coordinates and
+    // stores their IDs in "selected" list
+    void find_missing_coordinates();
 
-      // in lists SM and SB finds points without coordinates and
-      // stores their IDs in "selected" list
-      void find_missing_coordinates();
+    // move point with ID from list From to list To
+    void move_point(PointData& From, PointData& To, PointID& ID);
 
-      // move point with ID from list From to list To
-      void move_point(PointData& From, PointData& To, PointID& ID);
+    // solution by simple intersection; true - at least one point solved
+    bool solve_intersection(PointData& body, PointIDList& co);
 
-      // solution by simple intersection; true - at least one point solved
-      bool solve_intersection(PointData& body, PointIDList& co);
+    // computation of points that cannot be solved by a simple
+    // intersection, eg polygonal traverse inserted between two
+    // known points; true - coordinates of at least one point solved
+    bool solve_insertion();
 
-      // computation of points that cannot be solved by a simple
-      // intersection, eg polygonal traverse inserted between two
-      // known points; true - coordinates of at least one point solved
-      bool solve_insertion();
+    // combines both previous methods
+    void computational_loop();
 
-      // combines both previous methods
-      void computational_loop();
+    void copy_horizontal(const ObservationData& from, ObservationList& to);
 
-      void copy_horizontal(const ObservationData& from, ObservationList& to);
-
-      ApproximateCoordinates(PointData& b, ObservationData& m, int vn)
+    ApproximateCoordinates(PointData& b, ObservationData& m, int vn)
         : SB(b), OD(m), depth(vn)
-        {
-          copy_horizontal(OD, SM);
-          reset();
-        }
+    {
+        copy_horizontal(OD, SM);
+        reset();
+    }
 
-      void reset(PointData& b, ObservationList& m)
-        {
-          SB = b;
-          SM = m;
-          depth = 0;
-          reset();
-        }
+    void reset(PointData& b, ObservationList& m)
+    {
+        SB = b;
+        SM = m;
+        depth = 0;
+        reset();
+    }
 
-    public:
+public:
 
-      ApproximateCoordinates(PointData& b, ObservationData& m)
+    ApproximateCoordinates(PointData& b, ObservationData& m)
         : SB(b), OD(m),  depth(0)
-        {
-          set_small_angle_limit();
+    {
+        set_small_angle_limit();
 
-          copy_horizontal(OD, SM);
-          reset();
-        }
+        copy_horizontal(OD, SM);
+        reset();
+    }
 
-      bool small_angle_detected() const
-      {
-         return CoordinateGeometry2D::small_angle_detected_;
-      }
+    bool small_angle_detected() const
+    {
+        return CoordinateGeometry2D::small_angle_detected_;
+    }
 
-      // one point (even if already solved); true - succeeded to get
-      // coordinates
-      bool calculation(PointID cb);
+    // one point (even if already solved); true - succeeded to get
+    // coordinates
+    bool calculation(PointID cb);
 
-      // poinst in PointIDList (even those already solved); true -
-      // succeded to get all coordinates
-      bool calculation(PointIDList cb);
+    // poinst in PointIDList (even those already solved); true -
+    // succeded to get all coordinates
+    bool calculation(PointIDList cb);
 
-      // all points without coordinates; true - succeeded to get all
-      // coordinates
-      bool calculation()
-        {
-          // looking for all points not placed in the point list (ie
-          // found only in observation list) and points without
-          // coordinates
-          state = calculation_done;
+    // all points without coordinates; true - succeeded to get all
+    // coordinates
+    bool calculation()
+    {
+        // looking for all points not placed in the point list (ie
+        // found only in observation list) and points without
+        // coordinates
+        state = calculation_done;
 
-          // gnu_gama/local-0.9.51 (AC) ... added test on empty lists
-          // gnu_gama/local-1.1.51 (AC) ... the test moved where it belongs ;-)
-          if (SB.empty() || SM.empty()) return true;
+        // gnu_gama/local-0.9.51 (AC) ... added test on empty lists
+        // gnu_gama/local-1.1.51 (AC) ... the test moved where it belongs ;-)
+        if (SB.empty() || SM.empty()) return true;
 
-          find_missing_coordinates();
-          if(!solvable_data(SB))
+        find_missing_coordinates();
+        if(!solvable_data(SB))
             return false;
-          computational_loop();
-          return all_is_solved();
-        }
+        computational_loop();
+        return all_is_solved();
+    }
 
-      bool all_is_solved() const
-        {
-          if(state <= calculation_not_done)
+    bool all_is_solved() const
+    {
+        if(state <= calculation_not_done)
             throw g2d_exc("ApproximateCoordinates::"
                           "all_is_solved - nothing to do");
-          return selected.empty();
-        }
+        return selected.empty();
+    }
 
-      PointIDList unsolved() const
-        {
-          if(state <= calculation_not_done)
+    PointIDList unsolved() const
+    {
+        if(state <= calculation_not_done)
             throw g2d_exc("ApproximateCoordinates::"
                           "unsolved - calculation not done");
-          return selected;
-        }
+        return selected;
+    }
 
-      PointData solved() const
-        {
-          if(state <= calculation_not_done)
+    PointData solved() const
+    {
+        if(state <= calculation_not_done)
             throw g2d_exc("ApproximateCoordinates::"
                           "solved - calculation not done");
-          return solved_pd;
-        }
+        return solved_pd;
+    }
 
-      int Total_points () const
-        {
-          return SB.size();
-        }
+    int Total_points () const
+    {
+        return SB.size();
+    }
 
-      int Total_observations () const
-        {
-          return SM.size();
-        }
+    int Total_observations () const
+    {
+        return SM.size();
+    }
 
-      // number of points with known coordinates (see reset)
-      int Known_coordinates() const
-        {
-          return known_coordinates_;
-        }
+    // number of points with known coordinates (see reset)
+    int Known_coordinates() const
+    {
+        return known_coordinates_;
+    }
 
-      double small_angle_limit() const
-      {
+    double small_angle_limit() const
+    {
         return CoordinateGeometry2D::small_angle_limit();
-      }
-      void set_small_angle_limit(double sal=0)
-      {
+    }
+    void set_small_angle_limit(double sal=0)
+    {
         CoordinateGeometry2D::set_small_angle_limit(sal);
-      }
+    }
 
-    };
+};
 
 
- }} // namespace GNU_gama::local
+}
+} // namespace GNU_gama::local
 
 
 #endif

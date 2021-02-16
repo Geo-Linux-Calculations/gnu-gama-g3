@@ -27,28 +27,32 @@
 #include <matvec/svd.h>
 #include <matvec/covmat.h>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-    /** A removed class \a MatVecException has been replaced by a typedef to
-	\a GNU_gama::Exception::matvec.
-     */
+/** A removed class \a MatVecException has been replaced by a typedef to
+\a GNU_gama::Exception::matvec.
+ */
 
-    typedef GNU_gama::Exception::matvec MatVecException;
+typedef GNU_gama::Exception::matvec MatVecException;
 
-  // class MatVecException : public GNU_gama::local::Exception {
-  // public:
-  //   const int error;
-  //   MatVecException(int e, const char *s) : GNU_gama::local::Exception(s), error(e) {}
-  // };
+// class MatVecException : public GNU_gama::local::Exception {
+// public:
+//   const int error;
+//   MatVecException(int e, const char *s) : GNU_gama::local::Exception(s), error(e) {}
+// };
 
-  typedef GNU_gama::Index Index;
+typedef GNU_gama::Index Index;
 
-  typedef GNU_gama::Vec   <double, MatVecException>   Vec;
-  typedef GNU_gama::Mat   <double, MatVecException>   Mat;
-  typedef GNU_gama::SVD   <double, MatVecException>   SVD;
-  typedef GNU_gama::CovMat<double, MatVecException>   CovMat;  // covariances
+typedef GNU_gama::Vec   <double, MatVecException>   Vec;
+typedef GNU_gama::Mat   <double, MatVecException>   Mat;
+typedef GNU_gama::SVD   <double, MatVecException>   SVD;
+typedef GNU_gama::CovMat<double, MatVecException>   CovMat;  // covariances
 
-}}      // GNU_gama::local
+}
+}      // GNU_gama::local
 
 #endif
 

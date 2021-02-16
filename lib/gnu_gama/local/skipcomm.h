@@ -23,9 +23,13 @@
 #define gama_local_SkipComments_h
 #include <iostream>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 std::istream& SkipComments(std::istream&);
 
-}}
+}
+}
 #endif

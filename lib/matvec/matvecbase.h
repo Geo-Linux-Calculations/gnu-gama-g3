@@ -25,132 +25,141 @@
 #include <matvec/memrep.h>
 
 
-namespace GNU_gama {   /** \brief Matrix/vector base class */
+namespace GNU_gama     /** \brief Matrix/vector base class */
+{
 
 template <typename Float=double, typename Exc=Exception::matvec>
-class MatVecBase : public MemRep<Float, Exc> {
+class MatVecBase : public MemRep<Float, Exc>
+{
 
 public:
 
-  typedef typename MemRep<Float, Exc>::iterator       iterator;
-  typedef typename MemRep<Float, Exc>::const_iterator const_iterator;
+    typedef typename MemRep<Float, Exc>::iterator       iterator;
+    typedef typename MemRep<Float, Exc>::const_iterator const_iterator;
 
-  void operator*=(Float f)
-  {
-    iterator b = this->begin();
-    iterator e = this->end();
-    while (b != e)
-    *b++ *= f;
-  }
-  void operator/=(Float f) { operator*=(1/f); }
+    void operator*=(Float f)
+    {
+        iterator b = this->begin();
+        iterator e = this->end();
+        while (b != e)
+            *b++ *= f;
+    }
+    void operator/=(Float f)
+    {
+        operator*=(1/f);
+    }
 
-  void set_all(Float f)
-  {
-    iterator b = this->begin();
-    iterator e = this->end();
-    while (b != e)
-      *b++ = f;
-  }
+    void set_all(Float f)
+    {
+        iterator b = this->begin();
+        iterator e = this->end();
+        while (b != e)
+            *b++ = f;
+    }
 
-  void set_zero() { set_all(Float()); }
+    void set_zero()
+    {
+        set_all(Float());
+    }
 
 protected:
 
-  MatVecBase() {}
-  MatVecBase(Index nsz) : MemRep<Float, Exc>(nsz) {}
-  MatVecBase(const MemRep<Float, Exc>& mem) : MemRep<Float, Exc>(mem) {}
+    MatVecBase() {}
+    MatVecBase(Index nsz) : MemRep<Float, Exc>(nsz) {}
+    MatVecBase(const MemRep<Float, Exc>& mem) : MemRep<Float, Exc>(mem) {}
 
-  void mul(Float f, MatVecBase& X) const
+    void mul(Float f, MatVecBase& X) const
     {
-      if (this->size() != X.size())
-        throw Exc(Exception::BadRank, "MatVecBase::mul(Float f, MatVecBase& X)");
+        if (this->size() != X.size())
+            throw Exc(Exception::BadRank, "MatVecBase::mul(Float f, MatVecBase& X)");
 
-      const_iterator a = this->begin();
-      iterator x = X.begin();
-      iterator e = X.end();
-      while (x != e)
-        *x++ = *a++ * f;
+        const_iterator a = this->begin();
+        iterator x = X.begin();
+        iterator e = X.end();
+        while (x != e)
+            *x++ = *a++ * f;
     }
 
-  void add(const MatVecBase& B, MatVecBase& X) const
+    void add(const MatVecBase& B, MatVecBase& X) const
     {
-      if (this->size() != B.size() || this->size() != X.size())
-        throw Exc(Exception::BadRank, "MatVecBase::add(const MatVecBase&, MatVecBase&)");
+        if (this->size() != B.size() || this->size() != X.size())
+            throw Exc(Exception::BadRank, "MatVecBase::add(const MatVecBase&, MatVecBase&)");
 
-      const_iterator a = this->begin();
-      const_iterator b = B.begin();
-      iterator x = X.begin();
-      iterator e = X.end();
-      while (x != e)
-        *x++ = *a++ + *b++;
+        const_iterator a = this->begin();
+        const_iterator b = B.begin();
+        iterator x = X.begin();
+        iterator e = X.end();
+        while (x != e)
+            *x++ = *a++ + *b++;
     }
 
-  void sub(const MatVecBase& B, MatVecBase& X) const
+    void sub(const MatVecBase& B, MatVecBase& X) const
     {
-      if (this->size() != B.size() || this->size() != X.size())
-        throw Exc(Exception::BadRank, "MatVecBase::sub(const MatVecBase&, MatVecBase&)");
+        if (this->size() != B.size() || this->size() != X.size())
+            throw Exc(Exception::BadRank, "MatVecBase::sub(const MatVecBase&, MatVecBase&)");
 
-      const_iterator a = this->begin();
-      const_iterator b = B.begin();
-      iterator x = X.begin();
-      iterator e = X.end();
-      while (x != e)
-        *x++ = *a++ - *b++;
+        const_iterator a = this->begin();
+        const_iterator b = B.begin();
+        iterator x = X.begin();
+        iterator e = X.end();
+        while (x != e)
+            *x++ = *a++ - *b++;
     }
 
     const Float Abs(Float x) const
     {
-       return (x >= Float()) ? x : -x ;
+        return (x >= Float()) ? x : -x ;
     }
     const Float Sign(Float a, Float b) const
     {
-       return b >= Float() ? Abs(a) : -Abs(a);
+        return b >= Float() ? Abs(a) : -Abs(a);
     }
 
 
 
-  // List initialiser helper class
+    // List initialiser helper class
 
-  class ListInitialiser {
-
-    iterator x, e, first;
-
-  public:
-
-  ListInitialiser(iterator begin,
-                  iterator end) : x(begin), e(end)
+    class ListInitialiser
     {
-      first = x;
-      if (x != e) ++first;
-    }
-  ~ListInitialiser()
-    {
-      if (x != first && x != e)
-        throw Exc(Exception::BadRank, "ListInitialiser : "
-                           "not enough elements in the initialisation list");
-    }
 
-  void add(Float p)
-    {
-      if (x == e)  throw Exc(Exception::BadRank, "ListInitialiser : "
-                             "too many elements in the initialisation list");
-      *x = p;
-      ++x;
-    }
+        iterator x, e, first;
 
-  ListInitialiser& operator,(Float x)
-    {
-      add(x);
-      return *this;
-    }
+    public:
 
-  };
+        ListInitialiser(iterator begin,
+                        iterator end) : x(begin), e(end)
+        {
+            first = x;
+            if (x != e) ++first;
+        }
+        ~ListInitialiser()
+        {
+            if (x != first && x != e)
+                throw Exc(Exception::BadRank, "ListInitialiser : "
+                          "not enough elements in the initialisation list");
+        }
 
-  ListInitialiser list_init(Float p)
+        void add(Float p)
+        {
+            if (x == e)  throw Exc(Exception::BadRank, "ListInitialiser : "
+                                       "too many elements in the initialisation list");
+            *x = p;
+            ++x;
+        }
+
+        ListInitialiser& operator,(Float x)
+        {
+            add(x);
+            return *this;
+        }
+
+    };
+
+    ListInitialiser list_init(Float p)
     {
-      ListInitialiser linit( this->begin(), this->end() );
-      linit.add(p);
-      return linit;
+        ListInitialiser linit( this->begin(), this->end() );
+        linit.add(p);
+        return linit;
     }
 
 };

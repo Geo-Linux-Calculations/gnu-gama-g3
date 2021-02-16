@@ -30,31 +30,35 @@
 #include <list>
 #include <set>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 
-  class Acord
-    {
-    public:
+class Acord
+{
+public:
 
-      PointData&          PD;
-      ObservationData&    OD;
-      ReducedObservations RO;
+    PointData&          PD;
+    ObservationData&    OD;
+    ReducedObservations RO;
 
-      Acord(PointData& b, ObservationData& m);
-      void execute();
+    Acord(PointData& b, ObservationData& m);
+    void execute();
 
-      int  observations;
-      int  given_xy, given_z, given_xyz;
-      int  computed_xy, computed_z, computed_xyz;
-      int  total_xy, total_z, total_xyz;
-      bool missing_coordinates;
+    int  observations;
+    int  given_xy, given_z, given_xyz;
+    int  computed_xy, computed_z, computed_xyz;
+    int  total_xy, total_z, total_xyz;
+    bool missing_coordinates;
 
-    private:
-      std::set<PointID> set_xyz, set_xy, set_z;
-    };
+private:
+    std::set<PointID> set_xyz, set_xy, set_z;
+};
 
-}}   // namespace GNU_gama::local
+}
+}   // namespace GNU_gama::local
 
 #endif
 

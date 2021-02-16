@@ -25,28 +25,29 @@
 #include <gnu_gama/obsdata.h>
 #include <gnu_gama/visitor.h>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  // Three basic components of mathematical model (of geodetic
-  // adjustment) are functional relations (class Model), unknown
-  // parameters and constants (class Parameter) and observables (class
-  // Observation).
+// Three basic components of mathematical model (of geodetic
+// adjustment) are functional relations (class Model), unknown
+// parameters and constants (class Parameter) and observables (class
+// Observation).
 
-  // Model, Parameter and Observation classes are logically
-  // related. To brake the source code dependency we use the 'acyclic
-  // visitor' pattern, where Model objects are visiting Observation
-  // objects.
+// Model, Parameter and Observation classes are logically
+// related. To brake the source code dependency we use the 'acyclic
+// visitor' pattern, where Model objects are visiting Observation
+// objects.
 
-  // BaseVisitor is a completely degenerated class having only
-  // the virtual destructor.
+// BaseVisitor is a completely degenerated class having only
+// the virtual destructor.
 
-  /** Base observation class.
-   */
+/** Base observation class.
+ */
 
-  template <typename Cluster, typename Matrix, typename Index=std::size_t>
-  class Observation
-  {
-  public:
+template <typename Cluster, typename Matrix, typename Index=std::size_t>
+class Observation
+{
+public:
 
     Cluster*        cluster;
     Index           cluster_index;
@@ -58,31 +59,37 @@ namespace GNU_gama {
     virtual int  dimension() const = 0;
     virtual void accept(BaseVisitor* visitor) = 0;
 
-    bool active() const     { return  active_;      }
-    bool set_active(bool b) { return (active_ = b); }
+    bool active() const
+    {
+        return  active_;
+    }
+    bool set_active(bool b)
+    {
+        return (active_ = b);
+    }
 
 
-  private:
+private:
 
     bool active_;
-  };
+};
 
 
-  /** Base template class Model (mathematical model of geodetic
-   *  adjustment)
-   */
+/** Base template class Model (mathematical model of geodetic
+ *  adjustment)
+ */
 
-  template <typename Observation>
-  class Model
-  {
-  public:
+template <typename Observation>
+class Model
+{
+public:
     typedef typename
-          ObservationData<Observation>::ClusterList   ClusterList;
+    ObservationData<Observation>::ClusterList   ClusterList;
     typedef Observation                               ObservationType;
     typedef ObservationData<Observation>              ObsData;
 
     ObsData  obsdata;
-  };
+};
 
 }
 

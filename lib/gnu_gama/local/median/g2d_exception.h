@@ -30,22 +30,31 @@
 #include <gnu_gama/local/exception.h>
 #include <gnu_gama/local/language.h>
 
-namespace GNU_gama { namespace local
+namespace GNU_gama
+{
+namespace local
 {
 
-  class g2d_exc : public GNU_gama::local::Exception
-    {
-    public:
-      g2d_exc(const std::string& description) :
+class g2d_exc : public GNU_gama::local::Exception
+{
+public:
+    g2d_exc(const std::string& description) :
         GNU_gama::local::Exception(T_IE_internal_error+std::string(" ")+description)
-        {
-        }
+    {
+    }
 
-    g2d_exc* clone() const { return new g2d_exc(*this); }
-    void     raise() const { throw *this; }
+    g2d_exc* clone() const
+    {
+        return new g2d_exc(*this);
+    }
+    void     raise() const
+    {
+        throw *this;
+    }
 
-    };
+};
 
-}}  // GNU_gama::local
+}
+}  // GNU_gama::local
 
 #endif

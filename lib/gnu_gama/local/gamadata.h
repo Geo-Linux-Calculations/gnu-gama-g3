@@ -35,30 +35,34 @@
 #include <list>
 #include <algorithm>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-  typedef std::list<PointID>    PointIDList;
+typedef std::list<PointID>    PointIDList;
 
-  class PointData : public std::map <PointID, LocalPoint>,
-                    public LocalCoordinateSystem,
-                    public AngularObservations
-    {
-    public:
-      double xNorthAngle() const;
-    };
+class PointData : public std::map <PointID, LocalPoint>,
+    public LocalCoordinateSystem,
+    public AngularObservations
+{
+public:
+    double xNorthAngle() const;
+};
 
 
-  std::ostream& operator << (std::ostream&,     PointData&);
-  std::ostream& operator << (std::ostream& str, ObservationData&);
+std::ostream& operator << (std::ostream&,     PointData&);
+std::ostream& operator << (std::ostream& str, ObservationData&);
 
-  inline bool GaMaConsistent(const PointData& lcs)
-    {
-      return
+inline bool GaMaConsistent(const PointData& lcs)
+{
+    return
         (lcs. left_handed_coordinates() && lcs. left_handed_angles()) ||
         (lcs.right_handed_coordinates() && lcs.right_handed_angles());
-    }
+}
 
-}}   // namepsace GNU_gama::local
+}
+}   // namepsace GNU_gama::local
 
 
 

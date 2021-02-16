@@ -23,25 +23,26 @@
 #include <gnu_gama/xml/encoding.h>
 
 #ifdef __cplusplus
-namespace GNU_gama {
+namespace GNU_gama
+{
 #endif
 
 
 int UnknownEncodingHandler(void *userData, const char *name,XML_Encoding *info)
 {
- if      (!strcmp(name,"cp-1250"))
-   cp1250_unicode(info->map);
- else if (!strcmp(name,"windows-1250"))
-   cp1250_unicode(info->map);             /* this is probably correct */
- else if (!strcmp(name,"cp-1251"))
-   cp1251_unicode(info->map);
- else if (!strcmp(name,"windows-1251"))
-   cp1251_unicode(info->map);             /* this is probably correct */
- else if (!strcmp(name,"iso-8859-2"))
-   iso_8859_2_unicode(info->map);
- else
-   ascii(info->map);
- return 1;
+    if      (!strcmp(name,"cp-1250"))
+        cp1250_unicode(info->map);
+    else if (!strcmp(name,"windows-1250"))
+        cp1250_unicode(info->map);             /* this is probably correct */
+    else if (!strcmp(name,"cp-1251"))
+        cp1251_unicode(info->map);
+    else if (!strcmp(name,"windows-1251"))
+        cp1251_unicode(info->map);             /* this is probably correct */
+    else if (!strcmp(name,"iso-8859-2"))
+        iso_8859_2_unicode(info->map);
+    else
+        ascii(info->map);
+    return 1;
 }
 
 

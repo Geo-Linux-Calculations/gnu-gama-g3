@@ -26,77 +26,100 @@
 #include <cmath>
 #include <matvec/vecbase.h>
 
-namespace GNU_gama {   /** \brief Vector */
+namespace GNU_gama     /** \brief Vector */
+{
 
 
 template <typename Float=double, typename Exc=Exception::matvec>
-class Vec : public VecBase<Float, Exc> {
+class Vec : public VecBase<Float, Exc>
+{
 
 public:
 
-  typedef typename VecBase<Float, Exc>::iterator       iterator;
-  typedef typename VecBase<Float, Exc>::const_iterator const_iterator;
+    typedef typename VecBase<Float, Exc>::iterator       iterator;
+    typedef typename VecBase<Float, Exc>::const_iterator const_iterator;
 
-  Vec() {}
-  Vec(Index nsz) : VecBase<Float, Exc>(nsz) {}
-  Vec(const VecBase<Float, Exc>& v) : VecBase<Float, Exc>(v) {}
+    Vec() {}
+    Vec(Index nsz) : VecBase<Float, Exc>(nsz) {}
+    Vec(const VecBase<Float, Exc>& v) : VecBase<Float, Exc>(v) {}
 
-  Vec operator*(Float f) const {
-    Vec t(this->dim()); this->mul(f, t); return t;
-  }
-  Vec operator+(const Vec &x) const {
-    Vec t(this->dim()); this->add(x, t); return t;
-  }
-  Vec operator-(const Vec &x) const {
-    Vec t(this->dim()); this->sub(x, t); return t;
-  }
+    Vec operator*(Float f) const
+    {
+        Vec t(this->dim());
+        this->mul(f, t);
+        return t;
+    }
+    Vec operator+(const Vec &x) const
+    {
+        Vec t(this->dim());
+        this->add(x, t);
+        return t;
+    }
+    Vec operator-(const Vec &x) const
+    {
+        Vec t(this->dim());
+        this->sub(x, t);
+        return t;
+    }
 
-  Vec& operator*=(Float f)      { this->mul(f, *this); return *this; }
-  Vec& operator+=(const Vec &x) { this->add(x, *this); return *this; }
-  Vec& operator-=(const Vec &x) { this->sub(x, *this); return *this; }
+    Vec& operator*=(Float f)
+    {
+        this->mul(f, *this);
+        return *this;
+    }
+    Vec& operator+=(const Vec &x)
+    {
+        this->add(x, *this);
+        return *this;
+    }
+    Vec& operator-=(const Vec &x)
+    {
+        this->sub(x, *this);
+        return *this;
+    }
 
-  typename MatVecBase<Float, Exc>::ListInitialiser operator=(Float x)
-  {
-    return this->list_init(x);
-  }
+    typename MatVecBase<Float, Exc>::ListInitialiser operator=(Float x)
+    {
+        return this->list_init(x);
+    }
 
 };
 
 
 template <typename Float, typename Exc>
 inline Vec<Float, Exc> operator*(Float f, const Vec<Float, Exc>& V)
-  {
+{
     return V*f;
-  }
+}
 
 
 template <typename Float, typename Exc>
 Vec<Float, Exc>
 operator*(const MatBase<Float, Exc> &A, const Vec<Float, Exc> &b)
-  {
+{
     if (A.cols() != b.dim())
-      throw Exc(Exception::BadRank, "Vec operator*(const MatBase&, const Vec&)");
+        throw Exc(Exception::BadRank, "Vec operator*(const MatBase&, const Vec&)");
 
     Vec<Float, Exc> t(A.rows());
     Float s;
     for (Index i=1; i<=A.rows(); i++)
-      {
+    {
         s = 0;
         for (Index j=1; j<=A.cols(); j++)
-          s += A(i,j)*b(j);
+            s += A(i,j)*b(j);
         t(i) = s;
-      }
+    }
 
     return t;
-  }
+}
 
 
 template <typename Float, typename Exc>
 Vec<Float, Exc>
 operator*(const Mat<Float, Exc> &A, const Vec<Float, Exc> &b)
-  {
+{
     if (A.cols() != b.dim())
-      throw Exc(Exception::BadRank, "Vec operator*(const Mat&, const Vec&)");
+        throw Exc(Exception::BadRank, "Vec operator*(const Mat&, const Vec&)");
 
     Vec<Float, Exc> t(A.rows());
     typename Vec<Float, Exc>::iterator ti = t.begin();
@@ -105,16 +128,16 @@ operator*(const Mat<Float, Exc> &A, const Vec<Float, Exc> &b)
     typename Vec<Float, Exc>::const_iterator ai = A.begin();
     Float s;
     for (Index i=1; i<=A.rows(); i++)
-      {
+    {
         s = 0;
         bi = bb;
         for (Index j=1; j<=A.cols(); j++)
-          s += *ai++ * *bi++;
+            s += *ai++ * *bi++;
         *ti++ = s;
-      }
+    }
 
     return t;
-  }
+}
 
 
 }   // namespace GNU_gama

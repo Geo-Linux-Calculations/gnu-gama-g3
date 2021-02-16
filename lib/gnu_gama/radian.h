@@ -23,7 +23,8 @@
 #define GNU_gama___gnu_gama_radian_h________________gnugamaradian_h
 
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
 #ifndef M_PI
 #define M_PI          3.14159265358979323846264338328

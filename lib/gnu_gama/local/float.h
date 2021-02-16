@@ -24,14 +24,26 @@
 
 #include <cmath>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 typedef double Double;
 typedef double Float;
 
-inline double abs(double x)           { return x >= 0 ? x : -x; }
-inline double max(double x, double y) { return x >= y ? x : y; }
-inline double min(double x, double y) { return x <= y ? x : y; }
+inline double abs(double x)
+{
+    return x >= 0 ? x : -x;
+}
+inline double max(double x, double y)
+{
+    return x >= y ? x : y;
+}
+inline double min(double x, double y)
+{
+    return x <= y ? x : y;
+}
 
 
 #ifndef M_PI
@@ -43,7 +55,8 @@ inline double min(double x, double y) { return x <= y ? x : y; }
 #define R2CC 200.0E4/M_PI
 #define CC2R M_PI/200.0E4
 
-}}   // namespace GNU_gama::local
+}
+}   // namespace GNU_gama::local
 
 #endif
 

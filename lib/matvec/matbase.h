@@ -26,92 +26,118 @@
 #include <matvec/matvecbase.h>
 
 
-namespace GNU_gama {   /** \brief Base matrix class */
+namespace GNU_gama     /** \brief Base matrix class */
+{
 
 
 template <typename Float=double, typename Exc=Exception::matvec>
-class MatBase : public MatVecBase<Float, Exc> {
+class MatBase : public MatVecBase<Float, Exc>
+{
 
 protected:
 
-  Index row_;
-  Index col_;
+    Index row_;
+    Index col_;
 
-  MatBase() : row_(0), col_(0) {}
-  MatBase(Index r, Index c, Index nsz)
-    : MatVecBase<Float, Exc>(nsz), row_(r), col_(c) {}
-  MatBase(Index r, Index c, const MatBase& m)
-    : MatVecBase<Float, Exc>(m), row_(r), col_(c) {}
-  virtual ~MatBase() {}
+    MatBase() : row_(0), col_(0) {}
+    MatBase(Index r, Index c, Index nsz)
+        : MatVecBase<Float, Exc>(nsz), row_(r), col_(c) {}
+    MatBase(Index r, Index c, const MatBase& m)
+        : MatVecBase<Float, Exc>(m), row_(r), col_(c) {}
+    virtual ~MatBase() {}
 
 public:
 
-  typedef typename MatVecBase<Float, Exc>::iterator       iterator;
-  typedef typename MatVecBase<Float, Exc>::const_iterator const_iterator;
+    typedef typename MatVecBase<Float, Exc>::iterator       iterator;
+    typedef typename MatVecBase<Float, Exc>::const_iterator const_iterator;
 
-  Index rows() const { return row_; }
-  Index cols() const { return col_; }
-
-  Index min_rc() const { return row_ > col_ ? col_ : row_; }
-  Index max_rc() const { return row_ < col_ ? col_ : row_; }
-
-  virtual Float& operator()(Index r, Index c) = 0;
-  virtual Float  operator()(Index r, Index c) const = 0;
-
-  void reset() { row_ = col_ = 0; this->resize(0); }
-  virtual void reset(Index r, Index c) {
-    if (r != row_ || c != col_) {
-      row_ = r; col_ = c; this->resize(r*c);
-    }
-  }
-
-  void set_diagonal(Float d)
+    Index rows() const
     {
-      this->set_zero();
-      for (Index i=1; i<=min_rc(); i++)
-        this->operator()(i,i) = d;
+        return row_;
     }
-  void set_identity() { set_diagonal(Float(1.0)); }
-
-  virtual void transpose()
+    Index cols() const
     {
-      throw Exc(Exception::NotImplemented, "MatBase::transpose()");
+        return col_;
     }
 
-  virtual void invert()
+    Index min_rc() const
     {
-      throw Exc(Exception::NotImplemented, "MatBase::invert()");
+        return row_ > col_ ? col_ : row_;
+    }
+    Index max_rc() const
+    {
+        return row_ < col_ ? col_ : row_;
     }
 
-  virtual std::istream& read(std::istream& inp)
+    virtual Float& operator()(Index r, Index c) = 0;
+    virtual Float  operator()(Index r, Index c) const = 0;
+
+    void reset()
     {
-      Index r, c;
-      if (inp >> r >> c)
-         {
+        row_ = col_ = 0;
+        this->resize(0);
+    }
+    virtual void reset(Index r, Index c)
+    {
+        if (r != row_ || c != col_)
+        {
+            row_ = r;
+            col_ = c;
+            this->resize(r*c);
+        }
+    }
+
+    void set_diagonal(Float d)
+    {
+        this->set_zero();
+        for (Index i=1; i<=min_rc(); i++)
+            this->operator()(i,i) = d;
+    }
+    void set_identity()
+    {
+        set_diagonal(Float(1.0));
+    }
+
+    virtual void transpose()
+    {
+        throw Exc(Exception::NotImplemented, "MatBase::transpose()");
+    }
+
+    virtual void invert()
+    {
+        throw Exc(Exception::NotImplemented, "MatBase::invert()");
+    }
+
+    virtual std::istream& read(std::istream& inp)
+    {
+        Index r, c;
+        if (inp >> r >> c)
+        {
             reset(r, c);
             for (Index i=1; i<=r; i++)
-               for (Index j=1; j<=c; j++)
-                  inp >> operator()(i,j);
-         }
-      return inp;
+                for (Index j=1; j<=c; j++)
+                    inp >> operator()(i,j);
+        }
+        return inp;
     }
-  virtual std::ostream& write(std::ostream& out) const
+    virtual std::ostream& write(std::ostream& out) const
     {
 
-      const int fw = out.width();
-      out.width(fw);
-      out << rows() << " ";
-      out.width(fw);
-      out << cols() << "\n\n";
-      for (Index i=1; i<=rows(); i++)
+        const int fw = out.width();
+        out.width(fw);
+        out << rows() << " ";
+        out.width(fw);
+        out << cols() << "\n\n";
+        for (Index i=1; i<=rows(); i++)
         {
-          for (Index j=1; j<=cols(); j++) {
-            out.width(fw);
-            out << operator()(i,j) << " ";
-          }
-          out << '\n';
+            for (Index j=1; j<=cols(); j++)
+            {
+                out.width(fw);
+                out << operator()(i,j) << " ";
+            }
+            out << '\n';
         }
-      return out;
+        return out;
     }
 
 };
@@ -119,16 +145,16 @@ public:
 
 template <typename Float, typename Exc>
 std::istream& operator>>(std::istream& inp, MatBase<Float, Exc>& M)
-  {
+{
     return M.read(inp);
-  }
+}
 
 
 template <typename Float, typename Exc>
 std::ostream& operator<<(std::ostream& out, const MatBase<Float, Exc>& M)
-  {
+{
     return M.write(out);
-  }
+}
 
 
 }   // namespace GNU_gama

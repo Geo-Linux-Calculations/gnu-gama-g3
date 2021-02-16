@@ -30,39 +30,54 @@
 #include <string>
 #include <cstddef>
 
-namespace GNU_gama { namespace local
+namespace GNU_gama
+{
+namespace local
 {
 
-  class PointID
+class PointID
+{
+    typedef int PointInt;
+    PointInt     iid;   // positive integer representation if available or 0
+    std::string  sid;
+
+    void init(const std::string& s);
+
+public:
+
+    PointID()
     {
-      typedef int PointInt;
-      PointInt     iid;   // positive integer representation if available or 0
-      std::string  sid;
-
-      void init(const std::string& s);
-
-    public:
-
-      PointID()                     { init(std::string("")); }
-      PointID(const char* c)        { init(std::string(c)); }
-      PointID(const std::string& s) { init(s); }
-
-      bool operator==(const PointID& p) const;
-      bool operator!=(const PointID& p) const;
-      bool operator< (const PointID& p) const;
-
-      std::string str() const       { return sid; }
-      std::size_t lengthUtf8() const;
-
-    };
-
-
-  inline std::ostream& operator<<(std::ostream& ostr, const PointID& p)
+        init(std::string(""));
+    }
+    PointID(const char* c)
     {
-      return ostr << p.str();
+        init(std::string(c));
+    }
+    PointID(const std::string& s)
+    {
+        init(s);
     }
 
-}}      // namespace GNU_gama::local
+    bool operator==(const PointID& p) const;
+    bool operator!=(const PointID& p) const;
+    bool operator< (const PointID& p) const;
+
+    std::string str() const
+    {
+        return sid;
+    }
+    std::size_t lengthUtf8() const;
+
+};
+
+
+inline std::ostream& operator<<(std::ostream& ostr, const PointID& p)
+{
+    return ostr << p.str();
+}
+
+}
+}      // namespace GNU_gama::local
 
 #endif
 

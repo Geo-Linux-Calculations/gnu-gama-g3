@@ -27,24 +27,25 @@
 #include <algorithm>
 #include <set>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  /** Adjacency structure. */
+/** Adjacency structure. */
 
-  template <typename Index=std::size_t>
-  class Adjacency
-  {
-  public:
+template <typename Index=std::size_t>
+class Adjacency
+{
+public:
 
     Adjacency()
     {
     }
     Adjacency(Index nodes)
-      : xadj( std::max(nodes+2, Index(3)) ),  nods(nodes)
+        : xadj( std::max(nodes+2, Index(3)) ),  nods(nodes)
     {
     }
     Adjacency(Index nodes, Index edges)
-      : adjncy(edges), xadj( std::max(nodes+2, Index(3)) ),  nods(nodes)
+        : adjncy(edges), xadj( std::max(nodes+2, Index(3)) ),  nods(nodes)
     {
     }
 
@@ -53,61 +54,76 @@ namespace GNU_gama {
 
     typedef const Index* const_iterator;
 
-    Index          nodes ()        const { return nods;                       }
-    Index          degree(Index i) const { return xadj(i+1) - xadj(i);        }
-    const_iterator begin (Index i) const { return adjncy.begin() + xadj(i);   }
-    const_iterator end   (Index i) const { return adjncy.begin() + xadj(i+1); }
+    Index          nodes ()        const
+    {
+        return nods;
+    }
+    Index          degree(Index i) const
+    {
+        return xadj(i+1) - xadj(i);
+    }
+    const_iterator begin (Index i) const
+    {
+        return adjncy.begin() + xadj(i);
+    }
+    const_iterator end   (Index i) const
+    {
+        return adjncy.begin() + xadj(i+1);
+    }
 
-    void set_nodes(Index n) { nods = n; }
+    void set_nodes(Index n)
+    {
+        nods = n;
+    }
 
-  private:
+private:
 
     Index  nods;
 
     Adjacency(const Adjacency&);
     void operator=(const Adjacency&);
-  };
+};
 
 
-  /** Sparse matrix graph. */
+/** Sparse matrix graph. */
 
-  template <typename Float=double, typename Index=std::size_t>
-  class SparseMatrixGraph : public Adjacency<Index>
-  {
-  public:
+template <typename Float=double, typename Index=std::size_t>
+class SparseMatrixGraph : public Adjacency<Index>
+{
+public:
 
     SparseMatrixGraph(const GNU_gama::SparseMatrix<Float, Index>* const sparse)
-      : Adjacency<Index>(sparse->columns())
+        : Adjacency<Index>(sparse->columns())
     {
-      std::set<std::pair<Index, Index> >  edges;
+        std::set<std::pair<Index, Index> >  edges;
 
-      {
-        Index *i, *e, *j;
-        for (Index k=1; k<=sparse->rows(); k++)
-          for(i=sparse->ibegin(k), e=sparse->iend(k); i!=e; i++)
-            for (j=i+1; j!=e; j++)
-              if (*i != *j)
-                {
-                  edges.insert(std::pair<Index, Index>(*i, *j));
-                  edges.insert(std::pair<Index, Index>(*j, *i));
-                }
-      }
+        {
+            Index *i, *e, *j;
+            for (Index k=1; k<=sparse->rows(); k++)
+                for(i=sparse->ibegin(k), e=sparse->iend(k); i!=e; i++)
+                    for (j=i+1; j!=e; j++)
+                        if (*i != *j)
+                        {
+                            edges.insert(std::pair<Index, Index>(*i, *j));
+                            edges.insert(std::pair<Index, Index>(*j, *i));
+                        }
+        }
 
-      this->adjncy.reset(edges.size());
+        this->adjncy.reset(edges.size());
 
-      typename std::set<std::pair<Index, Index> >::const_iterator
+        typename std::set<std::pair<Index, Index> >::const_iterator
         i=edges.begin(), e=edges.end();
 
-      this->xadj(1) = this->xadj(2) = 0;      // needed by empty graphs
-      for (Index count=0, index=1; index<=this->nodes(); index++)
+        this->xadj(1) = this->xadj(2) = 0;      // needed by empty graphs
+        for (Index count=0, index=1; index<=this->nodes(); index++)
         {
-          this->xadj(index) = count;
-          while (i!=e && index == i->first)
+            this->xadj(index) = count;
+            while (i!=e && index == i->first)
             {
-              this->adjncy(count++) = i->second;
-              ++i;
+                this->adjncy(count++) = i->second;
+                ++i;
             }
-          this->xadj(index+1) = count;
+            this->xadj(index+1) = count;
         }
     }
 
@@ -115,7 +131,7 @@ namespace GNU_gama {
 
     bool           connected()     const;
 
-  };
+};
 
 }
 

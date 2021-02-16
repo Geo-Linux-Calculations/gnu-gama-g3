@@ -23,27 +23,44 @@
 #define gama_local____Angular_Observations__h____
 
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-  class AngularObservations {
-  public:
+class AngularObservations
+{
+public:
 
-  AngularObservations()
-      : left_handed_(true)
-      {
-      }
+    AngularObservations()
+        : left_handed_(true)
+    {
+    }
 
-    void setAngularObservations_Lefthanded () { left_handed_ = true;  }
-    void setAngularObservations_Righthanded() { left_handed_ = false; }
+    void setAngularObservations_Lefthanded ()
+    {
+        left_handed_ = true;
+    }
+    void setAngularObservations_Righthanded()
+    {
+        left_handed_ = false;
+    }
 
-    bool left_handed_angles () const { return  left_handed_; }
-    bool right_handed_angles() const { return !left_handed_; }
+    bool left_handed_angles () const
+    {
+        return  left_handed_;
+    }
+    bool right_handed_angles() const
+    {
+        return !left_handed_;
+    }
 
-  private:
+private:
     bool left_handed_;
-  };
+};
 
-}}   // namespace GNU_gama::local
+}
+}   // namespace GNU_gama::local
 
 
 #endif

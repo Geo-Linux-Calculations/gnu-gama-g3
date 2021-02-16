@@ -28,36 +28,41 @@
 #include <algorithm>
 #include <list>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 
-  class ApproximateHeights
+class ApproximateHeights
+{
+private:
+
+    struct ObservedHData
     {
-    private:
-
-      struct ObservedHData {
         std::list<H_Diff*>     HD;
         std::list<H_Diff>      tmpHD;
         std::list<Distance*>   DI;
         std::list<S_Distance*> SD;
         std::list<Z_Angle*>    ZA;
-      };
-
-      void make_heights();
-
-      int                 missing_heights;
-      PointData&          PD;
-      ObservationData&    OD;
-
-      ObservedHData      OHD;
-
-    public:
-
-      ApproximateHeights(PointData& b, ObservationData& m);
-      void execute();
-      void print(std::ostream&);
     };
 
- }}   // namespace GNU_gama::local
+    void make_heights();
+
+    int                 missing_heights;
+    PointData&          PD;
+    ObservationData&    OD;
+
+    ObservedHData      OHD;
+
+public:
+
+    ApproximateHeights(PointData& b, ObservationData& m);
+    void execute();
+    void print(std::ostream&);
+};
+
+}
+}   // namespace GNU_gama::local
 
 #endif

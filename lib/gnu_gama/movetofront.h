@@ -24,67 +24,74 @@
 
 #include <algorithm>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  template<size_t N, typename Key, typename Buffer>
-  class MoveToFront
-  {
-  public:
+template<size_t N, typename Key, typename Buffer>
+class MoveToFront
+{
+public:
     MoveToFront(Buffer b=Buffer());
     MoveToFront(Buffer b[]);
 
     std::pair<Buffer,bool> get(Key key);
-    void   erase()      { active = 0; }
-    size_t size() const { return N;   }
+    void   erase()
+    {
+        active = 0;
+    }
+    size_t size() const
+    {
+        return N;
+    }
 
-  private:
+private:
     Key    key_[N];
     Buffer buf_[N];
     size_t active;
-  };
+};
 
 
-  template<size_t N, typename Key, typename Buffer>
-  MoveToFront<N,Key,Buffer>::MoveToFront(Buffer b)
-  {
+template<size_t N, typename Key, typename Buffer>
+MoveToFront<N,Key,Buffer>::MoveToFront(Buffer b)
+{
     for (size_t i=0; i<N; i++) buf_[i] = b++;
     active = 0;
-  }
+}
 
-  template<size_t N, typename Key, typename Buffer>
-  MoveToFront<N,Key,Buffer>::MoveToFront(Buffer b[])
-  {
+template<size_t N, typename Key, typename Buffer>
+MoveToFront<N,Key,Buffer>::MoveToFront(Buffer b[])
+{
     for (size_t i=0; i<N; i++) buf_[i] = b[i];
     active = 0;
-  }
+}
 
-  template<size_t N, typename Key, typename Buffer>
-  std::pair<Buffer,bool> MoveToFront<N,Key,Buffer>::get(Key key)
-  {
+template<size_t N, typename Key, typename Buffer>
+std::pair<Buffer,bool> MoveToFront<N,Key,Buffer>::get(Key key)
+{
     bool   good = false;
     size_t imin = N-1;
 
     for (size_t i=0; i<active; i++)
-      if (key_[i] == key)
+        if (key_[i] == key)
         {
-          imin = i;
-          good = true;
-          break;
+            imin = i;
+            good = true;
+            break;
         }
 
     if (!good && active < N) imin = active++;
 
     Buffer buf = buf_[imin];
     for (size_t i=imin; i>0; i--)
-      {
+    {
         key_[i] = key_[i-1];
         buf_[i] = buf_[i-1];
-      }
+    }
     key_[0] = key;
     buf_[0] = buf;
 
     return std::pair<Buffer,bool>(buf, good);
-  }
+}
 
 }  // namespace GNU_gama
 

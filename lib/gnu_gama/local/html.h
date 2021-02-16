@@ -29,80 +29,160 @@
 #include <gnu_gama/local/network.h>
 #include <string>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 class GamaLocalHTML
 {
 public:
-  GamaLocalHTML(LocalNetwork* local_network=0);
+    GamaLocalHTML(LocalNetwork* local_network=0);
 
-  void set_local_network(GNU_gama::local::LocalNetwork* local_network);
-  GNU_gama::local::LocalNetwork* get_local_network() const { return lnet; }
+    void set_local_network(GNU_gama::local::LocalNetwork* local_network);
+    GNU_gama::local::LocalNetwork* get_local_network() const
+    {
+        return lnet;
+    }
 
-  void exec();
+    void exec();
 
-  void html(std::ostream&) const;
-  std::string str() const;
+    void html(std::ostream&) const;
+    std::string str() const;
 
-  std::string html_begin       () const { return begin       .text(); }
-  std::string html_info        () const { return info        .text(); }
-  std::string html_unknowns    () const { return unknowns    .text(); }
-  std::string html_observations() const { return observations.text(); }
-  std::string html_residuals   () const { return residuals   .text(); }
-  std::string html_rejected    () const { return rejected    .text(); }
-  std::string html_end         () const { return end         .text(); }
+    std::string html_begin       () const
+    {
+        return begin       .text();
+    }
+    std::string html_info        () const
+    {
+        return info        .text();
+    }
+    std::string html_unknowns    () const
+    {
+        return unknowns    .text();
+    }
+    std::string html_observations() const
+    {
+        return observations.text();
+    }
+    std::string html_residuals   () const
+    {
+        return residuals   .text();
+    }
+    std::string html_rejected    () const
+    {
+        return rejected    .text();
+    }
+    std::string html_end         () const
+    {
+        return end         .text();
+    }
 
-  void set_info        (bool p) { info        .active = p; }
-  void set_unknowns    (bool p) { unknowns    .active = p; }
-  void set_observations(bool p) { observations.active = p; }
-  void set_residuals   (bool p) { residuals   .active = p; }
-  void set_rejected    (bool p) { rejected    .active = p; }
+    void set_info        (bool p)
+    {
+        info        .active = p;
+    }
+    void set_unknowns    (bool p)
+    {
+        unknowns    .active = p;
+    }
+    void set_observations(bool p)
+    {
+        observations.active = p;
+    }
+    void set_residuals   (bool p)
+    {
+        residuals   .active = p;
+    }
+    void set_rejected    (bool p)
+    {
+        rejected    .active = p;
+    }
 
-  bool get_info        () const { return info        .active; }
-  bool get_unknowns    () const { return unknowns    .active; }
-  bool get_observations() const { return observations.active; }
-  bool get_residuals   () const { return residuals   .active; }
-  bool get_rejected    () const { return rejected    .active; }
+    bool get_info        () const
+    {
+        return info        .active;
+    }
+    bool get_unknowns    () const
+    {
+        return unknowns    .active;
+    }
+    bool get_observations() const
+    {
+        return observations.active;
+    }
+    bool get_residuals   () const
+    {
+        return residuals   .active;
+    }
+    bool get_rejected    () const
+    {
+        return rejected    .active;
+    }
 
-  void set_all_parts_active()
-  {
-    info.active = unknowns.active = observations.active =
-      residuals.active = rejected.active = true;
-  }
+    void set_all_parts_active()
+    {
+        info.active = unknowns.active = observations.active =
+                                            residuals.active = rejected.active = true;
+    }
 
-  void set_title(std::string s) { title = s;    }
-  std::string get_title() const { return title; }
+    void set_title(std::string s)
+    {
+        title = s;
+    }
+    std::string get_title() const
+    {
+        return title;
+    }
 
-  void set_h1(std::string s) { h1 = s;    }
-  std::string get_h1() const { return h1; }
+    void set_h1(std::string s)
+    {
+        h1 = s;
+    }
+    std::string get_h1() const
+    {
+        return h1;
+    }
 
-  void set_style(std::string style) { html_style = style; }
-  std::string style() const { return html_style; }
+    void set_style(std::string style)
+    {
+        html_style = style;
+    }
+    std::string style() const
+    {
+        return html_style;
+    }
 
 private:
-  LocalNetwork* lnet;
+    LocalNetwork* lnet;
 
-  struct HtmlPart {
+    struct HtmlPart
+    {
         HtmlPart() : active(true) {}
-        std::string text() const { return active ? str : std::string(); }
+        std::string text() const
+        {
+            return active ? str : std::string();
+        }
         bool active;
         std::string str;
     };
 
-  HtmlPart begin, info, unknowns, observations, residuals, rejected, end;
+    HtmlPart begin, info, unknowns, observations, residuals, rejected, end;
 
-  std::string html_style;
-  std::string title, h1;
+    std::string html_style;
+    std::string title, h1;
 
-  void htmlBegin       ();
-  void htmlInfo        ();
-  void htmlUnknowns    ();
-  void htmlObservations();
-  void htmlResiduals   ();
-  void htmlRejected    ();
-  void htmlEnd         ();
+    void htmlBegin       ();
+    void htmlInfo        ();
+    void htmlUnknowns    ();
+    void htmlObservations();
+    void htmlResiduals   ();
+    void htmlRejected    ();
+    void htmlEnd         ();
 };
 
-}} // namespace GNU_gama::local
+}
+} // namespace GNU_gama::local
 
 #endif // HTML_H

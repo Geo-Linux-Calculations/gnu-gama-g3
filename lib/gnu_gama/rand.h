@@ -24,7 +24,8 @@
 
 #include <cmath>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
 /*
    IRAND55 random number generator
@@ -34,17 +35,18 @@ namespace GNU_gama {
    ISBN 0-201-03822-6, pp. 171-172.
 */
 
-class IRAND55 {
+class IRAND55
+{
 protected:
-   static long ia[56];
-   static long jrand;
+    static long ia[56];
+    static long jrand;
 
 public:
-   static void IN55(long seed=987654321);
-   static void IRN55();
+    static void IN55(long seed=987654321);
+    static void IRN55();
 
-   friend float Rand_U();    // Uniform random numbers <0, 1>
-   friend float Rand_N();    // Normal distribution N(0, 1)
+    friend float Rand_U();    // Uniform random numbers <0, 1>
+    friend float Rand_N();    // Normal distribution N(0, 1)
 };
 
 
@@ -52,22 +54,37 @@ public:
 
 class Comb
 {
-   int n_, k_, k__;
-   int* cmb;
-   int* c;
+    int n_, k_, k__;
+    int* cmb;
+    int* c;
 
 public:
-   const int& n;
-   const int& k;
+    const int& n;
+    const int& k;
 
-   Comb(int pn=0, int pk=0) : cmb(0), n(n_), k(k_) { reset(pn, pk); }
-   ~Comb() { delete[] cmb; }
-   void reset(int pn=0, int pk=0);
-   void begin();
-   void next();
-   int operator[](int i) const { return c[i]; }   // i=1,2,3...
-   void operator++(int) { next(); }
-   void operator++()    { next(); }
+    Comb(int pn=0, int pk=0) : cmb(0), n(n_), k(k_)
+    {
+        reset(pn, pk);
+    }
+    ~Comb()
+    {
+        delete[] cmb;
+    }
+    void reset(int pn=0, int pk=0);
+    void begin();
+    void next();
+    int operator[](int i) const
+    {
+        return c[i];    // i=1,2,3...
+    }
+    void operator++(int)
+    {
+        next();
+    }
+    void operator++()
+    {
+        next();
+    }
 };
 
 }      /* namespace GNU_gama */

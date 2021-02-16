@@ -32,7 +32,7 @@ using namespace GNU_gama::g3;
 
 namespace
 {
-  class Revision :
+class Revision :
     public GNU_gama::BaseVisitor,
     public GNU_gama::Visitor<Angle>,
     public GNU_gama::Visitor<Azimuth>,
@@ -42,329 +42,329 @@ namespace
     public GNU_gama::Visitor<Vector>,
     public GNU_gama::Visitor<XYZ>,
     public GNU_gama::Visitor<ZenithAngle>
-  {
-  public:
+{
+public:
 
     Revision(GNU_gama::g3::Model* m) : model(m) {}
 
     void visit(Angle* p)
     {
-      model->revision(p);
+        model->revision(p);
     }
     void visit(Azimuth* p)
     {
-      model->revision(p);
+        model->revision(p);
     }
     void visit(Distance* p)
     {
-      model->revision(p);
+        model->revision(p);
     }
     void visit(Height* p)
     {
-      model->revision(p);
+        model->revision(p);
     }
     void visit(HeightDiff* p)
     {
-      model->revision(p);
+        model->revision(p);
     }
     void visit(Vector* p)
     {
-      model->revision(p);
+        model->revision(p);
     }
     void visit(XYZ* p)
     {
-      model->revision(p);
+        model->revision(p);
     }
     void visit(ZenithAngle* p)
     {
-      model->revision(p);
+        model->revision(p);
     }
 
-  private:
+private:
 
     GNU_gama::g3::Model* model;
 
-  };
+};
 }
 
 
 
 void Model::update_observations()
 {
-  if (!check_parameters()) update_parameters();
+    if (!check_parameters()) update_parameters();
 
-  par_list->clear();
-  active_obs->clear();
-  dm_rows = dm_cols = dm_floats = 0;   // dimension and size of design matrix
+    par_list->clear();
+    active_obs->clear();
+    dm_rows = dm_cols = dm_floats = 0;   // dimension and size of design matrix
 
 
-  ::Revision revision(this);
-  for (Model::ObservationData::iterator
-         i=obsdata.begin(), e=obsdata.end(); i!=e; ++i)
+    ::Revision revision(this);
+    for (Model::ObservationData::iterator
+            i=obsdata.begin(), e=obsdata.end(); i!=e; ++i)
     {
-      (*i)->accept(&revision);
+        (*i)->accept(&revision);
     }
 
-  for (Model::ClusterList::iterator ci = obsdata.clusters.begin(),
-         ce = obsdata.clusters.end(); ci!=ce; ++ci)
+    for (Model::ClusterList::iterator ci = obsdata.clusters.begin(),
+            ce = obsdata.clusters.end(); ci!=ce; ++ci)
     {
-      (*ci)->update();
+        (*ci)->update();
     }
 
-  return next_state_(obsrvs_);
+    return next_state_(obsrvs_);
 }
 
 
 
 bool Model::revision(Angle* angle)
 {
-  if (!angle->active()) return false;
+    if (!angle->active()) return false;
 
-  Point* from  = points->find(angle->from);
-  Point* left  = points->find(angle->left);
-  Point* right = points->find(angle->right);
+    Point* from  = points->find(angle->from);
+    Point* left  = points->find(angle->left);
+    Point* right = points->find(angle->right);
 
-  if ( from  == 0      ) return angle->set_active(false);
-  if ( from->unused()  ) return angle->set_active(false);
-  if (!from->has_position() ) return angle->set_active(false);
+    if ( from  == 0      ) return angle->set_active(false);
+    if ( from->unused()  ) return angle->set_active(false);
+    if (!from->has_position() ) return angle->set_active(false);
 
-  if ( left  == 0      ) return angle->set_active(false);
-  if ( left->unused()  ) return angle->set_active(false);
-  if (!left->has_position() ) return angle->set_active(false);
+    if ( left  == 0      ) return angle->set_active(false);
+    if ( left->unused()  ) return angle->set_active(false);
+    if (!left->has_position() ) return angle->set_active(false);
 
-  if ( right  == 0     ) return angle->set_active(false);
-  if ( right->unused() ) return angle->set_active(false);
-  if (!right->has_position()) return angle->set_active(false);
+    if ( right  == 0     ) return angle->set_active(false);
+    if ( right->unused() ) return angle->set_active(false);
+    if (!right->has_position()) return angle->set_active(false);
 
-  active_obs->push_back(angle);
+    active_obs->push_back(angle);
 
-  update_index(from->N);
-  update_index(from->E);
-  update_index(from->U);
-  update_index(left->N);
-  update_index(left->E);
-  update_index(left->U);
-  update_index(right->N);
-  update_index(right->E);
-  update_index(right->U);
+    update_index(from->N);
+    update_index(from->E);
+    update_index(from->U);
+    update_index(left->N);
+    update_index(left->E);
+    update_index(left->U);
+    update_index(right->N);
+    update_index(right->E);
+    update_index(right->U);
 
-  dm_rows += angle->dimension();      // design matrix
+    dm_rows += angle->dimension();      // design matrix
 
-  if (from ->free_position()) dm_floats += 2;
-  if (from ->free_height  ()) dm_floats += 1;
-  if (left ->free_position()) dm_floats += 2;
-  if (left ->free_height  ()) dm_floats += 1;
-  if (right->free_position()) dm_floats += 2;
-  if (right->free_height  ()) dm_floats += 1;
+    if (from ->free_position()) dm_floats += 2;
+    if (from ->free_height  ()) dm_floats += 1;
+    if (left ->free_position()) dm_floats += 2;
+    if (left ->free_height  ()) dm_floats += 1;
+    if (right->free_position()) dm_floats += 2;
+    if (right->free_height  ()) dm_floats += 1;
 
-  return angle->active();
+    return angle->active();
 }
 
 
 
 bool Model::revision(Azimuth* a)
 {
-  if (!a->active()) return false;
+    if (!a->active()) return false;
 
-  Point* from = points->find(a->from);
-  Point* to   = points->find(a->to  );
+    Point* from = points->find(a->from);
+    Point* to   = points->find(a->to  );
 
-  if ( from == 0      ||  to == 0      ) return a->set_active(false);
-  if ( from->unused() ||  to->unused() ) return a->set_active(false);
-  if (!from->has_position()            ) return a->set_active(false);
-  if (!to  ->has_position()            ) return a->set_active(false);
+    if ( from == 0      ||  to == 0      ) return a->set_active(false);
+    if ( from->unused() ||  to->unused() ) return a->set_active(false);
+    if (!from->has_position()            ) return a->set_active(false);
+    if (!to  ->has_position()            ) return a->set_active(false);
 
-  active_obs->push_back(a);
+    active_obs->push_back(a);
 
-  update_index(from->N);
-  update_index(from->E);
-  update_index(from->U);
-  update_index(to  ->N);
-  update_index(to  ->E);
-  update_index(to  ->U);
+    update_index(from->N);
+    update_index(from->E);
+    update_index(from->U);
+    update_index(to  ->N);
+    update_index(to  ->E);
+    update_index(to  ->U);
 
-  dm_rows += a->dimension();            // design matrix
+    dm_rows += a->dimension();            // design matrix
 
-  if (from->free_horizontal_position())  dm_floats += 2;
-  if (from->free_height())               dm_floats += 1;
-  if (to  ->free_horizontal_position())  dm_floats += 2;
-  if (to  ->free_height())               dm_floats += 1;
+    if (from->free_horizontal_position())  dm_floats += 2;
+    if (from->free_height())               dm_floats += 1;
+    if (to  ->free_horizontal_position())  dm_floats += 2;
+    if (to  ->free_height())               dm_floats += 1;
 
-  return a->active();
+    return a->active();
 }
 
 
 
 bool Model::revision(Distance* d)
 {
-  if (!d->active()) return false;
+    if (!d->active()) return false;
 
-  Point* from = points->find(d->from);
-  Point* to   = points->find(d->to  );
+    Point* from = points->find(d->from);
+    Point* to   = points->find(d->to  );
 
-  if ( from == 0      ||  to == 0      ) return d->set_active(false);
-  if ( from->unused() ||  to->unused() ) return d->set_active(false);
-  if (!from->has_position()            ) return d->set_active(false);
-  if (!to  ->has_position()            ) return d->set_active(false);
+    if ( from == 0      ||  to == 0      ) return d->set_active(false);
+    if ( from->unused() ||  to->unused() ) return d->set_active(false);
+    if (!from->has_position()            ) return d->set_active(false);
+    if (!to  ->has_position()            ) return d->set_active(false);
 
-  active_obs->push_back(d);
+    active_obs->push_back(d);
 
-  update_index(from->N);
-  update_index(from->E);
-  update_index(from->U);
-  update_index(to  ->N);
-  update_index(to  ->E);
-  update_index(to  ->U);
+    update_index(from->N);
+    update_index(from->E);
+    update_index(from->U);
+    update_index(to  ->N);
+    update_index(to  ->E);
+    update_index(to  ->U);
 
-  dm_rows += d->dimension();            // design matrix
+    dm_rows += d->dimension();            // design matrix
 
-  if (from->free_horizontal_position())  dm_floats += 2;
-  if (from->free_height())               dm_floats += 1;
-  if (to  ->free_horizontal_position())  dm_floats += 2;
-  if (to  ->free_height())               dm_floats += 1;
+    if (from->free_horizontal_position())  dm_floats += 2;
+    if (from->free_height())               dm_floats += 1;
+    if (to  ->free_horizontal_position())  dm_floats += 2;
+    if (to  ->free_height())               dm_floats += 1;
 
-  return d->active();
+    return d->active();
 }
 
 
 
 bool Model::revision(Height* height)
 {
-  if (!height->active()) return false;
+    if (!height->active()) return false;
 
-  Point* point = points->find(height->id);
+    Point* point = points->find(height->id);
 
-  if ( point == 0                ) return height->set_active(false);
-  if ( point->unused()           ) return height->set_active(false);
-  if (!point->test_model_height()) return height->set_active(false);
+    if ( point == 0                ) return height->set_active(false);
+    if ( point->unused()           ) return height->set_active(false);
+    if (!point->test_model_height()) return height->set_active(false);
 
-  active_obs->push_back(height);
+    active_obs->push_back(height);
 
-  update_index(point->U);
+    update_index(point->U);
 
-  dm_rows += height->dimension();      // design matrix
+    dm_rows += height->dimension();      // design matrix
 
-  if (point->free_height()) dm_floats += 1;
+    if (point->free_height()) dm_floats += 1;
 
-  return height->active();
+    return height->active();
 }
 
 
 
 bool Model::revision(HeightDiff* dh)
 {
-  if (!dh->active()) return false;
+    if (!dh->active()) return false;
 
-  Point* from = points->find(dh->from);
-  Point* to   = points->find(dh->to  );
+    Point* from = points->find(dh->from);
+    Point* to   = points->find(dh->to  );
 
-  if ( from == 0      ||  to == 0     ) return dh->set_active(false);
-  if ( from->unused() ||  to->unused()) return dh->set_active(false);
-  if (!from->test_model_height()      ) return dh->set_active(false);
-  if (!to  ->test_model_height()      ) return dh->set_active(false);
+    if ( from == 0      ||  to == 0     ) return dh->set_active(false);
+    if ( from->unused() ||  to->unused()) return dh->set_active(false);
+    if (!from->test_model_height()      ) return dh->set_active(false);
+    if (!to  ->test_model_height()      ) return dh->set_active(false);
 
-  active_obs->push_back(dh);
+    active_obs->push_back(dh);
 
-  update_index(from->U);
-  update_index(to  ->U);
+    update_index(from->U);
+    update_index(to  ->U);
 
-  dm_rows += dh->dimension();            // design matrix
+    dm_rows += dh->dimension();            // design matrix
 
-  if (from->free_height())               dm_floats += 1;
-  if (to  ->free_height())               dm_floats += 1;
+    if (from->free_height())               dm_floats += 1;
+    if (to  ->free_height())               dm_floats += 1;
 
-  return dh->active();
+    return dh->active();
 }
 
 
 
 bool Model::revision(Vector* v)
 {
-  if (!v->active()) return false;
+    if (!v->active()) return false;
 
-  Point* from = points->find(v->from);
-  Point* to   = points->find(v->to  );
+    Point* from = points->find(v->from);
+    Point* to   = points->find(v->to  );
 
-  if ( from == 0      ||  to == 0      ) return v->set_active(false);
-  if ( from->unused() ||  to->unused() ) return v->set_active(false);
-  if (!from->has_position()            ) return v->set_active(false);
-  if (!to  ->has_position()            ) return v->set_active(false);
+    if ( from == 0      ||  to == 0      ) return v->set_active(false);
+    if ( from->unused() ||  to->unused() ) return v->set_active(false);
+    if (!from->has_position()            ) return v->set_active(false);
+    if (!to  ->has_position()            ) return v->set_active(false);
 
-  active_obs->push_back(v);
+    active_obs->push_back(v);
 
-  update_index(from->N);
-  update_index(from->E);
-  update_index(from->U);
-  update_index(to  ->N);
-  update_index(to  ->E);
-  update_index(to  ->U);
+    update_index(from->N);
+    update_index(from->E);
+    update_index(from->U);
+    update_index(to  ->N);
+    update_index(to  ->E);
+    update_index(to  ->U);
 
-  dm_rows += v->dimension();            // design matrix
+    dm_rows += v->dimension();            // design matrix
 
-  if (from->free_horizontal_position())  dm_floats += 6;
-  if (from->free_height())               dm_floats += 3;
-  if (to->free_horizontal_position())    dm_floats += 6;
-  if (to->free_height())                 dm_floats += 3;
+    if (from->free_horizontal_position())  dm_floats += 6;
+    if (from->free_height())               dm_floats += 3;
+    if (to->free_horizontal_position())    dm_floats += 6;
+    if (to->free_height())                 dm_floats += 3;
 
-  return v->active();
+    return v->active();
 }
 
 
 
 bool Model::revision(XYZ* xyz)
 {
-  if (!xyz->active()) return false;
+    if (!xyz->active()) return false;
 
-  Point* point = points->find(xyz->id);
+    Point* point = points->find(xyz->id);
 
-  if ( point == 0           ) return xyz->set_active(false);
-  if ( point->unused()      ) return xyz->set_active(false);
-  if (!point->has_position()) return xyz->set_active(false);
+    if ( point == 0           ) return xyz->set_active(false);
+    if ( point->unused()      ) return xyz->set_active(false);
+    if (!point->has_position()) return xyz->set_active(false);
 
-  active_obs->push_back(xyz);
+    active_obs->push_back(xyz);
 
-  update_index(point->N);
-  update_index(point->E);
-  update_index(point->U);
+    update_index(point->N);
+    update_index(point->E);
+    update_index(point->U);
 
-  dm_rows += xyz->dimension();            // design matrix
-  if (point->free_horizontal_position())   dm_floats += 6;
-  if (point->free_height())                dm_floats += 3;
+    dm_rows += xyz->dimension();            // design matrix
+    if (point->free_horizontal_position())   dm_floats += 6;
+    if (point->free_height())                dm_floats += 3;
 
-  return xyz->active();
+    return xyz->active();
 }
 
 
 
 bool Model::revision(ZenithAngle* z)
 {
-  if (!z->active()) return false;
+    if (!z->active()) return false;
 
-  Point* from = points->find(z->from);
-  Point* to   = points->find(z->to  );
+    Point* from = points->find(z->from);
+    Point* to   = points->find(z->to  );
 
-  if ( from == 0      ||  to == 0      ) return z->set_active(false);
-  if ( from->unused() ||  to->unused() ) return z->set_active(false);
-  if (!from->has_position()            ) return z->set_active(false);
-  if (!to  ->has_position()            ) return z->set_active(false);
+    if ( from == 0      ||  to == 0      ) return z->set_active(false);
+    if ( from->unused() ||  to->unused() ) return z->set_active(false);
+    if (!from->has_position()            ) return z->set_active(false);
+    if (!to  ->has_position()            ) return z->set_active(false);
 
-  active_obs->push_back(z);
+    active_obs->push_back(z);
 
-  update_index(from->N);
-  update_index(from->E);
-  update_index(from->U);
-  update_index(to  ->N);
-  update_index(to  ->E);
-  update_index(to  ->U);
+    update_index(from->N);
+    update_index(from->E);
+    update_index(from->U);
+    update_index(to  ->N);
+    update_index(to  ->E);
+    update_index(to  ->U);
 
-  dm_rows += z->dimension();            // design matrix
+    dm_rows += z->dimension();            // design matrix
 
-  if (from->free_horizontal_position())  dm_floats += 2;
-  if (from->free_height())               dm_floats += 1;
-  if (to  ->free_horizontal_position())  dm_floats += 2;
-  if (to  ->free_height())               dm_floats += 1;
+    if (from->free_horizontal_position())  dm_floats += 2;
+    if (from->free_height())               dm_floats += 1;
+    if (to  ->free_horizontal_position())  dm_floats += 2;
+    if (to  ->free_height())               dm_floats += 1;
 
-  return z->active();
+    return z->active();
 }
 
 

@@ -19,7 +19,7 @@
 
 /** \file xsd.h
  * \brief GNU_gama XML Schema namespaces
- * 
+ *
  * \author Ales Cepek
  */
 

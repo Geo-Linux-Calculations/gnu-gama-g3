@@ -35,16 +35,18 @@
 #include <gnu_gama/e3.h>
 #include <list>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  /** \brief Adjustment model on ellipsoid */
-  namespace g3 {
+/** \brief Adjustment model on ellipsoid */
+namespace g3
+{
 
-  /** g3 adjustment model. */
+/** g3 adjustment model. */
 
-  class Model : public GNU_gama::Model<g3::Observation>
-  {
-  public:
+class Model : public GNU_gama::Model<g3::Observation>
+{
+public:
 
     Model();
     virtual ~Model();
@@ -62,16 +64,43 @@ namespace GNU_gama {
     Point* get_point(const Point::Name&);
     void   write_xml(std::ostream& out) const;
 
-    void reset()               { state_ = init_; }
-    void reset_parameters()    { if (params_ < state_) state_ = params_; }
-    void reset_observations()  { if (obsrvs_ < state_) state_ = obsrvs_; }
-    void reset_linearization() { if (linear_ < state_) state_ = linear_; }
-    void reset_adjustment()    { if (adjust_ < state_) state_ = adjust_; }
+    void reset()
+    {
+        state_ = init_;
+    }
+    void reset_parameters()
+    {
+        if (params_ < state_) state_ = params_;
+    }
+    void reset_observations()
+    {
+        if (obsrvs_ < state_) state_ = obsrvs_;
+    }
+    void reset_linearization()
+    {
+        if (linear_ < state_) state_ = linear_;
+    }
+    void reset_adjustment()
+    {
+        if (adjust_ < state_) state_ = adjust_;
+    }
 
-    bool check_parameters()    const { return state_ > params_; }
-    bool check_observations()  const { return state_ > obsrvs_; }
-    bool check_linearization() const { return state_ > linear_; }
-    bool check_adjustment()    const { return state_ > adjust_; }
+    bool check_parameters()    const
+    {
+        return state_ > params_;
+    }
+    bool check_observations()  const
+    {
+        return state_ > obsrvs_;
+    }
+    bool check_linearization() const
+    {
+        return state_ > linear_;
+    }
+    bool check_adjustment()    const
+    {
+        return state_ > adjust_;
+    }
 
     void update_parameters();
     void update_observations();
@@ -105,29 +134,77 @@ namespace GNU_gama {
     void write_xml_adjusted(std::ostream&, const XYZ*,        Index);
     void write_xml_adjusted(std::ostream&, const ZenithAngle*,Index);
 
-    void set_algorithm(Adj::algorithm a) { adj->set_algorithm(a); }
+    void set_algorithm(Adj::algorithm a)
+    {
+        adj->set_algorithm(a);
+    }
 
-    void   set_apriori_sd(double s) { apriori_sd = s;          }
-    double get_apriori_sd() const   { return apriori_sd;       }
-    void   set_conf_level(double c) { confidence_level = c;    }
-    double get_conf_level() const   { return confidence_level; }
-    void   set_tol_abs   (double c) { tol_abs = c;             }
-    double get_tol_abs   () const   { return tol_abs;          }
+    void   set_apriori_sd(double s)
+    {
+        apriori_sd = s;
+    }
+    double get_apriori_sd() const
+    {
+        return apriori_sd;
+    }
+    void   set_conf_level(double c)
+    {
+        confidence_level = c;
+    }
+    double get_conf_level() const
+    {
+        return confidence_level;
+    }
+    void   set_tol_abs   (double c)
+    {
+        tol_abs = c;
+    }
+    double get_tol_abs   () const
+    {
+        return tol_abs;
+    }
 
-    double standard_deviation() const { return std_deviation; }
-    double standard_variance () const { return std_variance; }
-    double cov_xx(Index i, Index j) { return std_variance*adj->q_xx(i,j); }
-    double cov_bb(Index i, Index j) { return std_variance*adj->q_bb(i,j); }
+    double standard_deviation() const
+    {
+        return std_deviation;
+    }
+    double standard_variance () const
+    {
+        return std_variance;
+    }
+    double cov_xx(Index i, Index j)
+    {
+        return std_variance*adj->q_xx(i,j);
+    }
+    double cov_bb(Index i, Index j)
+    {
+        return std_variance*adj->q_bb(i,j);
+    }
 
-    bool   graph_is_connected() const  { return dm_graph_is_connected; }
+    bool   graph_is_connected() const
+    {
+        return dm_graph_is_connected;
+    }
 
     void write_xml_adjustment_input_data(std::ostream&);
     void write_xml_adjustment_results   (std::ostream&);
 
-    bool angular_units_degrees() const { return !gons_; }
-    bool angular_units_gons   () const { return  gons_; }
-    void set_angular_units_degrees()   { gons_ = false; }
-    void set_angular_units_gons()      { gons_ = true; }
+    bool angular_units_degrees() const
+    {
+        return !gons_;
+    }
+    bool angular_units_gons   () const
+    {
+        return  gons_;
+    }
+    void set_angular_units_degrees()
+    {
+        gons_ = false;
+    }
+    void set_angular_units_gons()
+    {
+        gons_ = true;
+    }
 
     GNU_gama::E_3 vector    (const Point* from, const Point* to) const;
     GNU_gama::E_3 normal    (const Point* p) const;
@@ -137,18 +214,18 @@ namespace GNU_gama {
 
     struct Rejected
     {
-      enum rejection { rhs };
+        enum rejection { rhs };
 
-      rejection     criterion;
-      Observation*  observation;
-      double        data[3];
+        rejection     criterion;
+        Observation*  observation;
+        double        data[3];
     };
 
     typedef std::list<Rejected>  RejectedObs;
     RejectedObs     rejected_obs;
 
 
-  private:   /*-----------------------------------------------------------*/
+private:   /*-----------------------------------------------------------*/
 
     Model(const Model&);
     Model& operator=(const Model&);
@@ -161,10 +238,16 @@ namespace GNU_gama {
     void update_index(Parameter&);
 
     // basic revision steps
-    enum State_{init_, params_, obsrvs_, linear_, adjust_, ready_} state_;
+    enum State_ {init_, params_, obsrvs_, linear_, adjust_, ready_} state_;
 
-    void next_state_(int s) { state_ = State_(++s); }
-    bool check_init() const { return state_ > init_; }
+    void next_state_(int s)
+    {
+        state_ = State_(++s);
+    }
+    bool check_init() const
+    {
+        return state_ > init_;
+    }
     void update_init();
 
 
@@ -208,8 +291,9 @@ namespace GNU_gama {
 
     void write_xml_adjusted_cov_xyz(std::ostream&, const Observation*,
                                     Index);
-  };
+};
 
-}}
+}
+}
 
 #endif

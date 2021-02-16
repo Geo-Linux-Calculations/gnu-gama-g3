@@ -26,47 +26,62 @@
 #include <cmath>
 #include <matvec/matvecbase.h>
 
-namespace GNU_gama {   /** \brief Vector base class. */
+namespace GNU_gama     /** \brief Vector base class. */
+{
 
 
 template <typename Float=double, typename Exc=Exception::matvec>
-class VecBase : public MatVecBase<Float, Exc> {
+class VecBase : public MatVecBase<Float, Exc>
+{
 
 protected:
 
-  VecBase() {}
-  VecBase(Index nsz) :  MatVecBase<Float, Exc>(nsz) {}
+    VecBase() {}
+    VecBase(Index nsz) :  MatVecBase<Float, Exc>(nsz) {}
 
 public:
 
-  typedef typename MatVecBase<Float, Exc>::iterator       iterator;
-  typedef typename MatVecBase<Float, Exc>::const_iterator const_iterator;
+    typedef typename MatVecBase<Float, Exc>::iterator       iterator;
+    typedef typename MatVecBase<Float, Exc>::const_iterator const_iterator;
 
-  Index dim() const { return this->size(); }
+    Index dim() const
+    {
+        return this->size();
+    }
 
-  Float& operator()(Index n) {
-    Float* m = this->begin(); return m[--n];
-  }
-  Float  operator()(Index n) const {
-    const Float* m = this->begin(); return m[--n];
-  }
+    Float& operator()(Index n)
+    {
+        Float* m = this->begin();
+        return m[--n];
+    }
+    Float  operator()(Index n) const
+    {
+        const Float* m = this->begin();
+        return m[--n];
+    }
 
-  void reset(Index n=0) { this->resize(n); }
+    void reset(Index n=0)
+    {
+        this->resize(n);
+    }
 
-  Float dot(const VecBase<Float, Exc> &B) const;
+    Float dot(const VecBase<Float, Exc> &B) const;
 
-  Float norm_L1()   const;
-  Float norm_L2()   const { return std::sqrt(dot(*this)); }
-  Float norm_Linf() const;
+    Float norm_L1()   const;
+    Float norm_L2()   const
+    {
+        return std::sqrt(dot(*this));
+    }
+    Float norm_Linf() const;
 
 };
 
 
 template <typename Float, typename Exc>
 Float VecBase<Float, Exc>::dot(const VecBase<Float, Exc> &B) const
-  {
+{
     if (dim() != B.dim())
-      throw Exc(Exception::BadRank, "Float VecBase::dot(const VecBase&) const");
+        throw Exc(Exception::BadRank, "Float VecBase::dot(const VecBase&) const");
 
     const_iterator a = this->begin();
     const_iterator e = this->end();
@@ -76,60 +91,64 @@ Float VecBase<Float, Exc>::dot(const VecBase<Float, Exc> &B) const
     while (a != e) sum += *a++ * *b++;
 
     return sum;
-  }
+}
 
 
 template <typename Float, typename Exc>
 Float VecBase<Float, Exc>::norm_L1() const
-  {
+{
     const_iterator a = this->begin();
     const_iterator e = this->end();
 
     Float sum = 0;
-    while (a != e) { sum += *a >= 0 ? *a : -(*a); ++a; }
+    while (a != e)
+    {
+        sum += *a >= 0 ? *a : -(*a);
+        ++a;
+    }
 
     return sum;
-  }
+}
 
 
 template <typename Float, typename Exc>
 Float VecBase<Float, Exc>::norm_Linf() const
-  {
+{
     const_iterator a = this->begin();
     const_iterator e = this->end();
 
     Float norm = 0, x;
     while (a != e)
-      {
+    {
         x = *a >= 0 ?  *a : -(*a);
         ++a;
         if (x > norm) norm = x;
-      }
+    }
 
     return norm;
-  }
+}
 
 
 template <typename Float, typename Exc>
 std::istream& operator>>(std::istream& inp, VecBase<Float, Exc>& v)
-  {
+{
     Index size;
     if (inp >> size)
-      {
+    {
         if (size != v.dim())
-          v.reset(size);
+            v.reset(size);
 
         typename MatVecBase<Float, Exc>::iterator b = v.begin();
         typename MatVecBase<Float, Exc>::iterator e = v.end();
         while (b != e)
-          {
+        {
             inp >> *b;
             ++b;
-          }
-      }
+        }
+    }
 
     return inp;
-  }
+}
 
 
 }   // namespace GNU_gama

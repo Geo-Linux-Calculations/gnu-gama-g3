@@ -26,13 +26,16 @@
 #include <string>
 #include <list>
 
-namespace GNU_gama {  namespace g3 {
+namespace GNU_gama
+{
+namespace g3
+{
 
-  /** g3 adjustment results class. */
+/** g3 adjustment results class. */
 
-  class AdjustmentResults
-  {
-  public:
+class AdjustmentResults
+{
+public:
 
     // <adjustment-statistics>
 
@@ -56,39 +59,42 @@ namespace GNU_gama {  namespace g3 {
 
     struct Point
     {
-      std::string id;
-      std::string height;
-      std::string n;        // fixed, free, constr, 'empty string'
-      std::string n_dn;     // adjustment correction
-      std::string n_ind;    // adjustment index
-      std::string e;
-      std::string e_de;
-      std::string e_ind;
-      std::string u;
-      std::string u_du;
-      std::string u_ind;
-      std::string cnn, cne, cnu, cee, ceu, cuu;
-      std::string x_given;
-      std::string x_correction;
-      std::string x_adjusted;
-      std::string y_given;
-      std::string y_correction;
-      std::string y_adjusted;
-      std::string z_given;
-      std::string z_correction;
-      std::string z_adjusted;
-      std::string cxx, cxy, cxz, cyy, cyz, czz;
-      std::string b_given;
-      std::string b_correction;
-      std::string b_adjusted;
-      std::string l_given;
-      std::string l_correction;
-      std::string l_adjusted;
-      std::string h_given;
-      std::string h_correction;
-      std::string h_adjusted;
+        std::string id;
+        std::string height;
+        std::string n;        // fixed, free, constr, 'empty string'
+        std::string n_dn;     // adjustment correction
+        std::string n_ind;    // adjustment index
+        std::string e;
+        std::string e_de;
+        std::string e_ind;
+        std::string u;
+        std::string u_du;
+        std::string u_ind;
+        std::string cnn, cne, cnu, cee, ceu, cuu;
+        std::string x_given;
+        std::string x_correction;
+        std::string x_adjusted;
+        std::string y_given;
+        std::string y_correction;
+        std::string y_adjusted;
+        std::string z_given;
+        std::string z_correction;
+        std::string z_adjusted;
+        std::string cxx, cxy, cxz, cyy, cyz, czz;
+        std::string b_given;
+        std::string b_correction;
+        std::string b_adjusted;
+        std::string l_given;
+        std::string l_correction;
+        std::string l_adjusted;
+        std::string h_given;
+        std::string h_correction;
+        std::string h_adjusted;
 
-      void clear() { *this = Point(); }
+        void clear()
+        {
+            *this = Point();
+        }
 
     } point;
 
@@ -99,22 +105,25 @@ namespace GNU_gama {  namespace g3 {
 
     struct Observation
     {
-      std::string  type;      // observation type (vector, distance, ...)
-      std::string   ind;      // index (first index if dim > 1)
+        std::string  type;      // observation type (vector, distance, ...)
+        std::string   ind;      // index (first index if dim > 1)
 
-      std::string   id1,  id2,  id3;     // identification
-      std::string  obs1, obs2, obs3;     // observed value
-      std::string  res1, res2, res3;     // residual
-      std::string  adj1, adj2, adj3;     // adjusted
+        std::string   id1,  id2,  id3;     // identification
+        std::string  obs1, obs2, obs3;     // observed value
+        std::string  res1, res2, res3;     // residual
+        std::string  adj1, adj2, adj3;     // adjusted
 
-      // standard devations of observed / adjusted value(s)
+        // standard devations of observed / adjusted value(s)
 
-      std::string stdev_obs1, stdev_obs2, stdev_obs3;
-      std::string stdev_adj1, stdev_adj2, stdev_adj3;
+        std::string stdev_obs1, stdev_obs2, stdev_obs3;
+        std::string stdev_adj1, stdev_adj2, stdev_adj3;
 
-      std::string c11, c12, c13, c22, c23, c33;   // covariances (dim > 1)
+        std::string c11, c12, c13, c22, c23, c33;   // covariances (dim > 1)
 
-      void clear() { *this = Observation(); }
+        void clear()
+        {
+            *this = Observation();
+        }
 
     } observation;
 
@@ -122,8 +131,9 @@ namespace GNU_gama {  namespace g3 {
     std::list<Observation> rejected_observations;
 
     void write_xml(std::ostream&) const;
-  };
+};
 
-}}
+}
+}
 
 #endif

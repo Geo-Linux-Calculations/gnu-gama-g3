@@ -43,12 +43,13 @@
 #define str(s)  # s
 #define xstr(s) str(s)
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  // VERSION is defined in config.h
-  const char* GNU_gama_version  = VERSION;
+// VERSION is defined in config.h
+const char* GNU_gama_version  = VERSION;
 
-  const char* GNU_gama_compiler =
+const char* GNU_gama_compiler =
 #if   defined  (__GNUC__)
     "g++ " xstr(__GNUC__) "." xstr(__GNUC_MINOR__) "." xstr(__GNUC_PATCHLEVEL__)
 #elif defined  (_MSC_VER)
@@ -59,23 +60,23 @@ namespace GNU_gama {
 #endif
     ;
 
-  const char* GNU_gama_year = "2014";
+const char* GNU_gama_year = "2014";
 
 
-  int version(const char* program, const char* copyright_holder)
-  {
+int version(const char* program, const char* copyright_holder)
+{
     std::cout
-      << program << " (GNU Gama) " << GNU_gama_version
-      << " / " << GNU_gama_compiler << "\n"
-      << "Copyright (C) " << GNU_gama_year << " "
-      << copyright_holder << "\n" <<
-      "License GPLv3+: GNU GPL version 3 or later "
-      "<http://gnu.org/licenses/gpl.html>\n"
-      "This is free software: you are free to change and redistribute it.\n"
-      "There is NO WARRANTY, to the extent permitted by law.\n";
+            << program << " (GNU Gama) " << GNU_gama_version
+            << " / " << GNU_gama_compiler << "\n"
+            << "Copyright (C) " << GNU_gama_year << " "
+            << copyright_holder << "\n" <<
+            "License GPLv3+: GNU GPL version 3 or later "
+            "<http://gnu.org/licenses/gpl.html>\n"
+            "This is free software: you are free to change and redistribute it.\n"
+            "There is NO WARRANTY, to the extent permitted by law.\n";
 
     return 0;
-  }
+}
 
 }
 

@@ -25,62 +25,90 @@
 #include <matvec/inderr.h>
 #include <string>
 
-namespace GNU_gama { namespace Exception {
+namespace GNU_gama
+{
+namespace Exception
+{
 
-   /** \section GNU gama exceptions
-   *
-   * \a Exception::base and \a Exception::matvec are defined in
-   * <lib/matvec/inderr>
-   *
-   * Classes \a GNU_gama::local::Exception,
-   * GNU_gama::local::ParserException and
-   * GNU_gama::local::MatVecException are only typedefs to \a
-   * Exception::string, \a Exception::parser and
-   * GNU_gama::Exception::matvec respectively.
-   *
-   * Class \a g2d_exc is limited to Median namespace usage.
-  */
+/** \section GNU gama exceptions
+*
+* \a Exception::base and \a Exception::matvec are defined in
+* <lib/matvec/inderr>
+*
+* Classes \a GNU_gama::local::Exception,
+* GNU_gama::local::ParserException and
+* GNU_gama::local::MatVecException are only typedefs to \a
+* Exception::string, \a Exception::parser and
+* GNU_gama::Exception::matvec respectively.
+*
+* Class \a g2d_exc is limited to Median namespace usage.
+*/
 
-  class string : public base {
-  public:
+class string : public base
+{
+public:
 
     const std::string  str;
 
     string(const std::string& s) : str(s) {}
     ~string() throw() {}
 
-    string* clone() const { return new string(*this); }
-    void    raise() const { throw *this; }
+    string* clone() const
+    {
+        return new string(*this);
+    }
+    void    raise() const
+    {
+        throw *this;
+    }
 
-    const char* what() const throw() { return str.c_str(); }
-  };
+    const char* what() const throw()
+    {
+        return str.c_str();
+    }
+};
 
 
-  class adjustment : public string {
-  public:
+class adjustment : public string
+{
+public:
 
     adjustment(const char* s) : string(s) {}
 
-    adjustment* clone() const { return new adjustment(*this); }
-    void        raise() const { throw *this; }
-  };
+    adjustment* clone() const
+    {
+        return new adjustment(*this);
+    }
+    void        raise() const
+    {
+        throw *this;
+    }
+};
 
 
-  class parser : public string {
-  public:
+class parser : public string
+{
+public:
 
     const int line, error_code;
 
     parser(const std::string& s, int r, int c)
-      : string(s), line(r), error_code(c)
-      {
-      }
+        : string(s), line(r), error_code(c)
+    {
+    }
 
-    parser* clone() const { return new parser(*this); }
-    void    raise() const { throw *this; }
-  };
+    parser* clone() const
+    {
+        return new parser(*this);
+    }
+    void    raise() const
+    {
+        throw *this;
+    }
+};
 
 
-}}
+}
+}
 
 #endif

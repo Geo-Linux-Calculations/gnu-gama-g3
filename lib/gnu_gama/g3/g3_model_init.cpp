@@ -40,13 +40,13 @@ typedef GNU_gama::List<Observation*>  ObsList;
 
 namespace
 {
-  class Init :
+class Init :
     public GNU_gama::BaseVisitor,
     public GNU_gama::Visitor<Height>,
     public GNU_gama::Visitor<Vector>,
     public GNU_gama::Visitor<XYZ>
-  {
-  public:
+{
+public:
 
     Init(GNU_gama::g3::Model* m) : model(m), points(model->points) {}
 
@@ -55,7 +55,7 @@ namespace
     void visit(XYZ* p);
     void approx_xyz_height();
 
-  private:
+private:
 
     GNU_gama::g3::Model*  model;
     Model::PointBase*     points;
@@ -63,11 +63,11 @@ namespace
     ObsList*              obs_in;
     ObsList*              obs_out;
     bool                  updated;
-  };
+};
 
 
-  void Init::approx_xyz_height()
-  {
+void Init::approx_xyz_height()
+{
     obs_in  = &a;
     obs_out = &b;
 
@@ -75,38 +75,38 @@ namespace
     ObservationData<Observation>::iterator i=model->obsdata.begin();
     ObservationData<Observation>::iterator e=model->obsdata.end();
     while (i != e)
-      {
+    {
         (*i++)->accept(this);
-      }
+    }
 
     while (updated && !obs_out->empty())
-      {
+    {
         obs_in->clear();
         std::swap(obs_in, obs_out);
 
         updated = false;
         for (ObsList::iterator e=obs_in->end(), i=obs_in->begin(); i!=e; i++)
-          {
+        {
             (*i)->accept(this);
-          }
-      }
-  }
+        }
+    }
+}
 
 
-  void Init::visit(Height* p)
-  {
+void Init::visit(Height* p)
+{
     Point::Name id    = p->id;
     Point*      point = model->get_point(id);
     if (!point->has_height())
-      {
+    {
         point->set_height(p->obs());
         updated = true;
-      }
-  }
+    }
+}
 
 
-  void Init::visit(Vector* p)
-  {
+void Init::visit(Vector* p)
+{
     Point::Name id_from = p->from;
     Point::Name id_to   = p->to;
 
@@ -114,49 +114,49 @@ namespace
     Point* to   = model->get_point(id_to);
 
     if      (!from->has_position() && !to->has_position())
-      {
+    {
         obs_out->push_back(p);
         return;
-      }
+    }
     else if ( from->has_position() && !to->has_position())
-      {
+    {
         double x = from->X() + p->dx();
         double y = from->Y() + p->dy();
         double z = from->Z() + p->dz();
         to->set_xyz(x, y, z);
         updated = true;
-      }
+    }
     else if (!from->has_position() &&  to->has_position())
-      {
+    {
         double x = to->X() - p->dx();
         double y = to->Y() - p->dy();
         double z = to->Z() - p->dz();
         from->set_xyz(x, y, z);
         updated = true;
-      }
-  }
+    }
+}
 
 
-  void Init::visit(XYZ* p)
-  {
+void Init::visit(XYZ* p)
+{
     Point::Name id    = p->id;
     Point*      point = model->get_point(id);
     if (!point->has_position())
-      {
+    {
         point->set_xyz(p->x(), p->y(), p->z());
         updated = true;
-      }
-  }
+    }
+}
 }
 
 
 void Model::update_init()
 {
-  rejected_obs.clear();
+    rejected_obs.clear();
 
-  Init init(this);
-  init.approx_xyz_height();
+    Init init(this);
+    init.approx_xyz_height();
 
-  return next_state_(init_);
+    return next_state_(init_);
 }
 

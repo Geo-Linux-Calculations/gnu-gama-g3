@@ -34,59 +34,105 @@
 #include <gnu_gama/local/observation.h>
 #include <gnu_gama/local/gamadata.h>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-  /** Local linearization class implemented as a visitor. */
-  class LocalLinearization : public AllObservationsVisitor
+/** Local linearization class implemented as a visitor. */
+class LocalLinearization : public AllObservationsVisitor
+{
+
+public:
+
+    LocalLinearization(PointData& pd, double m) : max_size(6), PD(pd), maxn(0), m0(m) {}
+
+    int  unknowns() const
     {
+        return maxn;
+    }
 
-    public:
+    void  visit(Direction *element)
+    {
+        direction(element);
+    }
+    void  visit(Distance *element)
+    {
+        distance(element);
+    }
+    void  visit(Angle *element)
+    {
+        angle(element);
+    }
+    void  visit(H_Diff *element)
+    {
+        h_diff(element);
+    }
+    void  visit(S_Distance *element)
+    {
+        s_distance(element);
+    }
+    void  visit(Z_Angle *element)
+    {
+        z_angle(element);
+    }
+    void  visit(X *element)
+    {
+        x(element);
+    }
+    void  visit(Y *element)
+    {
+        y(element);
+    }
+    void  visit(Z *element)
+    {
+        z(element);
+    }
+    void  visit(Xdiff *element)
+    {
+        xdiff(element);
+    }
+    void  visit(Ydiff *element)
+    {
+        ydiff(element);
+    }
+    void  visit(Zdiff *element)
+    {
+        zdiff(element);
+    }
+    void  visit(Azimuth *element)
+    {
+        azimuth(element);
+    }
 
-      LocalLinearization(PointData& pd, double m) : max_size(6), PD(pd), maxn(0), m0(m) {}
+    const   long    max_size; ///< maximal number of coefficients
+    mutable double  rhs;
+    mutable double  coeff[6];
+    mutable long    index[6];
+    mutable long    size;
 
-      int  unknowns() const { return maxn; }
+private:
 
-      void  visit(Direction *element)  { direction(element); }
-      void  visit(Distance *element)   { distance(element); }
-      void  visit(Angle *element)      { angle(element); }
-      void  visit(H_Diff *element)     { h_diff(element); }
-      void  visit(S_Distance *element) { s_distance(element); }
-      void  visit(Z_Angle *element)    { z_angle(element); }
-      void  visit(X *element)          { x(element); }
-      void  visit(Y *element)          { y(element); }
-      void  visit(Z *element)          { z(element); }
-      void  visit(Xdiff *element)      { xdiff(element); }
-      void  visit(Ydiff *element)      { ydiff(element); }
-      void  visit(Zdiff *element)      { zdiff(element); }
-      void  visit(Azimuth *element)    { azimuth(element); }
+    PointData&           PD;
+    mutable int          maxn;
+    double               m0;
 
-      const   long    max_size; ///< maximal number of coefficients
-      mutable double  rhs;
-      mutable double  coeff[6];
-      mutable long    index[6];
-      mutable long    size;
+    void direction  (const Direction  *obs) const;
+    void distance   (const Distance   *obs) const;
+    void angle      (const Angle      *obs) const;
+    void h_diff     (const H_Diff     *obs) const;
+    void s_distance (const S_Distance *obs) const;
+    void z_angle    (const Z_Angle    *obs) const;
+    void x          (const X          *obs) const;
+    void y          (const Y          *obs) const;
+    void z          (const Z          *obs) const;
+    void xdiff      (const Xdiff      *obs) const;
+    void ydiff      (const Ydiff      *obs) const;
+    void zdiff      (const Zdiff      *obs) const;
+    void azimuth    (const Azimuth    *obs) const;
+};
 
-    private:
-
-      PointData&           PD;
-      mutable int          maxn;
-      double               m0;
-
-      void direction  (const Direction  *obs) const;
-      void distance   (const Distance   *obs) const;
-      void angle      (const Angle      *obs) const;
-      void h_diff     (const H_Diff     *obs) const;
-      void s_distance (const S_Distance *obs) const;
-      void z_angle    (const Z_Angle    *obs) const;
-      void x          (const X          *obs) const;
-      void y          (const Y          *obs) const;
-      void z          (const Z          *obs) const;
-      void xdiff      (const Xdiff      *obs) const;
-      void ydiff      (const Ydiff      *obs) const;
-      void zdiff      (const Zdiff      *obs) const;
-      void azimuth    (const Azimuth    *obs) const;
-    };
-
-}}
+}
+}
 
 #endif

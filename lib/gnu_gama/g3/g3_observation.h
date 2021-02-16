@@ -29,23 +29,27 @@
 #define GNU_gama__g3_observation_h_gnugamag3obs_baseh___gnu_gama_g3obs
 
 
-namespace GNU_gama {  namespace g3 {
+namespace GNU_gama
+{
+namespace g3
+{
 
 
-  /** g3 observation base class. */
+/** g3 observation base class. */
 
-  class Observation :
+class Observation :
     public GNU_gama::Observation<Cluster<Observation>, GNU_gama::CovMat<> >
-  {
-  public:
+{
+public:
 
-  };
+};
 
 
-  /** g3 helper class */
+/** g3 helper class */
 
-  class FromTo {
-  public:
+class FromTo
+{
+public:
 
     FromTo() : from_dh(0), to_dh(0) {}
 
@@ -53,95 +57,132 @@ namespace GNU_gama {  namespace g3 {
     Point::Name  to;
 
     double from_dh, to_dh;
-  };
+};
 
 
-  /** g3 helper class. */
+/** g3 helper class. */
 
-  class Value {
+class Value
+{
     double value;
-  public:
+public:
 
     Value() {}
     Value(double d) : value(d) {}
 
-    double obs() const   { return value; }
-    void   set(double d) { value = d;    }
-  };
+    double obs() const
+    {
+        return value;
+    }
+    void   set(double d)
+    {
+        value = d;
+    }
+};
 
 
-  /** g3 distance class. */
+/** g3 distance class. */
 
-  class Distance : public Accept<Distance, Observation>,
-                   public FromTo, public Value {
-  public:
+class Distance : public Accept<Distance, Observation>,
+    public FromTo, public Value
+{
+public:
 
     Distance() {}
     Distance(double d) : Value(d) {}
 
-    int dimension() const { return 1; }
-  };
+    int dimension() const
+    {
+        return 1;
+    }
+};
 
 
-  /** g3 zenith angle class. */
+/** g3 zenith angle class. */
 
-  class ZenithAngle : public Accept<ZenithAngle, Observation>,
-                      public FromTo, public Value {
-  public:
+class ZenithAngle : public Accept<ZenithAngle, Observation>,
+    public FromTo, public Value
+{
+public:
 
     ZenithAngle() {}
     ZenithAngle(double d) : Value(d) {}
 
-    int dimension() const { return 1; }
-  };
+    int dimension() const
+    {
+        return 1;
+    }
+};
 
 
-  /** g3 azimuth class. */
+/** g3 azimuth class. */
 
-  class Azimuth : public Accept<Azimuth, Observation>,
-                  public FromTo, public Value {
-  public:
+class Azimuth : public Accept<Azimuth, Observation>,
+    public FromTo, public Value
+{
+public:
 
     Azimuth() {}
     Azimuth(double d) : Value(d) {}
 
-    int dimension() const { return 1; }
-  };
+    int dimension() const
+    {
+        return 1;
+    }
+};
 
 
-  /** g3 vector class. */
+/** g3 vector class. */
 
-  class Vector : public Accept<Vector, Observation>, public FromTo {
-  public:
+class Vector : public Accept<Vector, Observation>, public FromTo
+{
+public:
 
     Vector()
     {
     }
     Vector(double x, double y, double z)
     {
-      dx_ = x; dy_ = y; dz_ = z;
+        dx_ = x;
+        dy_ = y;
+        dz_ = z;
     }
 
-    int  dimension() const { return 3; }
+    int  dimension() const
+    {
+        return 3;
+    }
     void set_dxyz(double x, double y, double z)
     {
-      dx_ = x; dy_ = y; dz_ = z;
+        dx_ = x;
+        dy_ = y;
+        dz_ = z;
     }
 
-    double dx() const { return dx_; }
-    double dy() const { return dy_; }
-    double dz() const { return dz_; }
+    double dx() const
+    {
+        return dx_;
+    }
+    double dy() const
+    {
+        return dy_;
+    }
+    double dz() const
+    {
+        return dz_;
+    }
 
 
-  private:
+private:
     double dx_, dy_, dz_;
-  };
+};
 
 
-  /** g3 observed coordinates class. */
+/** g3 observed coordinates class. */
 
-  class XYZ : public Accept<XYZ, Observation> {
-  public:
+class XYZ : public Accept<XYZ, Observation>
+{
+public:
 
     Point::Name id;
 
@@ -150,56 +191,81 @@ namespace GNU_gama {  namespace g3 {
     }
     XYZ(double xp, double yp, double zp)
     {
-      x_ = xp; y_ = yp; z_ = zp;
+        x_ = xp;
+        y_ = yp;
+        z_ = zp;
     }
 
-    int  dimension() const { return 3; }
+    int  dimension() const
+    {
+        return 3;
+    }
     void set_xyz(double xp, double yp, double zp)
     {
-      x_ = xp; y_ = yp; z_ = zp;
+        x_ = xp;
+        y_ = yp;
+        z_ = zp;
     }
 
-    double x() const { return x_; }
-    double y() const { return y_; }
-    double z() const { return z_; }
+    double x() const
+    {
+        return x_;
+    }
+    double y() const
+    {
+        return y_;
+    }
+    double z() const
+    {
+        return z_;
+    }
 
 
-  private:
+private:
     double x_, y_, z_;
-  };
+};
 
 
-  /** g3 height difference class. */
+/** g3 height difference class. */
 
-  class HeightDiff : public Accept<HeightDiff, Observation>,
-                     public FromTo, public Value {
-  public:
+class HeightDiff : public Accept<HeightDiff, Observation>,
+    public FromTo, public Value
+{
+public:
 
     HeightDiff() {}
     HeightDiff(double d) : Value(d) {}
 
-    int dimension() const { return 1; }
-  };
+    int dimension() const
+    {
+        return 1;
+    }
+};
 
 
-  /** g3 observed height class. */
+/** g3 observed height class. */
 
-  class Height : public Accept<Height, Observation>, public Value {
-  public:
+class Height : public Accept<Height, Observation>, public Value
+{
+public:
 
     Point::Name id;
 
     Height() {}
     Height(double d) : Value(d) {}
 
-    int dimension() const { return 1; }
-  };
+    int dimension() const
+    {
+        return 1;
+    }
+};
 
 
-  /** g3 horizontal angle class. */
+/** g3 horizontal angle class. */
 
-  class Angle : public Accept<Angle, Observation>, public Value {
-  public:
+class Angle : public Accept<Angle, Observation>, public Value
+{
+public:
 
     Point::Name from;
     Point::Name left;
@@ -210,9 +276,13 @@ namespace GNU_gama {  namespace g3 {
     Angle() {}
     Angle(double d) : Value(d) {}
 
-    int dimension() const { return 1; }
-  };
+    int dimension() const
+    {
+        return 1;
+    }
+};
 
-}}
+}
+}
 
 #endif

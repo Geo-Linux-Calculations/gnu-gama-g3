@@ -24,11 +24,15 @@
 
 #include <string>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-  std::string underline(std::string t, char c);
-  std::string set_width(std::string s, int n);
+std::string underline(std::string t, char c);
+std::string set_width(std::string s, int n);
 
-}}
+}
+}
 
 #endif

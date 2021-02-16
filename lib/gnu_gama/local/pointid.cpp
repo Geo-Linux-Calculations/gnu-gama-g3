@@ -32,47 +32,47 @@ using namespace GNU_gama::local;
 
 void PointID::init(const std::string& s)
 {
-  std::string::const_iterator b=s.begin();
-  std::string::const_iterator e=s.end();
-  GNU_gama::TrimWhiteSpaces(b, e);
-  sid = std::string(b,e);
-  iid = 0;
+    std::string::const_iterator b=s.begin();
+    std::string::const_iterator e=s.end();
+    GNU_gama::TrimWhiteSpaces(b, e);
+    sid = std::string(b,e);
+    iid = 0;
 
-  if ( !GNU_gama::IsInteger(b, e) ) return;
+    if ( !GNU_gama::IsInteger(b, e) ) return;
 
-  PointInt tmp = -1;
-  std::istringstream inp(sid);
-  inp >> tmp;
-  if (tmp < 0) return;
+    PointInt tmp = -1;
+    std::istringstream inp(sid);
+    inp >> tmp;
+    if (tmp < 0) return;
 
-  std::ostringstream out;
-  out << tmp;
-  if (out.str() != sid) return;
+    std::ostringstream out;
+    out << tmp;
+    if (out.str() != sid) return;
 
-  iid = tmp;      // numeric ID
+    iid = tmp;      // numeric ID
 }
 
 std::size_t PointID::lengthUtf8() const
 {
-  return GNU_gama::Utf8::length(sid);
+    return GNU_gama::Utf8::length(sid);
 }
 
 
 bool PointID::operator==(const PointID& p) const
 {
-  return iid == p.iid && sid == p.sid;
+    return iid == p.iid && sid == p.sid;
 }
 
 bool PointID::operator!=(const PointID& p) const
 {
-  return iid != p.iid || sid != p.sid;
+    return iid != p.iid || sid != p.sid;
 }
 
 bool PointID::operator< (const PointID& p) const
 {
-  if      (iid != 0 && p.iid != 0) return iid < p.iid;
-  else if (iid != 0 && p.iid == 0) return true;
-  else if (iid == 0 && p.iid != 0) return false;
-  else
-    return sid < p.sid;
+    if      (iid != 0 && p.iid != 0) return iid < p.iid;
+    else if (iid != 0 && p.iid == 0) return true;
+    else if (iid == 0 && p.iid != 0) return false;
+    else
+        return sid < p.sid;
 }

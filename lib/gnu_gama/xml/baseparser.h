@@ -30,13 +30,14 @@
 #include <string>
 #include <list>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-    /** \brief expat parser interface */
+/** \brief expat parser interface */
 
-  class CoreParser
-  {
-  public:
+class CoreParser
+{
+public:
 
     CoreParser();
     virtual ~CoreParser();
@@ -44,19 +45,22 @@ namespace GNU_gama {
     virtual void xml_parse(const char *s, int len, int  isFinal) = 0;
     void xml_parse(const std::string& s, bool isFinal)
     {
-      xml_parse(s.c_str(), s.length(), isFinal ? 1 : 0);
+        xml_parse(s.c_str(), s.length(), isFinal ? 1 : 0);
     }
     virtual int characterDataHandler(const char* s, int len) = 0;
     virtual int startElement(const char *cname, const char **atts) = 0;
     virtual int endElement(const char * name) = 0;
 
-  protected:
+protected:
 
     XML_Parser  parser;
     int         state;      /*  state_error must be 0  */
 
     int error(const char* text);
-    int error(const std::string& s)   { return error(s.c_str()); }
+    int error(const std::string& s)
+    {
+        return error(s.c_str());
+    }
 
     bool toDouble (const std::string&, double&     ) const;
     bool toIndex  (const std::string&, std::size_t&) const;
@@ -68,39 +72,39 @@ namespace GNU_gama {
     int         errLineNumber;
     int         errCode;              // -1 bad data in gkf; 0 OK; >0 expat
 
-  };  // class CoreParser
+};  // class CoreParser
 
 
 
-  /** \brief Base parser class */
+/** \brief Base parser class */
 
-  template<typename ParserException> class BaseParser : public CoreParser
-  {
-  public:
+template<typename ParserException> class BaseParser : public CoreParser
+{
+public:
 
     void xml_parse(const char *s, int len, int  isFinal)
     {
-      int err = XML_Parse(parser, s, len, isFinal);
-      if (err == 0)
+        int err = XML_Parse(parser, s, len, isFinal);
+        if (err == 0)
         {
-          // fatal error
+            // fatal error
 
-          errString=std::string(XML_ErrorString(XML_GetErrorCode(parser)));
-          errCode  =XML_GetErrorCode(parser);
-          errLineNumber = XML_GetCurrentLineNumber(parser);
+            errString=std::string(XML_ErrorString(XML_GetErrorCode(parser)));
+            errCode  =XML_GetErrorCode(parser);
+            errLineNumber = XML_GetCurrentLineNumber(parser);
 
-          throw ParserException(errString, errLineNumber, errCode);
+            throw ParserException(errString, errLineNumber, errCode);
         }
 
-      if (state == 0)     /*  state_error must be 0  */
+        if (state == 0)     /*  state_error must be 0  */
         {
-          // errLineNumber is set by function  error("...");
-          errCode = -1;
-          throw ParserException(errString, errLineNumber, errCode);
+            // errLineNumber is set by function  error("...");
+            errCode = -1;
+            throw ParserException(errString, errLineNumber, errCode);
         }
     }
 
-  };
+};
 
 
 

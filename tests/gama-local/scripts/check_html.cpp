@@ -26,28 +26,30 @@ using GNU_gama::LocalNetworkAdjustmentResults;
 
 int main(int argc, char* argv[])
 {
-  std::cout << "max.diff between XML and HTML rounding output for "
-            << argv[1] << "\n";
+    std::cout << "max.diff between XML and HTML rounding output for "
+              << argv[1] << "\n";
 
-  LocalNetworkAdjustmentResults* html = new LocalNetworkAdjustmentResults;
-  {
-    std::ifstream inp_html(argv[2]);
-    if (!inp_html) {
-      std::cout << "   ####  ERROR ON OPENING FILE " << argv[2] << "\n";
-      return 1;
+    LocalNetworkAdjustmentResults* html = new LocalNetworkAdjustmentResults;
+    {
+        std::ifstream inp_html(argv[2]);
+        if (!inp_html)
+        {
+            std::cout << "   ####  ERROR ON OPENING FILE " << argv[2] << "\n";
+            return 1;
+        }
+        html->read_html(inp_html);
     }
-    html->read_html(inp_html);
-  }
 
-  LocalNetworkAdjustmentResults* xml = new LocalNetworkAdjustmentResults;
-  {
-    std::ifstream inp_xml(argv[3]);
-    if (!inp_xml) {
-      std::cout << "   ####  ERROR ON OPENING FILE " << argv[3] << "\n";
-      return 1;
+    LocalNetworkAdjustmentResults* xml = new LocalNetworkAdjustmentResults;
+    {
+        std::ifstream inp_xml(argv[3]);
+        if (!inp_xml)
+        {
+            std::cout << "   ####  ERROR ON OPENING FILE " << argv[3] << "\n";
+            return 1;
+        }
+        xml->read_xml(inp_xml);
     }
-    xml->read_xml(inp_xml);
-  }
 
-  return compare_xml_adjustment(html, xml, 1e-2);
+    return compare_xml_adjustment(html, xml, 1e-2);
 }

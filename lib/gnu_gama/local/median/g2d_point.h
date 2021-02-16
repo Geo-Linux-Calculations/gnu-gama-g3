@@ -33,140 +33,144 @@
 #include <gnu_gama/local/median/g2d_helper.h>
 
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-  class ApproxPoint
+class ApproxPoint
+{
+
+private:
+    Helper_list solved_points;
+    PointData SB;
+    PointID   CB;
+    ObservationList SM;
+    ObservationList SM_U;         // for inner angles
+    ObservationList SM_S;          // for outer bearings
+    LocalPoint v_point;           // final point - output
+    LocalPoint v_point2;          //             - ambiguous solutions (two)
+    PointData* SB_puv;            // repeating calc. with another Point ID
+    ObservationList* SM_puv;
+    Solution_state_tag state_;    // Solution_state_tag -> see g2d_helper.h
+    void ClearLists();          // empty helper lists
+
+    Angle* makeAngle(const ObservationList::iterator i,
+                     const ObservationList::iterator j)
     {
-
-    private:
-      Helper_list solved_points;
-      PointData SB;
-      PointID   CB;
-      ObservationList SM;
-      ObservationList SM_U;         // for inner angles
-      ObservationList SM_S;  	    // for outer bearings
-      LocalPoint v_point;           // final point - output
-      LocalPoint v_point2;          //             - ambiguous solutions (two)
-      PointData* SB_puv;            // repeating calc. with another Point ID
-      ObservationList* SM_puv;
-      Solution_state_tag state_;    // Solution_state_tag -> see g2d_helper.h
-      void ClearLists();  	    // empty helper lists
-
-      Angle* makeAngle(const ObservationList::iterator i,
-                       const ObservationList::iterator j)
-        {
-          Direction* s1 = dynamic_cast<Direction*>(*i);
-          Direction* s2 = dynamic_cast<Direction*>(*j);
-          if(!(s1 && s2))
+        Direction* s1 = dynamic_cast<Direction*>(*i);
+        Direction* s2 = dynamic_cast<Direction*>(*j);
+        if(!(s1 && s2))
             throw g2d_exc("ApproxPoint::makeAngle : missing direction");
-          Double angle = s2->value() - s1->value();
-          return new Angle(s1->from(),s1->to(),s2->to(),
-                           (angle < 0 ? angle+2*M_PI : angle));
-        }
-      Direction* makeBearing(const Angle* u, const PointID& cb)
+        Double angle = s2->value() - s1->value();
+        return new Angle(s1->from(),s1->to(),s2->to(),
+                         (angle < 0 ? angle+2*M_PI : angle));
+    }
+    Direction* makeBearing(const Angle* u, const PointID& cb)
+    {
+        PointID point = (u->to() == cb ? u->fs() : u->to());
+        Double sm = bearing(SB[u->from()],SB[point]);
+        sm += (u->to() == cb ? -u->value() : u->value());
+        sm += (sm < 0 ? 2*M_PI : 0);
+        sm -= (sm >= 2*M_PI ? 2*M_PI : 0);
+        return new Direction(u->from(),cb,sm);
+    }
+    Direction* makeBearing(const Direction* s, const PointID& cb)
+    {
+        Double sm = s->value() + s->orientation();
+        sm -= (sm >= 2*M_PI ? 2*M_PI : 0);
+        return new Direction(s->from(),cb,sm);
+    }
+    bool KnownTarget(ObservationList::const_iterator i)
+    {
+        // true: target coordinates are known
+        const Angle* u = dynamic_cast<const Angle*>(*i);
+        return KnownTarget1(i) && (u ? KnownTarget2(u) : true);
+    }
+    bool KnownTarget1(ObservationList::const_iterator i)
+    {
+        return SB[(*i)->to()].test_xy();
+    }
+    bool KnownTarget2(const Angle* u)
+    {
+        // true: target coordinates of agle's right site are known
+        return SB[u->fs()].test_xy();
+    }
+    bool knownStandpoint(ObservationList::const_iterator i)
+    {
+        // true: standpoint coordinates and orientation shift are known
+        // 1999.07.06 - AC
+        // Direction* s = dynamic_cast<Direction*>(*i);
+        // return SB[(*i)->from()].test_xy() &&
+        //       (s ? SB[s->from()].poc_orpos() > s->osnova() : true);
+        bool test_xyz = SB[(*i)->from()].test_xy();
+        if (test_xyz)
         {
-          PointID point = (u->to() == cb ? u->fs() : u->to());
-          Double sm = bearing(SB[u->from()],SB[point]);
-          sm += (u->to() == cb ? -u->value() : u->value());
-          sm += (sm < 0 ? 2*M_PI : 0);
-          sm -= (sm >= 2*M_PI ? 2*M_PI : 0);
-          return new Direction(u->from(),cb,sm);
-        }
-      Direction* makeBearing(const Direction* s, const PointID& cb)
-        {
-          Double sm = s->value() + s->orientation();
-          sm -= (sm >= 2*M_PI ? 2*M_PI : 0);
-          return new Direction(s->from(),cb,sm);
-        }
-      bool KnownTarget(ObservationList::const_iterator i)
-        {
-          // true: target coordinates are known
-          const Angle* u = dynamic_cast<const Angle*>(*i);
-          return KnownTarget1(i) && (u ? KnownTarget2(u) : true);
-        }
-      bool KnownTarget1(ObservationList::const_iterator i)
-        {
-          return SB[(*i)->to()].test_xy();
-        }
-      bool KnownTarget2(const Angle* u)
-        {
-          // true: target coordinates of agle's right site are known
-          return SB[u->fs()].test_xy();
-        }
-      bool knownStandpoint(ObservationList::const_iterator i)
-        {
-          // true: standpoint coordinates and orientation shift are known
-          // 1999.07.06 - AC
-          // Direction* s = dynamic_cast<Direction*>(*i);
-          // return SB[(*i)->from()].test_xy() &&
-          //       (s ? SB[s->from()].poc_orpos() > s->osnova() : true);
-          bool test_xyz = SB[(*i)->from()].test_xy();
-          if (test_xyz)
+            if (const Direction *s = dynamic_cast<const Direction*>(*i))
             {
-              if (const Direction *s = dynamic_cast<const Direction*>(*i))
-                {
-                  if (!s->test_orientation()) return false;
-                }
+                if (!s->test_orientation()) return false;
             }
-          return test_xyz;
         }
-      void ArrangeObservations(ObservationList&);
-      void reset(PointData*, ObservationList*, const PointID&);
+        return test_xyz;
+    }
+    void ArrangeObservations(ObservationList&);
+    void reset(PointData*, ObservationList*, const PointID&);
 
 
-    public:
-      ApproxPoint(PointData* sb, ObservationList* sm, const PointID& cb)
+public:
+    ApproxPoint(PointData* sb, ObservationList* sm, const PointID& cb)
         : SB_puv(sb), SM_puv(sm), state_(missing_init)
-        {
-          reset(sb,sm,cb);
-        }
-      ApproxPoint(PointData* sb, ObservationList* sm)
+    {
+        reset(sb,sm,cb);
+    }
+    ApproxPoint(PointData* sb, ObservationList* sm)
         : SB_puv(sb), SM_puv(sm), state_(missing_init)
-        {
-        }
-      ~ApproxPoint()
-        {
-          ClearLists();
-        }
-      void calculation(PointData* sb, ObservationList* sm, const PointID& cb)
-        {
-          SB_puv = sb;
-          SM_puv = sm;
-          reset(sb,sm,cb);
-          calculation();
-        }
-      void calculation(const PointID& cb)
-        {
-          reset(SB_puv, SM_puv, cb);
-          calculation();
-        }
-      void calculation();
-      Solution_state_tag state() const
-        {
-          return state_;
-        }
-      LocalPoint Solution()
-        {
-          if(state_ == calculation_not_done)
+    {
+    }
+    ~ApproxPoint()
+    {
+        ClearLists();
+    }
+    void calculation(PointData* sb, ObservationList* sm, const PointID& cb)
+    {
+        SB_puv = sb;
+        SM_puv = sm;
+        reset(sb,sm,cb);
+        calculation();
+    }
+    void calculation(const PointID& cb)
+    {
+        reset(SB_puv, SM_puv, cb);
+        calculation();
+    }
+    void calculation();
+    Solution_state_tag state() const
+    {
+        return state_;
+    }
+    LocalPoint Solution()
+    {
+        if(state_ == calculation_not_done)
             throw g2d_exc("ApproxPoint: computation not done");
-          if(state_ == no_solution)
+        if(state_ == no_solution)
             throw g2d_exc("ApproxPoint: no solution");
-          return v_point;
-        }
-      LocalPoint solution_2()
-        {
-          if(state_ == calculation_not_done)
+        return v_point;
+    }
+    LocalPoint solution_2()
+    {
+        if(state_ == calculation_not_done)
             throw g2d_exc("ApproxPoint: computation not done");
-          if(state_ == no_solution)
+        if(state_ == no_solution)
             throw g2d_exc("ApproxPoint: no solution");
-          if(state_ == unique_solution)
+        if(state_ == unique_solution)
             throw g2d_exc("ApproxPoint: only unique solution");
-          return v_point2;
-        }
-    };
+        return v_point2;
+    }
+};
 
 
- }} // namespace GNU_gama::local
+}
+} // namespace GNU_gama::local
 
 
 #endif

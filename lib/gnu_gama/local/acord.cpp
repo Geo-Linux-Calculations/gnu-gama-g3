@@ -36,206 +36,216 @@ using namespace GNU_gama::local;
 Acord::Acord(PointData& b, ObservationData& m)
     : PD(b), OD(m), RO(b,m)
 {
-  missing_coordinates = false;
-  observations = 0;
-  given_xy = given_z = given_xyz = 0;
-  computed_xy = computed_z = computed_xyz = 0;
-  total_xy = total_z = total_xyz = 0;
+    missing_coordinates = false;
+    observations = 0;
+    given_xy = given_z = given_xyz = 0;
+    computed_xy = computed_z = computed_xyz = 0;
+    total_xy = total_z = total_xyz = 0;
 
-  for (PointData::const_iterator i=PD.begin(); i!=PD.end(); ++i)
+    for (PointData::const_iterator i=PD.begin(); i!=PD.end(); ++i)
     {
-      const PointID&    c = (*i).first;
-      const LocalPoint& p = (*i).second;
-      bool cp = p.test_xy();
-      bool hp = p.test_z();
+        const PointID&    c = (*i).first;
+        const LocalPoint& p = (*i).second;
+        bool cp = p.test_xy();
+        bool hp = p.test_z();
 
-      if (cp && hp) given_xyz++, set_xyz.insert(c);
-      else if (cp)  given_xy++,  set_xy .insert(c);
-      else if (hp)  given_z++,   set_z  .insert(c);
+        if (cp && hp) given_xyz++, set_xyz.insert(c);
+        else if (cp)  given_xy++,  set_xy .insert(c);
+        else if (hp)  given_z++,   set_z  .insert(c);
     }
 
-  for (ObservationData::const_iterator
-         i=OD.begin(), e=OD.end(); i!=e; ++i, ++observations);
+    for (ObservationData::const_iterator
+            i=OD.begin(), e=OD.end(); i!=e; ++i, ++observations);
 
 
-  if (GaMaConsistent(PD)) return;
+    if (GaMaConsistent(PD)) return;
 
-  for (PointData::iterator ii=PD.begin(); ii!=PD.end(); ++ii)
+    for (PointData::iterator ii=PD.begin(); ii!=PD.end(); ++ii)
     {
-      LocalPoint& p = (*ii).second;
+        LocalPoint& p = (*ii).second;
 
-      if (p.test_xy()) p.set_xy(p.x(), -p.y());
+        if (p.test_xy()) p.set_xy(p.x(), -p.y());
     }
 
-  for (ObservationData::ClusterList::iterator
-         ci=OD.clusters.begin(), ei=OD.clusters.end(); ci!=ei; ++ci)
+    for (ObservationData::ClusterList::iterator
+            ci=OD.clusters.begin(), ei=OD.clusters.end(); ci!=ei; ++ci)
     {
-      ObservationData::ClusterType *cluster = *ci;
-      for (ObservationList::iterator
-             m = cluster->observation_list.begin(),
-             e = cluster->observation_list.end()  ; m!=e; ++m)
+        ObservationData::ClusterType *cluster = *ci;
+        for (ObservationList::iterator
+                m = cluster->observation_list.begin(),
+                e = cluster->observation_list.end()  ; m!=e; ++m)
         {
-          Observation *obs = *m;
-          bool b = false;
+            Observation *obs = *m;
+            bool b = false;
 
-          if      (dynamic_cast<Y*>    (obs))  b = true;
-          else if (dynamic_cast<Ydiff*>(obs))  b = true;
+            if      (dynamic_cast<Y*>    (obs))  b = true;
+            else if (dynamic_cast<Ydiff*>(obs))  b = true;
 
-          if (b)  obs->set_value( -obs->value() );
+            if (b)  obs->set_value( -obs->value() );
         }
     }
 }
 
 void Acord::execute()
 {
-  try
+    try
     {
-      int all;
+        int all;
 
-      // ReducedObservations RO(PD, OD);
-      RO.execute();
-
-      for (int loop=1; loop<=2; loop++)
-      do {
-        all = total_z + total_xy + total_xyz;
-
-        missing_coordinates = false;
-        computed_xy = computed_z = computed_xyz = 0;
-        total_xy = total_z = total_xyz = 0;
-
-        ApproximateHeights ah(PD, OD);
-        ah.execute();
-
-        ApproximateVectors av(PD, OD);
-        av.execute();
-
-        {
-          // all transformed slope distances go to a single standpoint
-          StandPoint* standpoint = new StandPoint(&OD);
-          standpoint->set_orientation(PD.xNorthAngle());
-          for (ObservationData::iterator t=OD.begin(), e=OD.end(); t!=e; ++t)
-            {
-              Observation* obs = *t;
-
-              // azimuths transformed to directions with the given
-              // orientation shift (angle between x-axis and the North)
-              if (Azimuth* a = dynamic_cast<Azimuth*>(obs))
-                {
-                  Direction* d = new Direction(a->from(), a->to(), a->value());
-                  standpoint->observation_list.push_back(d);
-                  continue;
-                }
-
-              S_Distance* s = dynamic_cast<S_Distance*>(obs);
-              if (s == 0) continue;
-
-              StandPoint* c = dynamic_cast<StandPoint*>(s->ptr_cluster());
-              if (c == 0) continue;   // this should newer happen
-
-              PointID from = s->from();
-              PointID to   = s->to();
-
-              // search for a zenith angle corresponding to the given
-              // slope distance
-              ObservationList::iterator i   = c->observation_list.begin();
-              ObservationList::iterator end = c->observation_list.end();
-              for ( ;i!=end; ++i)
-                if (Z_Angle* z = dynamic_cast<Z_Angle*>(*i))
-                  if (from == z->from() && to == z->to())
-                    {
-                      // ... and fake a horizontal distance
-                      Distance* d = new Distance(from, to,
-                                        s->value()*fabs(sin(z->value())));
-                      standpoint->observation_list.push_back(d);
-                      continue;
-                    }
-
-            }
-          // bind observations to the cluster
-          standpoint->update();
-          // insert standpoint into `observation data'
-          OD.clusters.push_back(standpoint);
-
-          ApproximateCoordinates ps(PD, OD);
-          ps.calculation();
-          // intersections with very small angles only in the second loop
-          if (loop == 2 && ps.small_angle_detected())
-            {
-              for (PointData::const_iterator i=PD.begin(); i!=PD.end(); ++i)
-                {
-                  const LocalPoint& p = (*i).second;
-                  if (p.active_xy() && !p.test_xy()) // missing coordinates xy
-                    {
-                      double limit = ps.small_angle_limit() / 100;
-                      ps.set_small_angle_limit(limit);
-                      ps.calculation();
-                      break;
-                    }
-                }
-            }
-
-          OD.clusters.pop_back();
-          delete standpoint;
-        }
-
+        // ReducedObservations RO(PD, OD);
         RO.execute();
 
-        ObservationList local;
-        for (ObservationData::iterator i=OD.begin(), e=OD.end(); i!=e; ++i)
-        {
-          local.push_back(*i);
-        }
+        for (int loop=1; loop<=2; loop++)
+            do
+            {
+                all = total_z + total_xy + total_xyz;
 
-        Orientation orp(PD, local);
-        orp.add_all();
+                missing_coordinates = false;
+                computed_xy = computed_z = computed_xyz = 0;
+                total_xy = total_z = total_xyz = 0;
 
-        for (PointData::const_iterator i=PD.begin(); i!=PD.end(); ++i)
-          {
-            const PointID&    c = (*i).first;
-            const LocalPoint& p = (*i).second;
-            bool cp = p.test_xy();
-            bool hp = p.test_z();
+                ApproximateHeights ah(PD, OD);
+                ah.execute();
 
-            if (cp && hp) total_xyz++;
-            else if (cp)  total_xy++;
-            else if (hp)  total_z++;
+                ApproximateVectors av(PD, OD);
+                av.execute();
 
-            if (p.active_xy() && !cp) missing_coordinates = true;
-            if (p.active_z()  && !hp) missing_coordinates = true;
+                {
+                    // all transformed slope distances go to a single standpoint
+                    StandPoint* standpoint = new StandPoint(&OD);
+                    standpoint->set_orientation(PD.xNorthAngle());
+                    for (ObservationData::iterator t=OD.begin(), e=OD.end(); t!=e; ++t)
+                    {
+                        Observation* obs = *t;
 
-            int t = 0;
-            if      (set_xyz.find(c) != set_xyz.end()) t = 1;
-            else if (set_xy .find(c) != set_xy .end()) t = 2;
-            else if (set_z  .find(c) != set_z  .end()) t = 3;
+                        // azimuths transformed to directions with the given
+                        // orientation shift (angle between x-axis and the North)
+                        if (Azimuth* a = dynamic_cast<Azimuth*>(obs))
+                        {
+                            Direction* d = new Direction(a->from(), a->to(), a->value());
+                            standpoint->observation_list.push_back(d);
+                            continue;
+                        }
 
-            if (cp && hp)
-              {
-                switch (t)
-                  {
-                  case 0 : computed_xyz++; break;
-                  case 1 :                 break;
-                  case 2 : computed_z++;   break;
-                  case 3 : computed_xy++;  break;
-                  default:                 break;
-                  }
-              }
-            else if (cp)
-              {
-                if (t!=2)  computed_xy++;
-              }
-            else if (hp)
-              {
-                if (t!=3)  computed_z++;
-              }
-          }
+                        S_Distance* s = dynamic_cast<S_Distance*>(obs);
+                        if (s == 0) continue;
 
-        if (!missing_coordinates) return;  // enable exit from loop 1
+                        StandPoint* c = dynamic_cast<StandPoint*>(s->ptr_cluster());
+                        if (c == 0) continue;   // this should newer happen
 
-      } while (all != (total_z + total_xy + total_xyz));
+                        PointID from = s->from();
+                        PointID to   = s->to();
+
+                        // search for a zenith angle corresponding to the given
+                        // slope distance
+                        ObservationList::iterator i   = c->observation_list.begin();
+                        ObservationList::iterator end = c->observation_list.end();
+                        for ( ; i!=end; ++i)
+                            if (Z_Angle* z = dynamic_cast<Z_Angle*>(*i))
+                                if (from == z->from() && to == z->to())
+                                {
+                                    // ... and fake a horizontal distance
+                                    Distance* d = new Distance(from, to,
+                                                               s->value()*fabs(sin(z->value())));
+                                    standpoint->observation_list.push_back(d);
+                                    continue;
+                                }
+
+                    }
+                    // bind observations to the cluster
+                    standpoint->update();
+                    // insert standpoint into `observation data'
+                    OD.clusters.push_back(standpoint);
+
+                    ApproximateCoordinates ps(PD, OD);
+                    ps.calculation();
+                    // intersections with very small angles only in the second loop
+                    if (loop == 2 && ps.small_angle_detected())
+                    {
+                        for (PointData::const_iterator i=PD.begin(); i!=PD.end(); ++i)
+                        {
+                            const LocalPoint& p = (*i).second;
+                            if (p.active_xy() && !p.test_xy()) // missing coordinates xy
+                            {
+                                double limit = ps.small_angle_limit() / 100;
+                                ps.set_small_angle_limit(limit);
+                                ps.calculation();
+                                break;
+                            }
+                        }
+                    }
+
+                    OD.clusters.pop_back();
+                    delete standpoint;
+                }
+
+                RO.execute();
+
+                ObservationList local;
+                for (ObservationData::iterator i=OD.begin(), e=OD.end(); i!=e; ++i)
+                {
+                    local.push_back(*i);
+                }
+
+                Orientation orp(PD, local);
+                orp.add_all();
+
+                for (PointData::const_iterator i=PD.begin(); i!=PD.end(); ++i)
+                {
+                    const PointID&    c = (*i).first;
+                    const LocalPoint& p = (*i).second;
+                    bool cp = p.test_xy();
+                    bool hp = p.test_z();
+
+                    if (cp && hp) total_xyz++;
+                    else if (cp)  total_xy++;
+                    else if (hp)  total_z++;
+
+                    if (p.active_xy() && !cp) missing_coordinates = true;
+                    if (p.active_z()  && !hp) missing_coordinates = true;
+
+                    int t = 0;
+                    if      (set_xyz.find(c) != set_xyz.end()) t = 1;
+                    else if (set_xy .find(c) != set_xy .end()) t = 2;
+                    else if (set_z  .find(c) != set_z  .end()) t = 3;
+
+                    if (cp && hp)
+                    {
+                        switch (t)
+                        {
+                        case 0 :
+                            computed_xyz++;
+                            break;
+                        case 1 :
+                            break;
+                        case 2 :
+                            computed_z++;
+                            break;
+                        case 3 :
+                            computed_xy++;
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                    else if (cp)
+                    {
+                        if (t!=2)  computed_xy++;
+                    }
+                    else if (hp)
+                    {
+                        if (t!=3)  computed_z++;
+                    }
+                }
+
+                if (!missing_coordinates) return;  // enable exit from loop 1
+
+            }
+            while (all != (total_z + total_xy + total_xyz));
     }
-  catch(...)
+    catch(...)
     {
-      // we must handle the case where there are no observations here
-      throw;
+        // we must handle the case where there are no observations here
+        throw;
     }
 }

@@ -29,102 +29,126 @@
 #include <vector>
 #include <cmath>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 
-  // simple observation types: horizontal directions, distances and
-  // angles
+// simple observation types: horizontal directions, distances and
+// angles
 
 
-  typedef GNU_gama::ObservationData<Observation> ObservationData;
+typedef GNU_gama::ObservationData<Observation> ObservationData;
 
 
-  class StandPoint : public GNU_gama::Cluster<Observation> {
-  public:
+class StandPoint : public GNU_gama::Cluster<Observation>
+{
+public:
 
     PointID  station;
 
     StandPoint(const ObservationData* od)
-      :
-      GNU_gama::Cluster<Observation>(od),
-      test_or(false), indx_or(0)
-      {
-      }
+        :
+        GNU_gama::Cluster<Observation>(od),
+        test_or(false), indx_or(0)
+    {
+    }
 
     StandPoint* clone(const ObservationData*p) const
-      {
+    {
         return new StandPoint(p);
-      }
+    }
 
     double orientation() const
-      {
+    {
         if (!test_or) throw GNU_gama::local::Exception(T_POBS_bad_data);
         return attr_or;
-      }
-    void   set_orientation(Double p) { attr_or = p; test_or = true; }
-    bool   test_orientation() const  { return test_or;              }
-    void   delete_orientation()      { test_or = false;             }
-    void   index_orientation(int n)  { indx_or = n;                 }
-    int    index_orientation() const { return indx_or;              }
+    }
+    void   set_orientation(Double p)
+    {
+        attr_or = p;
+        test_or = true;
+    }
+    bool   test_orientation() const
+    {
+        return test_or;
+    }
+    void   delete_orientation()
+    {
+        test_or = false;
+    }
+    void   index_orientation(int n)
+    {
+        indx_or = n;
+    }
+    int    index_orientation() const
+    {
+        return indx_or;
+    }
 
-  private:
+private:
 
     Double   attr_or;
     bool     test_or;
     int      indx_or;
 
-  };
+};
 
 
-  // coordinate observations (observed coordinates) x, y, z
+// coordinate observations (observed coordinates) x, y, z
 
-  class Coordinates : public GNU_gama::Cluster<Observation> {
-  public:
+class Coordinates : public GNU_gama::Cluster<Observation>
+{
+public:
 
     Coordinates(const ObservationData* od)
-      : GNU_gama::Cluster<Observation>(od)
-      {
-      }
+        : GNU_gama::Cluster<Observation>(od)
+    {
+    }
     Coordinates* clone(const ObservationData*p) const
-      {
+    {
         return new Coordinates(p);
-      }
-  };
+    }
+};
 
 
-  // height differences (leveling)
+// height differences (leveling)
 
-  class HeightDifferences : public GNU_gama::Cluster<Observation> {
-  public:
+class HeightDifferences : public GNU_gama::Cluster<Observation>
+{
+public:
 
     HeightDifferences(const ObservationData* od)
-      : GNU_gama::Cluster<Observation>(od)
-      {
-      }
+        : GNU_gama::Cluster<Observation>(od)
+    {
+    }
     HeightDifferences* clone(const ObservationData*p) const
-      {
+    {
         return new HeightDifferences(p);
-      }
-  };
+    }
+};
 
 
-  // vectors (coordinate differences  diff_x, diff_y, diff_z)
+// vectors (coordinate differences  diff_x, diff_y, diff_z)
 
-  class Vectors : public GNU_gama::Cluster<Observation> {
-  public:
+class Vectors : public GNU_gama::Cluster<Observation>
+{
+public:
 
     Vectors(const ObservationData* od)
-      : GNU_gama::Cluster<Observation>(od)
-      {
-      }
+        : GNU_gama::Cluster<Observation>(od)
+    {
+    }
     Vectors* clone(const ObservationData*p) const
-      {
+    {
         return new Vectors(p);
-      }
-  };
+    }
+};
 
 
-}}   // namespace GNU_gama::local
+}
+}   // namespace GNU_gama::local
 
 #endif
 

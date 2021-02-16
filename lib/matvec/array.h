@@ -24,20 +24,30 @@
 
 #include <matvec/memrep.h>
 
-namespace GNU_gama {   /** \brief Dynamic array */
+namespace GNU_gama     /** \brief Dynamic array */
+{
 
 template <typename Type, typename Exc=Exception::matvec>
-class Array : public MemRep<Type, Exc> {
+class Array : public MemRep<Type, Exc>
+{
 
 public:
 
-  Array(Index dim) : MemRep<Type, Exc>(dim) {}
-  Type  operator[](Index i) const { return this->begin()[i]; }
-  Type& entry(Index i) { return this->begin()[i]; }
-  void swap(Index i, Index j)
+    Array(Index dim) : MemRep<Type, Exc>(dim) {}
+    Type  operator[](Index i) const
     {
-      Type *ind = this->begin();
-      Type t = ind[i]; ind[i] = ind[j]; ind[j] = t;
+        return this->begin()[i];
+    }
+    Type& entry(Index i)
+    {
+        return this->begin()[i];
+    }
+    void swap(Index i, Index j)
+    {
+        Type *ind = this->begin();
+        Type t = ind[i];
+        ind[i] = ind[j];
+        ind[j] = t;
     }
 
 };

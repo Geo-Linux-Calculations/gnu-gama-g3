@@ -39,329 +39,333 @@
 #include <gnu_gama/local/gamadata.h>
 #include <gnu_gama/local/median/g2d_exception.h>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-  class CoordinateGeometry2D
+class CoordinateGeometry2D
+{
+
+protected:
+    int number_of_solutions_;
+    LocalPoint*  point1;
+    LocalPoint*  point2;
+    PointData*   SB;
+    virtual void observation_check(Observation*, Observation*) = 0;
+
+    static double small_angle_limit_;
+    static bool   small_angle_detected_;
+
+private:
+
+    friend class  ApproximateCoordinates;
+    static double small_angle_limit();
+    static bool   small_angle_detected();
+    static void   set_small_angle_limit(double sal=0);
+
+public:
+    CoordinateGeometry2D(PointData* sb) : number_of_solutions_(-1), SB(sb)
     {
+        point1 = new LocalPoint;
+        point2 = new LocalPoint;
 
-    protected:
-      int number_of_solutions_;
-      LocalPoint*  point1;
-      LocalPoint*  point2;
-      PointData*   SB;
-      virtual void observation_check(Observation*, Observation*) = 0;
-
-      static double small_angle_limit_;
-      static bool   small_angle_detected_;
-
-    private:
-
-      friend class  ApproximateCoordinates;
-      static double small_angle_limit();
-      static bool   small_angle_detected();
-      static void   set_small_angle_limit(double sal=0);
-
-    public:
-      CoordinateGeometry2D(PointData* sb) : number_of_solutions_(-1), SB(sb)
-        {
-          point1 = new LocalPoint;
-          point2 = new LocalPoint;
-
-	  // Implicit value 0.15 for detecting small angles is ~ 10 gons.
-	  // Static variable small_angle_limit_ is by default set to 0,
-	  // CoordinateGeometry2D constructor must guarantee that the value
-	  // is initialized properly.
-	  if (small_angle_limit_ <= 0) set_small_angle_limit();
-        }
-      virtual ~CoordinateGeometry2D()
-        {
-          delete point1;
-          delete point2;
-        }
-      virtual void calculation() = 0;
-      int number_of_solutions() const
-        {
-          return number_of_solutions_;
-        }
-      LocalPoint solution_1() const
-        {
-          if(number_of_solutions_ == -1)
+        // Implicit value 0.15 for detecting small angles is ~ 10 gons.
+        // Static variable small_angle_limit_ is by default set to 0,
+        // CoordinateGeometry2D constructor must guarantee that the value
+        // is initialized properly.
+        if (small_angle_limit_ <= 0) set_small_angle_limit();
+    }
+    virtual ~CoordinateGeometry2D()
+    {
+        delete point1;
+        delete point2;
+    }
+    virtual void calculation() = 0;
+    int number_of_solutions() const
+    {
+        return number_of_solutions_;
+    }
+    LocalPoint solution_1() const
+    {
+        if(number_of_solutions_ == -1)
             throw g2d_exc("CoordinateGeometry2D: calculation not done");
-          if(number_of_solutions_ < 1)
+        if(number_of_solutions_ < 1)
             throw g2d_exc("CoordinateGeometry2D: no solution");
-          return *point1;
-        }
-      LocalPoint solution_2() const
-        {
-          if(number_of_solutions_ == -1)
+        return *point1;
+    }
+    LocalPoint solution_2() const
+    {
+        if(number_of_solutions_ == -1)
             throw g2d_exc("CoordinateGeometry2D: calculation not done");
-          if(number_of_solutions_ < 2)
+        if(number_of_solutions_ < 2)
             throw g2d_exc("CoordinateGeometry2D: two solutions");
-          return *point2;
-        }
-    };
+        return *point2;
+    }
+};
 
 
-  //---------------------------------------------------------------
+//---------------------------------------------------------------
 
-  class Distance_distance : public CoordinateGeometry2D
+class Distance_distance : public CoordinateGeometry2D
+{
+
+private:
+    Distance*   h1;
+    Distance*   h2;
+    PointID     CB;     // for easier search in computed distances
+    Double      r1, r2;
+    LocalPoint  B1;
+    LocalPoint  B2;
+    void observation_check(Observation*, Observation*);
+
+public:
+    Distance_distance() : CoordinateGeometry2D(0), h1(0), h2(0), r1(-1)
     {
-
-    private:
-      Distance*   h1;
-      Distance*   h2;
-      PointID     CB;     // for easier search in computed distances
-      Double      r1, r2;
-      LocalPoint  B1;
-      LocalPoint  B2;
-      void observation_check(Observation*, Observation*);
-
-    public:
-      Distance_distance() : CoordinateGeometry2D(0), h1(0), h2(0), r1(-1)
-        {
-        }
-      Distance_distance(Observation* m1, Observation* m2,
-                        PointData* sb, PointID cb)
+    }
+    Distance_distance(Observation* m1, Observation* m2,
+                      PointData* sb, PointID cb)
         : CoordinateGeometry2D(sb), CB(cb), r1(-1)
-        {
-          observation_check(m1, m2);
-        }
-      Distance_distance(Double& m1, Double& m2,
-                        LocalPoint b1, LocalPoint b2, PointData* sb)
+    {
+        observation_check(m1, m2);
+    }
+    Distance_distance(Double& m1, Double& m2,
+                      LocalPoint b1, LocalPoint b2, PointData* sb)
         : CoordinateGeometry2D(sb), r1(m1), r2(m2), B1(b1), B2(b2)
-        {
-        }
-      ~Distance_distance()
-        {
-        }
-      void calculation();
-      void new_calculation(Observation* m1, Observation* m2,
-                           PointData* sb, PointID cb)
-        {
-          point1 = point2 = 0;
-          SB = sb;
-          CB = cb;
-          r1 = -1;
-          observation_check(m1, m2);
-          calculation();
-        }
-    };
-
-
-  //---------------------------------------------------------------
-
-  class Direction_direction : public CoordinateGeometry2D
     {
+    }
+    ~Distance_distance()
+    {
+    }
+    void calculation();
+    void new_calculation(Observation* m1, Observation* m2,
+                         PointData* sb, PointID cb)
+    {
+        point1 = point2 = 0;
+        SB = sb;
+        CB = cb;
+        r1 = -1;
+        observation_check(m1, m2);
+        calculation();
+    }
+};
 
-    private:
-      Direction* h1;
-      Direction* h2;
-      void observation_check(Observation*, Observation*);
 
-    public:
-      Direction_direction() : CoordinateGeometry2D(0), h1(0), h2(0)
-        {
-        }
-      Direction_direction(Observation* m1, Observation* m2, PointData* sb)
+//---------------------------------------------------------------
+
+class Direction_direction : public CoordinateGeometry2D
+{
+
+private:
+    Direction* h1;
+    Direction* h2;
+    void observation_check(Observation*, Observation*);
+
+public:
+    Direction_direction() : CoordinateGeometry2D(0), h1(0), h2(0)
+    {
+    }
+    Direction_direction(Observation* m1, Observation* m2, PointData* sb)
         : CoordinateGeometry2D(sb)
-        {
-          observation_check(m1, m2);
-        }
-      ~Direction_direction()
-        {
-        }
-      void calculation();
-      void new_calculation(Observation* m1, Observation* m2, PointData* sb)
-        {
-          point1 = point2 = 0;
-          SB = sb;
-          observation_check(m1, m2);
-          calculation();
-        }
-    };
-
-
-  //---------------------------------------------------------------
-
-  class Direction_distance : public CoordinateGeometry2D
     {
+        observation_check(m1, m2);
+    }
+    ~Direction_direction()
+    {
+    }
+    void calculation();
+    void new_calculation(Observation* m1, Observation* m2, PointData* sb)
+    {
+        point1 = point2 = 0;
+        SB = sb;
+        observation_check(m1, m2);
+        calculation();
+    }
+};
 
-    private:
 
-      Direction*  h1;
-      Distance*   h2;
-      LocalPoint  B;
-      Double r;
-      void observation_check(Observation*, Observation*);
+//---------------------------------------------------------------
 
-    public:
+class Direction_distance : public CoordinateGeometry2D
+{
 
-      Direction_distance() : CoordinateGeometry2D(0), h1(0), h2(0), r(-1)
-        {
-        }
-      Direction_distance(Observation* m1, Observation* m2, PointData* sb)
+private:
+
+    Direction*  h1;
+    Distance*   h2;
+    LocalPoint  B;
+    Double r;
+    void observation_check(Observation*, Observation*);
+
+public:
+
+    Direction_distance() : CoordinateGeometry2D(0), h1(0), h2(0), r(-1)
+    {
+    }
+    Direction_distance(Observation* m1, Observation* m2, PointData* sb)
         : CoordinateGeometry2D(sb), r(-1)
-        {
-          observation_check(m1, m2);
-        }
-      Direction_distance(Direction* m1, Double m2, LocalPoint b, PointData* sb)
+    {
+        observation_check(m1, m2);
+    }
+    Direction_distance(Direction* m1, Double m2, LocalPoint b, PointData* sb)
         : CoordinateGeometry2D(sb), h1(m1), B(b), r(m2)
-        {
-        }
-      ~Direction_distance()
-        {
-        }
-      void calculation();
-      void new_calculation(Observation* m1, Observation* m2, PointData* sb)
-        {
-          point1 = point2 = 0;
-          SB = sb;
-          r = -1;
-          observation_check(m1, m2);
-          calculation();
-        }
-    };
-
-
-  //---------------------------------------------------------------
-
-  class Direction_angle : public CoordinateGeometry2D
     {
+    }
+    ~Direction_distance()
+    {
+    }
+    void calculation();
+    void new_calculation(Observation* m1, Observation* m2, PointData* sb)
+    {
+        point1 = point2 = 0;
+        SB = sb;
+        r = -1;
+        observation_check(m1, m2);
+        calculation();
+    }
+};
 
-    private:
-      Direction* h1;
-      Angle* h2;
-      void observation_check(Observation*, Observation*);
 
-    public:
-      Direction_angle() : CoordinateGeometry2D(0), h1(0), h2(0)
-        {
-        }
-      Direction_angle(Observation* m1, Observation* m2, PointData* sb)
+//---------------------------------------------------------------
+
+class Direction_angle : public CoordinateGeometry2D
+{
+
+private:
+    Direction* h1;
+    Angle* h2;
+    void observation_check(Observation*, Observation*);
+
+public:
+    Direction_angle() : CoordinateGeometry2D(0), h1(0), h2(0)
+    {
+    }
+    Direction_angle(Observation* m1, Observation* m2, PointData* sb)
         : CoordinateGeometry2D(sb)
-        {
-          observation_check(m1, m2);
-        }
-      ~Direction_angle()
-        {
-        }
-      void calculation();
-      void new_calculation(Observation* m1, Observation* m2, PointData* sb)
-        {
-          point1 = point2 = 0;
-          SB = sb;
-          observation_check(m1, m2);
-          calculation();
-        }
-    };
-
-
-  //---------------------------------------------------------------
-
-  class Distance_angle : public CoordinateGeometry2D
     {
+        observation_check(m1, m2);
+    }
+    ~Direction_angle()
+    {
+    }
+    void calculation();
+    void new_calculation(Observation* m1, Observation* m2, PointData* sb)
+    {
+        point1 = point2 = 0;
+        SB = sb;
+        observation_check(m1, m2);
+        calculation();
+    }
+};
 
-    private:
-      Distance* h1;
-      Angle* h2;
-      void observation_check(Observation*, Observation*);
 
-    public:
-      Distance_angle() : CoordinateGeometry2D(0), h1(0), h2(0)
-        {
-        }
-      Distance_angle(Observation* m1, Observation* m2, PointData* sb)
+//---------------------------------------------------------------
+
+class Distance_angle : public CoordinateGeometry2D
+{
+
+private:
+    Distance* h1;
+    Angle* h2;
+    void observation_check(Observation*, Observation*);
+
+public:
+    Distance_angle() : CoordinateGeometry2D(0), h1(0), h2(0)
+    {
+    }
+    Distance_angle(Observation* m1, Observation* m2, PointData* sb)
         : CoordinateGeometry2D(sb)
-        {
-          observation_check(m1, m2);
-        }
-      ~Distance_angle()
-        {
-        }
-      void calculation();
-      void new_calculation(Observation* m1, Observation* m2, PointData* sb)
-        {
-          point1 = point2 = 0;
-          SB = sb;
-          observation_check(m1, m2);
-          calculation();
-        }
-    };
-
-
-  //---------------------------------------------------------------
-
-  class Angle_angle : public CoordinateGeometry2D
     {
+        observation_check(m1, m2);
+    }
+    ~Distance_angle()
+    {
+    }
+    void calculation();
+    void new_calculation(Observation* m1, Observation* m2, PointData* sb)
+    {
+        point1 = point2 = 0;
+        SB = sb;
+        observation_check(m1, m2);
+        calculation();
+    }
+};
 
-    private:
-      Angle* h1;
-      Angle* h2;
-      void observation_check(Observation*, Observation*);
 
-    public:
-      Angle_angle() : CoordinateGeometry2D(0), h1(0), h2(0)
-        {
-        }
-      Angle_angle(Observation* m1, Observation* m2, PointData* sb)
+//---------------------------------------------------------------
+
+class Angle_angle : public CoordinateGeometry2D
+{
+
+private:
+    Angle* h1;
+    Angle* h2;
+    void observation_check(Observation*, Observation*);
+
+public:
+    Angle_angle() : CoordinateGeometry2D(0), h1(0), h2(0)
+    {
+    }
+    Angle_angle(Observation* m1, Observation* m2, PointData* sb)
         : CoordinateGeometry2D(sb)
-        {
-          observation_check(m1, m2);
-        }
-      ~Angle_angle()
-        {
-        }
-      void calculation();
-      void new_calculation(Observation* m1, Observation* m2, PointData* sb)
-        {
-          point1 = point2 = 0;
-          SB = sb;
-          observation_check(m1, m2);
-          calculation();
-        }
-    };
-
-
-  //---------------------------------------------------------------
-  // ** circle parameters from two points and perimeter angle **
-
-  class Circle : public CoordinateGeometry2D
     {
+        observation_check(m1, m2);
+    }
+    ~Angle_angle()
+    {
+    }
+    void calculation();
+    void new_calculation(Observation* m1, Observation* m2, PointData* sb)
+    {
+        point1 = point2 = 0;
+        SB = sb;
+        observation_check(m1, m2);
+        calculation();
+    }
+};
 
-    private:
-      Angle*      h1;
-      LocalPoint  B1, B2;
-      Double      R;
-      void observation_check(Observation*, Observation*) {}
 
-    public:
-      Circle() : CoordinateGeometry2D(0), h1(0)
-        {
-        }
-      Circle(Angle* u,PointData* sb) : CoordinateGeometry2D(sb), h1(u)
-        {
-        }
-      ~Circle()
-        {
-        }
-      void calculation();
-      void new_calculation(Angle* u,PointData* sb)
-        {
-          point1 = point2 = 0;
-          SB = sb;
-          h1 = u;
-          calculation();
-        }
-      Double radius() const
-        {
-          if(number_of_solutions_ == -1)
+//---------------------------------------------------------------
+// ** circle parameters from two points and perimeter angle **
+
+class Circle : public CoordinateGeometry2D
+{
+
+private:
+    Angle*      h1;
+    LocalPoint  B1, B2;
+    Double      R;
+    void observation_check(Observation*, Observation*) {}
+
+public:
+    Circle() : CoordinateGeometry2D(0), h1(0)
+    {
+    }
+    Circle(Angle* u,PointData* sb) : CoordinateGeometry2D(sb), h1(u)
+    {
+    }
+    ~Circle()
+    {
+    }
+    void calculation();
+    void new_calculation(Angle* u,PointData* sb)
+    {
+        point1 = point2 = 0;
+        SB = sb;
+        h1 = u;
+        calculation();
+    }
+    Double radius() const
+    {
+        if(number_of_solutions_ == -1)
             throw g2d_exc("Circle: computation not done");
-          if(number_of_solutions_ < 1)
+        if(number_of_solutions_ < 1)
             throw g2d_exc("Circle: two solutions");
-          return R;
-        }
-    };
+        return R;
+    }
+};
 
-  }} // namespace GNU_gama::local
+}
+} // namespace GNU_gama::local
 
 #endif

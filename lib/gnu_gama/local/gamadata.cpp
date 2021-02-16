@@ -27,17 +27,29 @@
 
 double GNU_gama::local::PointData::xNorthAngle() const
 {
-  int lh = 0;
-  switch (local_coordinate_system)
+    int lh = 0;
+    switch (local_coordinate_system)
     {
-    case EN: case ES:  lh = 300; break;
-    case NW: case NE:  lh = 400; break;
-    case SE: case SW:  lh = 200; break;
-    case WS: case WN:  lh = 100; break;
+    case EN:
+    case ES:
+        lh = 300;
+        break;
+    case NW:
+    case NE:
+        lh = 400;
+        break;
+    case SE:
+    case SW:
+        lh = 200;
+        break;
+    case WS:
+    case WN:
+        lh = 100;
+        break;
     }
 
-  if (right_handed_angles()) lh = 400 - lh;
-  if (lh == 400) lh = 0;
+    if (right_handed_angles()) lh = 400 - lh;
+    if (lh == 400) lh = 0;
 
-  return lh*G2R;
+    return lh*G2R;
 }

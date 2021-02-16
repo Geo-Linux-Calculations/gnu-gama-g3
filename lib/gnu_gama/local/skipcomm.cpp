@@ -21,24 +21,28 @@
 
 #include <gnu_gama/local/skipcomm.h>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
 std::istream& SkipComments(std::istream& inp)
 {
-   using namespace std;
-   char c;
-   while (inp >> c)
-      if (c != '#')
-         {
+    using namespace std;
+    char c;
+    while (inp >> c)
+        if (c != '#')
+        {
             inp.putback(c);
             return inp;
-         }
-      else
-         while(inp.get(c) && c != '\n')
-            ;
+        }
+        else
+            while(inp.get(c) && c != '\n')
+                ;
 
-   return inp;
+    return inp;
 }
 
-}}
+}
+}
 

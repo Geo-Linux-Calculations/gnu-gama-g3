@@ -21,12 +21,13 @@
 
 #include <gnu_gama/outstream.h>
 
-namespace {
+namespace
+{
 
-  unsigned char ascii_table[256] = {0};
+unsigned char ascii_table[256] = {0};
 
-  void init_ascii(unsigned char t[])
-  {
+void init_ascii(unsigned char t[])
+{
     for (int i=0; i<256; i++) t[i] = i;
 
     /*
@@ -138,7 +139,7 @@ namespace {
     t[253]='y';     // 375  FD  ý  LATIN SMALL LETTER Y WITH ACUTE
     t[254]='t';     // 376  FE  þ  LATIN SMALL LETTER T WITH CEDILLA
     t[255]=' ';     // 377  FF  ÿ  DOT ABOVE
-  }
+}
 
 }
 
@@ -146,37 +147,41 @@ using namespace GNU_gama;
 
 OutStream::OutStream(std::ostream* s) : str(s), encoding(utf_8)
 {
-  if (ascii_table[1] == 0) init_ascii(ascii_table);
+    if (ascii_table[1] == 0) init_ascii(ascii_table);
 }
 
 const char* OutStream::recode(const char* s)
 {
-  if (encoding == utf_8) return s;
+    if (encoding == utf_8) return s;
 
-  text = "";
-  while (*s) text += *s++;
-  unsigned char* p;
+    text = "";
+    while (*s) text += *s++;
+    unsigned char* p;
 
-  switch (encoding)
+    switch (encoding)
     {
     case iso_8859_2:
-      utf8_iso_8859_2((char*)text.c_str());
-      break;
+        utf8_iso_8859_2((char*)text.c_str());
+        break;
     case iso_8859_2_flat:
-      utf8_iso_8859_2((char*)text.c_str());
-      p = (unsigned char*)text.c_str();
-      while(*p) { *p = ascii_table[*p]; p++; }
-      break;
+        utf8_iso_8859_2((char*)text.c_str());
+        p = (unsigned char*)text.c_str();
+        while(*p)
+        {
+            *p = ascii_table[*p];
+            p++;
+        }
+        break;
     case cp_1250:
-      utf8_cp1250((char*)text.c_str());
-      break;
+        utf8_cp1250((char*)text.c_str());
+        break;
     case cp_1251:
-      utf8_cp1251((char*)text.c_str());
-      break;
+        utf8_cp1251((char*)text.c_str());
+        break;
     default:
-      break;
+        break;
     }
 
-  return text.c_str();
+    return text.c_str();
 }
 

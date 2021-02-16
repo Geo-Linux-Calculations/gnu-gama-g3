@@ -24,15 +24,16 @@
 
 #include <gnu_gama/adj/adj_base.h>
 
-namespace GNU_gama {
+namespace GNU_gama
+{
 
-  /** \brief Base adjustment class for sparse matrix solutions. */
+/** \brief Base adjustment class for sparse matrix solutions. */
 
-  template <typename Float, typename Index, typename Vector,
-            typename AdjInputData>
-  class AdjBaseSparse : public AdjBase<Float, Index, Vector>
-  {
-  public:
+template <typename Float, typename Index, typename Vector,
+         typename AdjInputData>
+class AdjBaseSparse : public AdjBase<Float, Index, Vector>
+{
+public:
 
     AdjBaseSparse() : input(0), stage(0)
     {
@@ -48,16 +49,16 @@ namespace GNU_gama {
 
     virtual void reset(const AdjInputData *data)
     {
-      input = data;
-      stage = 0;
+        input = data;
+        stage = 0;
     }
 
-  protected:
+protected:
 
     const AdjInputData* input;
     int                 stage;
 
-  };
+};
 
 
 }

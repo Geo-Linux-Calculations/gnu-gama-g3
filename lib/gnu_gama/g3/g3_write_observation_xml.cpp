@@ -29,70 +29,70 @@ using namespace GNU_gama::g3;
 
 void WriteObservationXML::visit(Angle* a)
 {
-  out << "<angle>"
-      << " <from>"  << a->from  << "</from>"
-      << " <left>"  << a->left  << "</left>"
-      << " <right>" << a->right << "</right>\n"
-      << "        <val>" << a->obs() << "</val>\n"
-      << "        </angle>\n";
+    out << "<angle>"
+        << " <from>"  << a->from  << "</from>"
+        << " <left>"  << a->left  << "</left>"
+        << " <right>" << a->right << "</right>\n"
+        << "        <val>" << a->obs() << "</val>\n"
+        << "        </angle>\n";
 }
 
 void WriteObservationXML::visit(Azimuth* a)
 {
-  out << "<azimuth>"
-      << " <from>" << a->from << "</from> <to>" << a->to << "</to>\n"
-      << "        <val>" << a->obs() << "</val>\n"
-      << "        </azimuth>\n";
+    out << "<azimuth>"
+        << " <from>" << a->from << "</from> <to>" << a->to << "</to>\n"
+        << "        <val>" << a->obs() << "</val>\n"
+        << "        </azimuth>\n";
 }
 
 void WriteObservationXML::visit(Distance* d)
 {
-  out << "<distance>"
-      << " <from>" << d->from << "</from> <to>" << d->to << "</to>\n"
-      << "        <val>" << d->obs() << "</val>\n"
-      << "        </distance>\n";
+    out << "<distance>"
+        << " <from>" << d->from << "</from> <to>" << d->to << "</to>\n"
+        << "        <val>" << d->obs() << "</val>\n"
+        << "        </distance>\n";
 }
 
 void WriteObservationXML::visit(Height* h)
 {
-  out << "<height>"
-      << " <id>" << h->id << "</id>\n"
-      << "        <val>" << h->obs() << "</val>\n"
-      << "        </height>\n";
+    out << "<height>"
+        << " <id>" << h->id << "</id>\n"
+        << "        <val>" << h->obs() << "</val>\n"
+        << "        </height>\n";
 }
 
 void WriteObservationXML::visit(HeightDiff* hd)
 {
-  out << "<height-diff>"
-      << " <from>" << hd->from << "</from> <to>" << hd->to << "</to>\n"
-      << "        <val>" << hd->obs() << "</val>\n"
-      << "        </height-diff>\n";
+    out << "<height-diff>"
+        << " <from>" << hd->from << "</from> <to>" << hd->to << "</to>\n"
+        << "        <val>" << hd->obs() << "</val>\n"
+        << "        </height-diff>\n";
 }
 
 void WriteObservationXML::visit(Vector* v)
 {
-  out << "<vector>"
-      << " <from>" << v->from << "</from> <to>" << v->to << "</to>\n"
-      << "        <dx>" << v->dx() << "</dx>\n"
-      << "        <dy>" << v->dy() << "</dy>\n"
-      << "        <dz>" << v->dz() << "</dz>\n"
-      << "        </vector>\n";
+    out << "<vector>"
+        << " <from>" << v->from << "</from> <to>" << v->to << "</to>\n"
+        << "        <dx>" << v->dx() << "</dx>\n"
+        << "        <dy>" << v->dy() << "</dy>\n"
+        << "        <dz>" << v->dz() << "</dz>\n"
+        << "        </vector>\n";
 }
 
 void WriteObservationXML::visit(XYZ* xyz)
 {
-  out << "<xyz>"
-      << " <id>" << xyz->id << "</id>\n"
-      << "        <x>" << xyz->x() << "</x>\n"
-      << "        <y>" << xyz->y() << "</y>\n"
-      << "        <z>" << xyz->z() << "</z>\n"
-      << "        </xyz>\n";
+    out << "<xyz>"
+        << " <id>" << xyz->id << "</id>\n"
+        << "        <x>" << xyz->x() << "</x>\n"
+        << "        <y>" << xyz->y() << "</y>\n"
+        << "        <z>" << xyz->z() << "</z>\n"
+        << "        </xyz>\n";
 }
 
 void WriteObservationXML::visit(ZenithAngle* za)
 {
-  out << "<zenith-angle>"
-      << " <from>" << za->from << "</from> <to>" << za->to << "</to>\n"
-      << "        <val>" << za->obs() << "</val>\n"
-      << "        </zenith-angle>\n";
+    out << "<zenith-angle>"
+        << " <from>" << za->from << "</from> <to>" << za->to << "</to>\n"
+        << "        <val>" << za->obs() << "</val>\n"
+        << "        </zenith-angle>\n";
 }

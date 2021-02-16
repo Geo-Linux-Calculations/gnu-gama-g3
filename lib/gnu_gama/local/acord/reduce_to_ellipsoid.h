@@ -28,56 +28,62 @@
 #include <algorithm>
 #include <map>
 
-namespace GNU_gama { namespace local {
+namespace GNU_gama
+{
+namespace local
+{
 
-    class ReduceToEllipsoid {
+class ReduceToEllipsoid
+{
 
-        class EllipsoidFunction {
-        public:
-            EllipsoidFunction(GNU_gama::Ellipsoid EL, double lat);
-
-            void setCentralPoint(const LocalPoint& cp);
-            const LocalPoint& getCentralPoint() const;
-            double central_angle12(const LocalPoint& p2) const;
-            double central_angle23(const LocalPoint& p2, const LocalPoint& p3) const;
-        private:
-            double R() const;
-            double distance(const LocalPoint& a, const LocalPoint& b) const;
-            double sdistance(const LocalPoint& a, const LocalPoint& b) const;
-
-            const GNU_gama::Ellipsoid el;
-            const double latitude;
-            LocalPoint centralPoint;
-
-            double r;
-        };
-
-        bool reduce_z_angle_to_ellipsoid  (Z_Angle* obs);
-        bool reduce_direction_to_ellipsoid(Direction* obs);
-
+    class EllipsoidFunction
+    {
     public:
-        typedef std::map<Observation*, double> ObsMap;
+        EllipsoidFunction(GNU_gama::Ellipsoid EL, double lat);
 
-        ReduceToEllipsoid(PointData& b, ObservationData& m,
-                          GNU_gama::Ellipsoid el, double lat);
-
-        void execute();
-
-        const ObsMap& getMap() const
-        {
-            return reduced;
-        }
-
+        void setCentralPoint(const LocalPoint& cp);
+        const LocalPoint& getCentralPoint() const;
+        double central_angle12(const LocalPoint& p2) const;
+        double central_angle23(const LocalPoint& p2, const LocalPoint& p3) const;
     private:
+        double R() const;
+        double distance(const LocalPoint& a, const LocalPoint& b) const;
+        double sdistance(const LocalPoint& a, const LocalPoint& b) const;
 
-        PointData&          PD;
-        ObservationData&    OD;
-        GNU_gama::Ellipsoid EL;
-        double              latitude;
-        EllipsoidFunction   EF;
-        ObsMap              reduced;
+        const GNU_gama::Ellipsoid el;
+        const double latitude;
+        LocalPoint centralPoint;
+
+        double r;
     };
 
-}} // namespace GNU_gama::local
+    bool reduce_z_angle_to_ellipsoid  (Z_Angle* obs);
+    bool reduce_direction_to_ellipsoid(Direction* obs);
+
+public:
+    typedef std::map<Observation*, double> ObsMap;
+
+    ReduceToEllipsoid(PointData& b, ObservationData& m,
+                      GNU_gama::Ellipsoid el, double lat);
+
+    void execute();
+
+    const ObsMap& getMap() const
+    {
+        return reduced;
+    }
+
+private:
+
+    PointData&          PD;
+    ObservationData&    OD;
+    GNU_gama::Ellipsoid EL;
+    double              latitude;
+    EllipsoidFunction   EF;
+    ObsMap              reduced;
+};
+
+}
+} // namespace GNU_gama::local
 
 #endif

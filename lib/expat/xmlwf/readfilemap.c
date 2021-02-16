@@ -53,47 +53,53 @@ your version of this file under either the MPL or the GPL.
 #endif
 
 int filemap(const char *name,
-	    void (*processor)(const void *, size_t, const char *, void *arg),
-	    void *arg)
+            void (*processor)(const void *, size_t, const char *, void *arg),
+            void *arg)
 {
-  size_t nbytes;
-  int fd;
-  int n;
-  struct stat sb;
-  void *p;
+    size_t nbytes;
+    int fd;
+    int n;
+    struct stat sb;
+    void *p;
 
-  fd = open(name, O_RDONLY|O_BINARY);
-  if (fd < 0) {
-    perror(name);
-    return 0;
-  }
-  if (fstat(fd, &sb) < 0) {
-    perror(name);
-    return 0;
-  }
-  if (!S_ISREG(sb.st_mode)) {
-    fprintf(stderr, "%s: not a regular file\n", name);
-    return 0;
-  }
-  nbytes = sb.st_size;
-  p = malloc(nbytes);
-  if (!p) {
-    fprintf(stderr, "%s: out of memory\n", name);
-    return 0;
-  }
-  n = read(fd, p, nbytes);
-  if (n < 0) {
-    perror(name);
+    fd = open(name, O_RDONLY|O_BINARY);
+    if (fd < 0)
+    {
+        perror(name);
+        return 0;
+    }
+    if (fstat(fd, &sb) < 0)
+    {
+        perror(name);
+        return 0;
+    }
+    if (!S_ISREG(sb.st_mode))
+    {
+        fprintf(stderr, "%s: not a regular file\n", name);
+        return 0;
+    }
+    nbytes = sb.st_size;
+    p = malloc(nbytes);
+    if (!p)
+    {
+        fprintf(stderr, "%s: out of memory\n", name);
+        return 0;
+    }
+    n = read(fd, p, nbytes);
+    if (n < 0)
+    {
+        perror(name);
+        close(fd);
+        return 0;
+    }
+    if (n != nbytes)
+    {
+        fprintf(stderr, "%s: read unexpected number of bytes\n", name);
+        close(fd);
+        return 0;
+    }
+    processor(p, nbytes, name, arg);
+    free(p);
     close(fd);
-    return 0;
-  }
-  if (n != nbytes) {
-    fprintf(stderr, "%s: read unexpected number of bytes\n", name);
-    close(fd);
-    return 0;
-  }
-  processor(p, nbytes, name, arg);
-  free(p);
-  close(fd);
-  return 1;
+    return 1;
 }
